@@ -1,26 +1,180 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --color-ink: #080808;
+  --color-charcoal: #111111;
+  --color-ivory: #f2ede4;
+  --color-gold: #c6a25a;
+  --color-gold-muted: #917647;
+  --color-warm-gray: #77716a;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-ink: var(--color-ink);
+  --color-charcoal: var(--color-charcoal);
+  --color-ivory: var(--color-ivory);
+  --color-gold: var(--color-gold);
+  --color-gold-muted: var(--color-gold-muted);
+  --color-warm-gray: var(--color-warm-gray);
+
+  --font-display: var(--font-fraunces);
+  --font-sans: var(--font-manrope);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-delay: 0ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .grain-overlay {
+    display: none;
   }
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-ink);
+  color: var(--color-ivory);
+  font-family: var(--font-sans);
+}
+
+::selection {
+  background: var(--color-gold);
+  color: var(--color-ink);
+}
+
+.font-display {
+  font-family: var(--font-display);
+}
+
+.skip-link {
+  position: absolute;
+  left: 1rem;
+  top: -4rem;
+  z-index: 100;
+  background: var(--color-gold);
+  color: var(--color-ink);
+  padding: 0.75rem 1.25rem;
+  border-radius: 0.25rem;
+  font-weight: 600;
+  transition: top 0.2s ease;
+}
+
+.skip-link:focus {
+  top: 1rem;
+}
+
+.link-draw {
+  background-image: linear-gradient(currentColor, currentColor);
+  background-repeat: no-repeat;
+  background-position: 0% 100%;
+  background-size: 0% 1px;
+  transition: background-size 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.link-draw:hover,
+.link-draw:focus-visible {
+  background-size: 100% 1px;
+}
+
+/* Custom scrollbar */
+html {
+  scrollbar-color: var(--color-gold-muted) var(--color-ink);
+  scrollbar-width: thin;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-ink);
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--color-gold-muted);
+  border-radius: 999px;
+  border: 2px solid var(--color-ink);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--color-gold);
+}
+
+/* Film-grain texture, sits above everything, never intercepts input */
+.grain-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  opacity: 0.045;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  animation: grain-shift 1s steps(4) infinite;
+}
+
+@keyframes grain-shift {
+  0% { transform: translate(0, 0); }
+  25% { transform: translate(-2%, 2%); }
+  50% { transform: translate(2%, -1%); }
+  75% { transform: translate(-1%, -2%); }
+  100% { transform: translate(0, 0); }
+}
+
+/* Brand preloader — pure CSS so it degrades safely without JS */
+.preloader {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-ink);
+  pointer-events: none;
+  animation: preloader-fade 0.6s ease forwards;
+  animation-delay: 0.7s;
+}
+
+.preloader-mark {
+  animation: preloader-mark-in 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes preloader-mark-in {
+  from {
+    opacity: 0;
+    transform: scale(0.85);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes preloader-fade {
+  from {
+    opacity: 1;
+    visibility: visible;
+  }
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+/* Marquee divider */
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee-scroll 28s linear infinite;
+}
+
+@keyframes marquee-scroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
 }
