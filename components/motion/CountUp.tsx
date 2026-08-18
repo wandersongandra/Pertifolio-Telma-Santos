@@ -18,6 +18,12 @@ export function CountUp({ to, from = 0, duration = 1.4, className }: CountUpProp
     const node = ref.current;
     if (!node || !isInView) return;
 
+    // The DOM/SSR fallback renders the correct final value (see below) so
+    // no-JS and pre-hydration reads never show the decoy starting number.
+    // Only once JS is confirmed running and about to animate do we drop
+    // back to `from` as the visual starting point.
+    node.textContent = from.toString();
+
     const controls = animate(from, to, {
       duration,
       ease: [0.22, 1, 0.36, 1],
@@ -31,7 +37,7 @@ export function CountUp({ to, from = 0, duration = 1.4, className }: CountUpProp
 
   return (
     <span ref={ref} className={className}>
-      {from}
+      {to}
     </span>
   );
 }
