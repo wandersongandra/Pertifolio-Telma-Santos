@@ -108,8 +108,8 @@ export function EditorialPhoto({
       className={cn("relative overflow-hidden", cropStyle.aspect, className)}
     >
       <motion.div
-        className={parallax ? "absolute -inset-y-[8%] inset-x-0" : "absolute inset-0"}
-        style={parallax ? { y } : undefined}
+        className="absolute inset-0"
+        style={parallax ? { y, scale: 1.15 } : undefined}
       >
         <Image
           src={photo.src}
