@@ -1,12 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { motion } from "motion/react";
 import { siteData, whatsappPhone, contactEmail } from "@/content/site-data";
 import { buildMailtoLink, buildWhatsAppLink } from "@/lib/whatsapp";
-import { Reveal } from "@/components/motion/Reveal";
-import { MagneticButton } from "@/components/motion/MagneticButton";
-import { Kicker } from "@/components/ui/Kicker";
 import { cn } from "@/lib/utils";
 
 export function Contato() {
@@ -30,107 +26,133 @@ export function Contato() {
       id="contato"
       className="relative pt-32 pb-24 md:pt-40 md:pb-32 bg-charcoal/60 [clip-path:polygon(0_5vw,100%_0,100%_100%,0_100%)]"
     >
-      <div className="mx-auto max-w-2xl px-6 md:px-10 text-center">
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-10% 0px -10% 0px" }}
-          transition={{ duration: 0.5 }}
-        >
-          <Kicker className="mb-5">{contato.eyebrow}</Kicker>
-        </motion.div>
-        <motion.h2
-          initial={{ clipPath: "inset(0 100% 0 0)" }}
-          whileInView={{ clipPath: "inset(0 0% 0 0)" }}
-          viewport={{ once: true, margin: "-10% 0px -10% 0px" }}
-          transition={{ duration: 0.8, delay: 0.1, ease: [0.65, 0, 0.35, 1] }}
-          className="font-display text-4xl sm:text-5xl md:text-6xl leading-[1.05] text-ivory mb-6 text-balance"
-        >
-          {contato.heading}
-        </motion.h2>
-        <Reveal>
-          <p className="text-lg text-ivory/80 leading-relaxed mx-auto max-w-md mb-10">
-            {contato.intro}
-          </p>
+      <div className="mx-auto max-w-7xl px-6 md:px-10">
+        <div className="lg:grid lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] lg:gap-x-[clamp(48px,5vw,96px)]">
+          <div className="mb-16 lg:mb-0">
+            <p className="text-[13px] font-semibold uppercase tracking-[0.2em] text-gold">
+              {contato.eyebrow}
+            </p>
 
-          <div className="space-y-6 mx-auto max-w-md text-left">
+            <h2 className="mt-6 font-display text-[clamp(56px,5.5vw,88px)] leading-[0.95] tracking-[-0.035em] text-ivory">
+              <span className="block">Vamos construir </span>
+              <span className="block">novos caminhos </span>
+              <span className="block">para a Educação.</span>
+            </h2>
+
+            <p className="mt-8 max-w-[520px] text-[clamp(18px,1.25vw,21px)] leading-[1.6] text-ivory/70">
+              {contato.intro}
+            </p>
+
+            <div className="mt-12">
+              <p className="font-display text-xl md:text-2xl text-ivory">{siteData.meta.name}</p>
+              <p className="mt-1.5 text-[12px] md:text-[13px] uppercase tracking-[0.16em] text-gold-muted">
+                {siteData.hero.kicker}
+              </p>
+            </div>
+
+            <ul className="mt-10 flex flex-wrap gap-x-8 gap-y-3">
+              {contato.channels
+                .filter((channel) => channel.type === "instagram" || channel.type === "linkedin")
+                .map((channel) => (
+                  <li key={channel.type}>
+                    <a
+                      href={channel.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="link-draw pb-0.5 text-sm text-ivory/70 hover:text-gold transition-colors"
+                    >
+                      {channel.label} · {channel.value}
+                    </a>
+                  </li>
+                ))}
+            </ul>
+          </div>
+
+          <div className="xl:border-l xl:border-ivory/[0.08] xl:pl-14 lg:pt-16">
             <div>
-              <label htmlFor="contato-nome" className="block text-sm text-warm-gray mb-2">
-                Seu nome (opcional)
+              <label
+                htmlFor="contato-nome"
+                className="block text-[13px] font-semibold uppercase tracking-[0.16em]"
+              >
+                <span className="text-gold">01</span>{" "}
+                <span className="text-ivory/80">— Como posso chamar você?</span>
               </label>
-              <motion.input
+              <input
                 id="contato-nome"
                 type="text"
                 value={name}
                 onChange={(event) => setName(event.target.value)}
-                whileFocus={{ scale: 1.01, borderColor: "var(--color-gold)" }}
-                transition={{ duration: 0.2 }}
-                className="w-full bg-transparent border border-warm-gray/40 rounded-sm px-4 py-3 text-ivory placeholder:text-warm-gray/60 focus:outline-none"
-                placeholder="Nome"
+                autoComplete="name"
+                className="mt-3 w-full max-w-[620px] border-0 border-b border-ivory/20 bg-transparent px-0 py-3 text-[clamp(18px,1.15vw,21px)] text-ivory transition-colors duration-200 placeholder:text-ivory/40 focus:border-gold focus:outline-none"
+                placeholder="Seu nome (opcional)"
               />
             </div>
 
-            <fieldset>
-              <legend className="block text-sm text-warm-gray mb-3">Interesse</legend>
-              <div className="flex flex-wrap gap-2">
-                {contato.interests.map((option) => (
-                  <button
-                    key={option}
-                    type="button"
-                    onClick={() => setInterest(option)}
-                    aria-pressed={interest === option}
-                    className={cn(
-                      "px-4 py-2 text-xs font-semibold tracking-wide uppercase rounded-sm border transition-colors",
-                      interest === option
-                        ? "bg-gold text-ink border-gold"
-                        : "border-warm-gray/40 text-ivory/80 hover:border-gold hover:text-gold"
-                    )}
-                  >
-                    {option}
-                  </button>
-                ))}
+            <fieldset className="mt-10">
+              <legend className="text-[13px] font-semibold uppercase tracking-[0.16em]">
+                <span className="text-gold">02</span>{" "}
+                <span className="text-ivory/80">— Sobre o que vamos conversar?</span>
+              </legend>
+              <div className="mt-4 grid grid-cols-1 gap-x-8 [@media(min-width:480px)]:grid-cols-2">
+                {contato.interests.map((option, index) => {
+                  const selected = interest === option;
+                  const optionId = `contato-interesse-${index}`;
+                  return (
+                    <label
+                      key={option}
+                      htmlFor={optionId}
+                      className={cn(
+                        "group relative flex min-h-11 cursor-pointer items-baseline gap-3 py-2 text-[16px] transition-colors duration-200 has-[:focus-visible]:outline has-[:focus-visible]:outline-1 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-gold/60",
+                        selected ? "text-ivory" : "text-ivory/55 hover:text-ivory/80"
+                      )}
+                    >
+                      <span
+                        aria-hidden="true"
+                        className={cn(
+                          "inline-block w-[1.1em] shrink-0 font-display text-gold transition-opacity duration-200",
+                          selected ? "opacity-100" : "opacity-0"
+                        )}
+                      >
+                        —
+                      </span>
+                      <span>{option}</span>
+                      <input
+                        id={optionId}
+                        type="radio"
+                        name="contato-interesse"
+                        value={option}
+                        checked={selected}
+                        onChange={() => setInterest(option)}
+                        className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+                      />
+                    </label>
+                  );
+                })}
               </div>
             </fieldset>
 
-            <div className="flex flex-col sm:flex-row gap-4 pt-2">
-              <MagneticButton>
-                <a
-                  href={whatsappHref}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gold text-ink text-sm font-semibold tracking-wide uppercase rounded-sm hover:bg-ivory transition-colors"
-                >
-                  Chamar no WhatsApp
-                </a>
-              </MagneticButton>
-              <MagneticButton>
+            <div className="mt-10">
+              <a
+                href={whatsappHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex w-full items-center justify-center gap-3 bg-gold px-8 py-4 text-ink text-sm font-semibold tracking-[0.08em] transition-all duration-200 hover:-translate-y-0.5 hover:bg-gold-light sm:w-auto"
+              >
+                Conversar pelo WhatsApp <span aria-hidden="true">→</span>
+              </a>
+
+              <p className="mt-6 text-ivory/70">
+                Prefere e-mail?{" "}
                 <a
                   href={mailtoHref}
-                  className="inline-flex items-center justify-center gap-2 px-6 py-3 border border-gold text-gold text-sm font-semibold tracking-wide uppercase rounded-sm hover:bg-gold hover:text-ink transition-colors"
+                  className="link-draw pb-0.5 text-ivory transition-colors hover:text-gold"
                 >
-                  Enviar e-mail
+                  Enviar mensagem <span aria-hidden="true">→</span>
                 </a>
-              </MagneticButton>
+              </p>
             </div>
           </div>
-
-          <ul className="mt-12 flex flex-wrap justify-center gap-x-8 gap-y-3">
-            {contato.channels
-              .filter((channel) => channel.type === "instagram" || channel.type === "linkedin")
-              .map((channel) => (
-                <li key={channel.type}>
-                  <a
-                    href={channel.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="link-draw pb-0.5 text-ivory/70 hover:text-gold transition-colors"
-                  >
-                    {channel.label} · {channel.value}
-                  </a>
-                </li>
-              ))}
-          </ul>
-        </Reveal>
+        </div>
       </div>
     </section>
   );
