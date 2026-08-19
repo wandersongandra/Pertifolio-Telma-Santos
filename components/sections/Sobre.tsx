@@ -1,10 +1,10 @@
 import { siteData } from "@/content/site-data";
 import { Reveal } from "@/components/motion/Reveal";
-import { CountUp } from "@/components/motion/CountUp";
 import { CurtainReveal } from "@/components/motion/CurtainReveal";
 import { TiltCard } from "@/components/motion/TiltCard";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { EditorialPhoto } from "@/components/media/EditorialPhoto";
+import { AboutTimeline } from "@/components/sections/AboutTimeline";
 
 export function Sobre() {
   const { sobre } = siteData;
@@ -22,23 +22,6 @@ export function Sobre() {
                 </p>
               ))}
             </div>
-            <dl className="mt-10 grid grid-cols-1 sm:grid-cols-3 gap-6 border-t border-warm-gray/20 pt-8">
-              {sobre.quickFacts.map((fact) => {
-                const asNumber = /^\d+$/.test(fact.label) ? Number(fact.label) : null;
-                return (
-                  <div key={fact.label}>
-                    <dt className="font-display text-lg text-gold mb-1 tabular-nums">
-                      {asNumber !== null ? (
-                        <CountUp to={asNumber} from={asNumber - 20} />
-                      ) : (
-                        fact.label
-                      )}
-                    </dt>
-                    <dd className="text-sm text-ivory/70">{fact.value}</dd>
-                  </div>
-                );
-              })}
-            </dl>
           </Reveal>
         </div>
         <Reveal delay={0.1} className="order-1 md:order-2">
@@ -47,13 +30,19 @@ export function Sobre() {
               <EditorialPhoto
                 photoId="blue-blazer-macbook"
                 variant="natural"
-                crop="portrait-full"
+                crop="portrait-editorial"
                 sizes="(min-width: 768px) 40vw, 85vw"
                 parallax
+                fade="bottom"
               />
             </CurtainReveal>
           </TiltCard>
         </Reveal>
+      </div>
+      <div className="mx-auto max-w-7xl px-6 md:px-10 mt-20 lg:mt-24">
+        <div className="border-t border-ivory/10 pt-12 lg:pt-16">
+          <AboutTimeline items={sobre.quickFacts} />
+        </div>
       </div>
     </section>
   );

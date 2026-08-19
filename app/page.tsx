@@ -22,7 +22,7 @@ export default function Home() {
       <Trajetoria />
       <AreasDeAtuacao />
       <FormacaoContinuada />
-      <Marquee words={siteData.hero.scratchWords} />
+      <Marquee words={siteData.hero.keywords} />
       <AssessoriaPedagogica />
       <Oficinas />
       <Palestras />

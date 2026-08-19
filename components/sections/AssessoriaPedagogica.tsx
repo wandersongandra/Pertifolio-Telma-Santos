@@ -1,9 +1,6 @@
 "use client";
 
-import { motion } from "motion/react";
 import { siteData } from "@/content/site-data";
-import { Reveal } from "@/components/motion/Reveal";
-import { StaggerGroup, staggerItem } from "@/components/motion/StaggerGroup";
 import { Kicker } from "@/components/ui/Kicker";
 
 export function AssessoriaPedagogica() {
@@ -12,55 +9,33 @@ export function AssessoriaPedagogica() {
   return (
     <section className="py-24 md:py-32">
       <div className="mx-auto max-w-4xl px-6 md:px-10">
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-10% 0px -10% 0px" }}
-          transition={{ duration: 0.5 }}
-        >
-          <Kicker className="mb-4">{assessoriaPedagogica.eyebrow}</Kicker>
-        </motion.div>
+        <Kicker className="mb-4">{assessoriaPedagogica.eyebrow}</Kicker>
         <div className="flex flex-wrap items-baseline gap-x-4 gap-y-2 mb-6">
-          <motion.h2
-            initial={{ clipPath: "inset(0 100% 0 0)" }}
-            whileInView={{ clipPath: "inset(0 0% 0 0)" }}
-            viewport={{ once: true, margin: "-10% 0px -10% 0px" }}
-            transition={{ duration: 0.8, delay: 0.1, ease: [0.65, 0, 0.35, 1] }}
-            className="font-display text-3xl sm:text-4xl md:text-5xl text-ivory"
-          >
+          <h2 className="font-display text-3xl sm:text-4xl md:text-5xl leading-[1.1] text-ivory text-balance">
             {assessoriaPedagogica.heading}
-          </motion.h2>
-          <motion.span
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true, margin: "-10% 0px -10% 0px" }}
-            transition={{ duration: 0.5, delay: 0.6 }}
-            className="text-gold font-semibold tracking-wide"
-          >
+          </h2>
+          <span className="text-sm md:text-base font-semibold tracking-[0.15em] text-gold">
             {assessoriaPedagogica.period}
-          </motion.span>
+          </span>
         </div>
-        <Reveal>
-          <p className="text-lg text-ivory/80 leading-relaxed max-w-2xl mb-10">
-            {assessoriaPedagogica.summary}
-          </p>
-        </Reveal>
-        <StaggerGroup
-          as="ul"
-          staggerDelay={0.06}
-          className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4"
-        >
-          {assessoriaPedagogica.capabilities.map((capability) => (
-            <motion.li
+        <p className="text-[clamp(18px,1.3vw,22px)] leading-[1.55] text-ivory/80 max-w-[760px] mb-10 md:mb-12">
+          {assessoriaPedagogica.summary}
+        </p>
+        <ol className="grid grid-cols-1 md:grid-cols-2 gap-x-20">
+          {assessoriaPedagogica.capabilities.map((capability, index) => (
+            <li
               key={capability}
-              variants={staggerItem}
-              className="flex items-start gap-3 text-ivory/90"
+              className="flex items-baseline gap-4 border-b border-ivory/10 py-6 md:py-7"
             >
-              <span aria-hidden="true" className="mt-1.5 h-1.5 w-1.5 rounded-full bg-gold shrink-0" />
-              {capability}
-            </motion.li>
+              <p className="shrink-0 text-[11px] font-semibold tracking-[0.18em] text-gold">
+                {String(index + 1).padStart(2, "0")}
+              </p>
+              <h3 className="text-[clamp(18px,1.35vw,24px)] font-medium leading-[1.3] text-ivory">
+                {capability}
+              </h3>
+            </li>
           ))}
-        </StaggerGroup>
+        </ol>
       </div>
     </section>
   );

@@ -11,6 +11,7 @@ export interface TimelineEntry {
   title: string;
   organization?: string;
   location?: string;
+  meta?: string;
   description: string;
 }
 
@@ -34,6 +35,7 @@ export interface DialogueTheme {
 export interface AreaOfPractice {
   id: "formacao" | "assessoria" | "oficinas" | "palestras" | "dialogos";
   label: string;
+  title: string;
   description: string;
 }
 
@@ -60,22 +62,22 @@ export interface SiteData {
   nav: { label: string; href: string }[];
   hero: {
     kicker: string;
-    heading: string[];
-    subheading: string;
+    rotatingHeadlines: string[];
+    paragraph: string;
     ctaLabel: string;
     ctaHref: string;
-    scratchWords: string[];
-    hint: { desktop: string; mobile: string };
+    keywords: string[];
   };
   manifesto: {
     eyebrow: string;
     paragraphs: string[];
+    highlights: string[][];
   };
   sobre: {
     eyebrow: string;
     heading: string;
     paragraphs: string[];
-    quickFacts: { label: string; value: string }[];
+    quickFacts: { title: string; value: string }[];
   };
   trajetoria: TimelineEntry[];
   areasDeAtuacao: AreaOfPractice[];
@@ -152,12 +154,18 @@ export const siteData: SiteData = {
   ],
 
   hero: {
-    kicker: "Formadora Educacional",
-    heading: ["Telma", "Santos"],
-    subheading: "Educação, formação e práticas pedagógicas que transformam.",
+    kicker: "Formadora Educacional • Consultora • Palestrante",
+    rotatingHeadlines: [
+      "Presença que deixa marcas.",
+      "Educação que inspira.",
+      "Conhecimento que transforma.",
+      "Experiências que despertam.",
+    ],
+    paragraph:
+      "Telma Santos transforma conhecimento em experiências que despertam pessoas, fortalecem educadores e deixam marcas que vão além da sala de aula.",
     ctaLabel: "Conheça minha trajetória",
     ctaHref: "#trajetoria",
-    scratchWords: [
+    keywords: [
       "PROFESSORA",
       "FORMADORA",
       "COORDENADORA",
@@ -166,10 +174,6 @@ export const siteData: SiteData = {
       "EDUCAÇÃO",
       "TRANSFORMAÇÃO",
     ],
-    hint: {
-      desktop: "Mova para revelar",
-      mobile: "Toque e arraste",
-    },
   },
 
   manifesto: {
@@ -177,6 +181,10 @@ export const siteData: SiteData = {
     paragraphs: [
       "A escola é um espaço de transformação — e a prática pedagógica, quando conduzida com intencionalidade e sensibilidade, é o que sustenta essa transformação no dia a dia da sala de aula.",
       "Há mais de duas décadas, Telma Santos atua na Educação com um percurso construído entre a sala de aula, a formação de professores e a gestão pedagógica — sempre a serviço da aprendizagem e do sucesso escolar de todos.",
+    ],
+    highlights: [
+      ["espaço de transformação", "intencionalidade e sensibilidade"],
+      ["mais de duas décadas", "sucesso escolar de todos"],
     ],
   },
 
@@ -188,12 +196,9 @@ export const siteData: SiteData = {
       "Sua atuação é pautada pelo fortalecimento das práticas docentes, pelo acompanhamento pedagógico próximo das equipes escolares e pela defesa de uma educação inclusiva, íntegra e comprometida com a aprendizagem de todos.",
     ],
     quickFacts: [
-      { label: "2001", value: "Início da trajetória profissional" },
-      { label: "Letras + Pedagogia", value: "Formação acadêmica" },
-      {
-        label: "Atuação",
-        value: "Formação de professores, assessoria, gestão e palestras",
-      },
+      { title: "2001", value: "Início da trajetória profissional" },
+      { title: "Formação", value: "Letras + Pedagogia" },
+      { title: "Atuação", value: "Formação de professores, assessoria, gestão e palestras" },
     ],
   },
 
@@ -263,32 +268,35 @@ export const siteData: SiteData = {
     {
       id: "formacao",
       label: "Formação",
+      title: "Formação continuada de professores",
       description:
-        "Formação continuada de professores — do PNAIC ao Pacto Estadual pela Alfabetização e às soluções educacionais do Instituto Ayrton Senna.",
+        "Do PNAIC ao Pacto Estadual pela Alfabetização e às soluções educacionais do Instituto Ayrton Senna.",
     },
     {
       id: "assessoria",
       label: "Assessoria",
+      title: "Assessoria pedagógica a redes municipais",
       description:
-        "Assessoria pedagógica a redes municipais: organização curricular, análise de indicadores e intervenções estratégicas.",
+        "Organização curricular, análise de indicadores e intervenções estratégicas.",
     },
     {
       id: "oficinas",
       label: "Oficinas",
-      description:
-        "Espaços de construção e reconstrução do fazer pedagógico, unindo teoria, prática e experimentação.",
+      title: "Espaços de construção e reconstrução do fazer pedagógico",
+      description: "Unindo teoria, prática e experimentação.",
     },
     {
       id: "palestras",
       label: "Palestras",
+      title: "Temas que aprofundam, atualizam e mobilizam",
       description:
-        "Temas que aprofundam, atualizam e mobilizam profissionais da Educação em torno das políticas e práticas pedagógicas.",
+        "Profissionais da Educação em torno das políticas e práticas pedagógicas.",
     },
     {
       id: "dialogos",
       label: "Diálogos",
-      description:
-        "Encontros formativos de escuta e reflexão coletiva sobre o planejamento, a avaliação e o cotidiano escolar.",
+      title: "Encontros formativos de escuta e reflexão coletiva",
+      description: "Sobre o planejamento, a avaliação e o cotidiano escolar.",
     },
   ],
 
@@ -300,20 +308,22 @@ export const siteData: SiteData = {
     items: [
       {
         id: "pnaic",
-        title: "Formadora do PNAIC",
-        location: "Caraíbas/BA",
+        title: "PNAIC",
+        meta: "Formadora • Caraíbas/BA",
         description:
           "Formadora do Pacto Nacional pela Alfabetização na Idade Certa (PNAIC) no município de Caraíbas/BA.",
       },
       {
         id: "pacto-estadual",
-        title: "Formadora do Pacto Estadual pela Alfabetização",
+        title: "Pacto Estadual pela Alfabetização",
+        meta: "Formadora",
         description:
           "Atuação como formadora no Pacto Estadual pela Alfabetização.",
       },
       {
         id: "solucoes-ayrton-senna",
-        title: "Formadora das soluções educacionais do Instituto Ayrton Senna",
+        title: "Instituto Ayrton Senna",
+        meta: "Formação de professores",
         description:
           "Formação de professores no âmbito das soluções educacionais do Instituto Ayrton Senna.",
       },
@@ -328,10 +338,10 @@ export const siteData: SiteData = {
       "Planejamento e execução de assessorias pedagógicas a redes municipais, com acompanhamento próximo das equipes escolares.",
     capabilities: [
       "Organização curricular",
-      "Fortalecimento das práticas de ensino",
       "Análise de indicadores educacionais",
-      "Intervenções pedagógicas",
       "Apoio técnico às equipes escolares",
+      "Fortalecimento das práticas de ensino",
+      "Intervenções pedagógicas",
       "Melhoria da aprendizagem",
     ],
   },

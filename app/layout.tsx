@@ -6,7 +6,6 @@ import { logo } from "@/lib/photos";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { SmoothScroll } from "@/components/motion/SmoothScroll";
-import { CursorGlow } from "@/components/motion/CursorGlow";
 import { ScrollProgress } from "@/components/motion/ScrollProgress";
 import { BackToTop } from "@/components/motion/BackToTop";
 import "./globals.css";
@@ -50,7 +49,6 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body className="min-h-full flex flex-col bg-ink text-ivory">
         <SmoothScroll>
-          <CursorGlow />
           <ScrollProgress />
           <div aria-hidden="true" className="grain-overlay" />
           <div aria-hidden="true" className="preloader">
