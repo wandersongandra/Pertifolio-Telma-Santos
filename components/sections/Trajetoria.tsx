@@ -28,12 +28,18 @@ export function Trajetoria() {
   const byId = new Map(siteData.trajetoria.map((entry) => [entry.id, entry]));
 
   const items = GROUPS.flatMap((group) =>
-    group.ids.map((id, indexInGroup) => ({
-      entry: byId.get(id)!,
-      group,
-      firstInGroup: indexInGroup === 0,
-      lastInGroup: indexInGroup === group.ids.length - 1,
-    }))
+    group.ids
+      .map((id, indexInGroup) => {
+        const entry = byId.get(id);
+        if (!entry) return null;
+        return {
+          entry,
+          group,
+          firstInGroup: indexInGroup === 0,
+          lastInGroup: indexInGroup === group.ids.length - 1,
+        };
+      })
+      .filter((item): item is NonNullable<typeof item> => item !== null)
   );
   const lastIndex = items.length - 1;
 

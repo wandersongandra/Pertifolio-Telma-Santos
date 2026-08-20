@@ -5,11 +5,11 @@ import {
   animate,
   motion,
   useInView,
-  useReducedMotion,
   type AnimationPlaybackControls,
   type Variants,
 } from "motion/react";
 import { siteData, type AreaOfPractice } from "@/content/site-data";
+import { useReducedMotion } from "@/lib/useReducedMotion";
 import { Kicker } from "@/components/ui/Kicker";
 import { cn } from "@/lib/utils";
 

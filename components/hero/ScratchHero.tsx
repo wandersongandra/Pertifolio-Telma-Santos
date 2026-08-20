@@ -7,7 +7,7 @@ import { siteData } from "@/content/site-data";
 import { photos } from "@/lib/photos";
 import { Button } from "@/components/ui/Button";
 import { MagneticButton } from "@/components/motion/MagneticButton";
-import { useReducedMotion } from "./useReducedMotion";
+import { useReducedMotion } from "@/lib/useReducedMotion";
 import { TypingHeadline } from "./TypingHeadline";
 
 export function ScratchHero() {
@@ -96,7 +96,7 @@ export function ScratchHero() {
         className="pointer-events-none absolute bottom-6 left-1/2 -translate-x-1/2 hidden flex-col items-center gap-2 sm:flex"
       >
         <span className="text-[10px] tracking-[0.25em] uppercase text-ivory/50">
-          Role
+          Rolar
         </span>
         <motion.svg
           animate={reducedMotion ? undefined : { y: [0, 6, 0] }}

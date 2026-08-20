@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
-import { useReducedMotion } from "./useReducedMotion";
+import { useReducedMotion } from "@/lib/useReducedMotion";
 
 const TYPE_DELAY_MIN = 45;
 const TYPE_DELAY_MAX = 65;

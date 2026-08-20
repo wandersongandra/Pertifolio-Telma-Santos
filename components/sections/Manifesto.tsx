@@ -3,7 +3,7 @@
 import { Fragment, useMemo, useRef, type ReactNode } from "react";
 import { motion, useScroll, useTransform, type MotionValue } from "motion/react";
 import { siteData } from "@/content/site-data";
-import { useReducedMotion } from "@/components/hero/useReducedMotion";
+import { useReducedMotion } from "@/lib/useReducedMotion";
 import { Kicker } from "@/components/ui/Kicker";
 import { LineReveal, HighlightWord } from "@/components/motion/LineReveal";
 import {

@@ -5,7 +5,7 @@ import Link from "next/link";
 import { motion } from "motion/react";
 import { useLenis } from "lenis/react";
 import { siteData } from "@/content/site-data";
-import { useReducedMotion } from "@/components/hero/useReducedMotion";
+import { useReducedMotion } from "@/lib/useReducedMotion";
 
 const PANEL_EASE = [0.76, 0, 0.24, 1] as const;
 const LINK_EASE = [0.22, 1, 0.36, 1] as const;
@@ -178,7 +178,7 @@ export function SiteMenu({ open, onClose, triggerRef }: SiteMenuProps) {
                         ref={index === 0 ? firstLinkRef : undefined}
                         href={item.href}
                         onClick={onClose}
-                        aria-current={isActive ? "true" : undefined}
+                        aria-current={isActive ? "page" : undefined}
                         className="group flex min-h-11 items-baseline gap-4 py-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-gold"
                       >
                         <span

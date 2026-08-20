@@ -61,11 +61,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
               priority
             />
           </div>
-          <a href="#top" className="skip-link">
+          <a href="#main-content" className="skip-link">
             Pular para o conteúdo principal
           </a>
           <Header />
-          <main className="flex-1">{children}</main>
+          <main id="main-content" className="flex-1">{children}</main>
           <Footer />
           <BackToTop />
         </SmoothScroll>
