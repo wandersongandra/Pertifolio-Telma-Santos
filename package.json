@@ -6,6 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "preview:headers": "node scripts/serve-with-headers.mjs",
     "lint": "eslint"
   },
   "dependencies": {

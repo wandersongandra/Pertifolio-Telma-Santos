@@ -84,97 +84,28 @@ Linha do tempo editorial apresentando diferentes etapas da carreira, incluindo a
 
 ---
 
-### Formação Continuada
-
-Apresentação de experiências relacionadas à formação de professores e programas educacionais.
-
-Entre elas:
-
-* PNAIC;
-* Pacto Estadual pela Alfabetização;
-* Instituto Ayrton Senna.
-
----
-
 ### Áreas de Atuação
 
-Experiência interativa dedicada aos principais campos de atuação profissional:
+Núcleo interativo da página e onde vive a maior parte do conteúdo profissional.
+Uma lista vertical de abas controla um painel único, no padrão ARIA
+`tablist` / `tab` / `tabpanel` (navegável por setas, Home e End):
 
-1. Formação
-2. Assessoria
-3. Oficinas
-4. Palestras
-5. Diálogos
+| # | Aba | Conteúdo do painel |
+|---|---|---|
+| 01 | Formação Educacional | Linha do tempo: PNAIC, Pacto Estadual pela Alfabetização, Instituto Ayrton Senna |
+| 02 | Assessoria Pedagógica | Período 2021—2024, resumo e 6 frentes de trabalho |
+| 03 | Oficinas Pedagógicas | 7 oficinas |
+| 04 | Palestras Educacionais | 7 palestras |
+| 05 | Diálogos Formativos | Contador e índice denso com 20 temas formativos |
 
-A seção utiliza navegação editorial vertical e transições de conteúdo controladas.
+Cada aba renderiza um dos três layouts de painel definidos em
+`components/sections/AreaDetailPanel.tsx` (`timeline`, `list` e `dense`),
+escolhidos pelo campo `detail.layout` de cada área em `content/site-data.ts`.
 
----
-
-### Assessoria Pedagógica
-
-Apresentação da atuação junto às redes municipais de Educação, incluindo:
-
-* organização curricular;
-* análise de indicadores;
-* apoio técnico;
-* fortalecimento das práticas de ensino;
-* intervenções pedagógicas;
-* melhoria da aprendizagem.
-
----
-
-### Oficinas
-
-Coleção editorial de oficinas e experiências formativas, incluindo temas relacionados à:
-
-* BNCC;
-* ludicidade;
-* família e escola;
-* Educação de Jovens e Adultos;
-* sequência didática;
-* jogos no ensino da Matemática.
-
----
-
-### Palestras
-
-Catálogo editorial com temas de palestras direcionadas à formação e mobilização de profissionais da Educação.
-
----
-
-### Diálogos Formativos
-
-Índice editorial com **20 temas formativos**, estruturado para facilitar a leitura de um grande repertório de assuntos sem transformar a experiência em uma interface tradicional de cards.
-
-A seção trabalha conceitos como:
-
-* planejamento;
-* gestão escolar;
-* políticas educacionais;
-* alfabetização;
-* avaliação;
-* BNCC;
-* inclusão;
-* Educação Integral;
-* EJA;
-* organização do trabalho pedagógico.
-
----
-
-### Formação Acadêmica
-
-Apresentação das formações acadêmicas da Telma.
-
-#### Graduação
-
-* Letras
-* Pedagogia
-
-#### Pós-graduação
-
-* Literatura
-* Língua Portuguesa
-* Psicopedagogia
+**Links diretos para uma aba.** Antes essas cinco eram seções soltas, com
+âncoras próprias. Os hashes antigos continuam válidos: `#formacao`,
+`#assessoria`, `#oficinas`, `#palestras` e `#dialogos` rolam até a seção e
+abrem a aba correspondente.
 
 ---
 
@@ -279,103 +210,157 @@ O projeto utiliza a infraestrutura de animação existente para transições e m
 
 ---
 
-##  Estrutura conceitual
+##  Estrutura do projeto
 
 ```text
 app/
-├── page.tsx
-├── layout.tsx
-└── ...
+├── layout.tsx           # <html>, metadata, fontes, Header/Footer, SmoothScroll
+├── page.tsx             # ordem das seções da home
+├── not-found.tsx        # 404 em português
+├── privacidade/         # Política de Privacidade
+├── termos/              # Termos de Uso
+├── manifest.ts          # PWA manifest
+├── robots.ts            # robots.txt (bloqueia deploys de preview)
+├── sitemap.ts           # sitemap.xml
+└── globals.css          # tokens de design e utilitários
 
 components/
-├── sections/
-│   ├── Hero
-│   ├── Sobre
-│   ├── Trajetoria
-│   ├── FormacaoContinuada
-│   ├── AreasDeAtuacao
-│   ├── Assessoria
-│   ├── Oficinas
-│   ├── Palestras
-│   ├── DialogosFormativos
-│   ├── FormacaoAcademica
+├── sections/            # uma seção da página por arquivo
+│   ├── Hero · Manifesto · Sobre · Trajetoria
+│   ├── AreasDeAtuacao   # as abas
+│   ├── AreaDetailPanel  # layouts de painel: timeline | list | dense
 │   └── Contato
-│
-├── media/
-├── ui/
-└── ...
+├── layout/              # Header, Footer, SiteMenu, LegalPage
+├── hero/ · media/ · motion/ · ui/
 
 content/
-└── site-data
+└── site-data.ts         # TODO o conteúdo textual do site
+
+lib/
+├── site-url.ts          # resolve a URL pública do site
+├── photos.ts · whatsapp.ts · utils.ts · useReducedMotion.ts
 
 public/
-└── telma/
-    └── portraits/
+├── _headers             # headers de segurança e cache (Cloudflare Pages)
+└── telma/               # retratos, logo e ícones
+
+scripts/
+└── serve-with-headers.mjs   # serve out/ aplicando public/_headers
 ```
 
-> A estrutura acima representa a organização conceitual do projeto. Consulte o código-fonte para verificar a estrutura atual completa.
+### Onde editar o conteúdo
+
+**Todo texto do site vive em `content/site-data.ts`.** Componentes não têm
+texto fixo: alterar uma frase, uma palestra ou um item da trajetória é editar
+esse arquivo, e os tipos no topo dele descrevem o formato de cada bloco. As
+duas exceções são as páginas legais (`app/privacidade` e `app/termos`), cujo
+texto corrido está no próprio arquivo da página.
 
 ---
 
 ##  Desenvolvimento local
 
-Clone o projeto e instale as dependências:
+Requer **Node.js 20+** (o Next 16 não roda em versões anteriores).
 
 ```bash
 npm install
+npm run dev          # http://localhost:3000
 ```
 
-Execute o ambiente de desenvolvimento:
+### Comandos
 
-```bash
-npm run dev
+| Comando | O que faz |
+|---|---|
+| `npm run dev` | Servidor de desenvolvimento com hot reload. |
+| `npm run build` | Build de produção. Gera o export estático em `out/`. |
+| `npm run preview:headers` | Serve `out/` **aplicando `public/_headers`**. Use para testar o CSP. |
+| `npm run lint` | ESLint. |
+| `npx tsc --noEmit` | Checagem de tipos. |
+
+> `npm run start` existe por padrão do Next, mas **não serve para este projeto**:
+> com `output: "export"` não há servidor Next em produção. Para ver o build
+> real, use `npm run preview:headers`.
+
+---
+
+##  Variáveis de ambiente
+
+Nenhuma é obrigatória para desenvolver. Em produção existe uma:
+
+| Variável | Onde | Para quê |
+|---|---|---|
+| `NEXT_PUBLIC_SITE_URL` | Painel do Cloudflare Pages → Settings → Environment variables | URL pública do site. Alimenta `sitemap.xml`, `robots.txt`, as URLs canônicas e as imagens de OpenGraph. |
+| `CF_PAGES_URL` | Injetada automaticamente pelo Cloudflare Pages | Usada como fallback quando a de cima não existe. |
+| `CF_PAGES_BRANCH` | Injetada automaticamente pelo Cloudflare Pages | Identifica deploys de preview, que o `robots.ts` marca como não indexáveis. |
+
+A resolução está em [`lib/site-url.ts`](lib/site-url.ts), nesta ordem:
+
+```
+NEXT_PUBLIC_SITE_URL  →  CF_PAGES_URL  →  http://localhost:3000
 ```
 
-A aplicação estará disponível normalmente em:
-
-```text
-http://localhost:3000
-```
+> **Enquanto não houver domínio próprio**, `NEXT_PUBLIC_SITE_URL` fica sem
+> definir e o site se publica com o endereço `.pages.dev` do deployment. Isso é
+> intencional: um sitemap apontando para um domínio que não resolve é pior do
+> que um apontando para o endereço real. **Ao registrar o domínio definitivo,
+> defina `NEXT_PUBLIC_SITE_URL` no painel** — não é preciso mexer no código.
 
 ---
 
 ##  Validação
 
-Antes de uma entrega ou publicação, o projeto pode ser validado utilizando:
+Antes de publicar:
 
 ```bash
-npm run lint
+npx tsc --noEmit                    # tipos
+npm run lint                        # lint
+npm run build                       # o build precisa passar
+npm run preview:headers             # e o CSP precisa não quebrar a página
+npm audit --omit=dev                # dependências que chegam ao navegador
 ```
 
-```bash
-npx tsc --noEmit
-```
+Com o `preview:headers` rodando, abra `http://localhost:4321` e confira no
+console do navegador: **nenhum erro "Refused to ..."** e a página hidratada (as
+abas de Áreas de Atuação respondem ao clique). Vale repetir em `/privacidade`,
+`/termos` e numa URL inexistente.
 
-```bash
-npm run build
-```
-
-Essas verificações ajudam a garantir:
-
-* qualidade estática;
-* consistência de tipos;
-* integridade do build;
-* ausência de regressões críticas.
+O procedimento completo, com o que já foi verificado e quando, está em
+[SECURITY.md](SECURITY.md).
 
 ---
 
 ##  Deploy
 
-O projeto é compatível com ambientes capazes de executar aplicações Next.js.
+**Cloudflare Pages, conectado ao repositório no GitHub.**
 
-Para produção, deve-se garantir:
+| | |
+|---|---|
+| Repositório | `wandersongandra/Pertifolio-Telma-Santos` |
+| Branch de produção | `master` |
+| Comando de build | `npm run build` |
+| Diretório de saída | `out` |
 
-* build de produção aprovado;
-* variáveis de ambiente corretamente configuradas, quando aplicável;
-* HTTPS;
-* otimização dos assets;
-* validação dos links externos;
-* revisão responsiva final.
+Publicar é **fazer merge em `master` e dar push** — o Cloudflare detecta o push
+e roda o build sozinho. Não há workflow do GitHub Actions nem `wrangler.toml`
+neste repositório; toda a configuração vive no painel do Cloudflare.
+
+Qualquer outra branch enviada ao GitHub gera um **deploy de preview** com URL
+própria. Esses previews servem um `robots.txt` com `Disallow: /`, para não
+concorrerem com a produção nos buscadores (ver `app/robots.ts`).
+
+### O que vai junto no deploy
+
+`public/_headers` é copiado para `out/_headers` pelo build e é lido pelo
+Cloudflare Pages — é ele que aplica CSP, HSTS e as regras de cache. **Ele não
+tem efeito em `next dev`**, por isso o `npm run preview:headers`.
+
+### Checklist de publicação
+
+1. Rodar a seção **Validação** acima.
+2. Merge em `master` e push.
+3. Acompanhar o build no painel do Cloudflare Pages.
+4. Conferir no site publicado: menu a partir de `/privacidade`, uma URL
+   inexistente (404 em português) e `/sitemap.xml` com o domínio correto.
 
 ---
 
@@ -407,6 +392,26 @@ O projeto busca manter boas práticas como:
 * controles semanticamente apropriados;
 * áreas clicáveis adequadas;
 * suporte a redução de movimento.
+
+---
+
+##  Segurança
+
+O site é um export estático: **não há backend, banco de dados, autenticação,
+formulário com POST, cookie ou analytics**, e nenhum recurso de terceiros é
+carregado — nem fontes, que o `next/font` auto-hospeda no build.
+
+O que protege o que resta são os headers em
+[`public/_headers`](public/_headers), aplicados pelo Cloudflare Pages: CSP
+travado em `'self'`, HSTS, `frame-ancestors 'none'`, `nosniff`,
+`Referrer-Policy`, `Cross-Origin-Opener-Policy` e `Permissions-Policy`
+desligando câmera, microfone, geolocalização, pagamento e USB.
+
+**[SECURITY.md](SECURITY.md)** detalha cada controle, explica as duas
+limitações conhecidas (`'unsafe-inline'` em `script-src`, obrigatório num export
+estático, e o `preload` do HSTS) e traz os comandos para reverificar tudo — CSP
+contra o build real, `npm audit`, varredura de origens externas no bundle e
+checagem de segredos versionados.
 
 ---
 
