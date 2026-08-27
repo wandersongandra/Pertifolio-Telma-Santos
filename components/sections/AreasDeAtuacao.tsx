@@ -400,7 +400,7 @@ export function AreasDeAtuacao() {
           </motion.h2>
         </motion.header>
 
-        <div className="mt-16 grid grid-cols-1 gap-12 lg:mt-20 lg:grid-cols-[minmax(360px,0.8fr)_minmax(520px,1.2fr)] lg:gap-x-16">
+        <div className="mt-16 grid grid-cols-1 gap-12 lg:mt-20 lg:grid-cols-[minmax(360px,0.9fr)_minmax(480px,1.1fr)] lg:gap-x-16">
           <motion.div
             role="tablist"
             aria-label="Áreas de atuação"
@@ -439,24 +439,24 @@ export function AreasDeAtuacao() {
                     {String(index + 1).padStart(2, "0")}
                   </span>
                   {/*
-                    Os cinco rotulos sao todos "Substantivo Adjetivo", mas so
-                    alguns cabem numa linha na largura da coluna ("Oficinas
-                    Pedagogicas" cabe, "Assessoria Pedagogica" nao). Deixar a
-                    quebra por conta do navegador produz uma lista irregular,
-                    com itens de uma e de duas linhas alternando. Quebrar
-                    sempre entre as palavras da a mesma altura a todos os
-                    itens em qualquer largura, e ecoa o "Areas de / Atuacao"
-                    do titulo da secao. O espaco no fim de cada palavra fica
-                    no DOM de proposito: sem ele o nome acessivel do botao
-                    viraria "FormacaoEducacional".
+                    Cada rotulo ocupa exatamente uma linha. Com a quebra
+                    automatica a lista saia irregular: "Oficinas Pedagogicas" e
+                    "Dialogos Formativos" cabiam numa linha e os outros tres
+                    nao, entao a altura dos itens alternava.
+                    O `whitespace-nowrap` sozinho estouraria a coluna, entao o
+                    corpo foi calibrado contra a largura real disponivel para o
+                    texto (a coluna menos o numero e o recuo). Medindo o rotulo
+                    mais largo, "Palestras Educacionais", a linha ocupa cerca de
+                    10,2x o corpo da fonte.
+                    Sao duas escalas porque a largura disponivel cai de golpe no
+                    `lg`, quando a lista deixa de ocupar a tela inteira e vira
+                    uma coluna do grid: abaixo o corpo acompanha a tela (5.4vw,
+                    de 18px a 26px), acima acompanha a coluna (2.3vw, de 23px a
+                    36px). Ao mexer no corpo, na `grid-cols` ou ao entrar um
+                    rotulo mais longo, remeça: a folga aqui e de poucos pixels.
                   */}
-                  <span className="font-display text-[clamp(26px,2.6vw,40px)] font-normal leading-[1.08] tracking-[-0.02em]">
-                    {area.label.split(" ").map((word, wordIndex, words) => (
-                      <span key={word} className="block">
-                        {word}
-                        {wordIndex < words.length - 1 ? " " : ""}
-                      </span>
-                    ))}
+                  <span className="whitespace-nowrap font-display text-[clamp(18px,5.4vw,26px)] font-normal leading-[1.15] tracking-[-0.02em] lg:text-[clamp(23px,2.3vw,36px)]">
+                    {area.label}
                   </span>
                 </motion.button>
               );
