@@ -4,11 +4,11 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "next build && node scripts/flatten-segment-prefetch.mjs",
     "start": "next start",
     "preview:headers": "node scripts/serve-with-headers.mjs",
     "lint": "eslint",
-    "deploy": "next build && wrangler pages deploy out --project-name=telma-santos --branch=main"
+    "deploy": "npm run build && wrangler pages deploy out --project-name=telma-santos --branch=main"
   },
   "dependencies": {
     "clsx": "^2.1.1",

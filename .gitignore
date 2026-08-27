@@ -42,3 +42,9 @@ next-env.d.ts
 
 # original source photos (unorganized originals, kept as a local backup)
 /_source-assets
+
+# playwright mcp scratch output
+/.playwright-mcp/
+
+# one-off local asset scripts (icons/webp/optimizacao)
+/_tmp-*.mjs

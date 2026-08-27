@@ -343,7 +343,7 @@ GitHub** — dar push no repositório *não* publica nada.
 | Endereço de produção | https://telma-santos.pages.dev |
 | Branch de produção **no Cloudflare** | `main` |
 | Branch do repositório | `master` |
-| Build | roda nesta máquina (`next build` → `out/`) |
+| Build | roda nesta máquina (`npm run build` → `out/`) |
 
 Para publicar:
 
@@ -351,8 +351,14 @@ Para publicar:
 npm run deploy
 ```
 
-Que é `next build` seguido de
+Que é `npm run build` seguido de
 `wrangler pages deploy out --project-name=telma-santos --branch=main`.
+
+O `npm run build` é `next build` mais
+`node scripts/flatten-segment-prefetch.mjs` — **publique sempre pelo
+`npm run build`/`npm run deploy`, nunca pelo `next build` puro**, senão os
+payloads de prefetch das rotas internas voltam a dar 404. O porquê está em
+[`scripts/flatten-segment-prefetch.mjs`](scripts/flatten-segment-prefetch.mjs).
 
 > ### ⚠️ O `--branch=main` não é opcional
 >
