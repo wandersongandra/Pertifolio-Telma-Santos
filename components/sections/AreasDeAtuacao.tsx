@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useLayoutEffect, useRef, useState, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore } from "react";
 import {
   animate,
   motion,
@@ -8,9 +8,11 @@ import {
   type AnimationPlaybackControls,
   type Variants,
 } from "motion/react";
+import { useLenis } from "lenis/react";
 import { siteData, type AreaOfPractice } from "@/content/site-data";
 import { useReducedMotion } from "@/lib/useReducedMotion";
 import { Kicker } from "@/components/ui/Kicker";
+import { AreaDetailPanel } from "@/components/sections/AreaDetailPanel";
 import { cn } from "@/lib/utils";
 
 const INDICATOR_HEIGHT = 48;
@@ -54,13 +56,22 @@ function PanelContent({ area, index, compact }: { area: AreaOfPractice; index: n
           {area.title}
         </h3>
       </div>
-      <p
-        data-motion="desc"
+      {area.description && (
+        <p
+          data-motion="desc"
+          style={{ opacity: 0, transform: `translateY(${slideY}px)` }}
+          className="mt-7 max-w-[620px] text-[clamp(18px,1.4vw,22px)] leading-[1.55] text-ivory/70"
+        >
+          {area.description}
+        </p>
+      )}
+      <div
+        data-motion="detail"
         style={{ opacity: 0, transform: `translateY(${slideY}px)` }}
-        className="mt-7 max-w-[620px] text-[clamp(18px,1.4vw,22px)] leading-[1.55] text-ivory/70"
+        className="mt-14 border-t border-ivory/10 pt-12"
       >
-        {area.description}
-      </p>
+        <AreaDetailPanel detail={area.detail} />
+      </div>
     </>
   );
 }
@@ -71,6 +82,7 @@ export function AreasDeAtuacao() {
   const [renderedId, setRenderedId] = useState(areasDeAtuacao[0].id);
   const reduce = useReducedMotion();
   const compact = useIsCompact();
+  const lenis = useLenis();
 
   const sectionRef = useRef<HTMLElement>(null);
   const tablistRef = useRef<HTMLDivElement>(null);
@@ -116,6 +128,24 @@ export function AreasDeAtuacao() {
     },
     [reduce]
   );
+
+  // Panels differ hugely in height (4 oficinas vs 20 temas formativos), so
+  // collapsing to a shorter tab can leave the viewport parked past the whole
+  // section. Pull it back only when that actually happened. Held in a ref so
+  // it never widens the enter effect's dependency list — re-running that effect
+  // mid-transition cancels the in-flight exit animation (see the phase guard).
+  const keepSectionInView = useCallback(() => {
+    const section = sectionRef.current;
+    if (!section) return;
+    const rect = section.getBoundingClientRect();
+    if (rect.top >= 0 || rect.bottom > window.innerHeight) return;
+    if (lenis) lenis.scrollTo(section);
+    else section.scrollIntoView({ block: "start" });
+  }, [lenis]);
+  const keepSectionInViewRef = useRef(keepSectionInView);
+  useEffect(() => {
+    keepSectionInViewRef.current = keepSectionInView;
+  });
 
   const swapRendered = () => {
     phaseRef.current = "entering";
@@ -175,6 +205,39 @@ export function AreasDeAtuacao() {
     }
   };
 
+  // The five areas used to be standalone sections with their own anchors. They
+  // now live in this tab panel, so an incoming `#oficinas`-style hash has no
+  // element to jump to — resolve it to the matching tab instead.
+  const selectRef = useRef(select);
+  useEffect(() => {
+    selectRef.current = select;
+  });
+
+  useEffect(() => {
+    const applyHash = () => {
+      const hash = window.location.hash.slice(1);
+      const area = areasDeAtuacao.find((item) => item.id === hash);
+      if (!area) return;
+      if (enteredRef.current) {
+        selectRef.current(area.id);
+      } else {
+        targetRef.current = area.id;
+        setActiveId(area.id);
+        setRenderedId(area.id);
+      }
+      const section = sectionRef.current;
+      if (!section) return;
+      if (lenis) lenis.scrollTo(section);
+      else section.scrollIntoView({ block: "start" });
+    };
+    const raf = requestAnimationFrame(applyHash);
+    window.addEventListener("hashchange", applyHash);
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("hashchange", applyHash);
+    };
+  }, [areasDeAtuacao, lenis]);
+
   const handleKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>) => {
     const count = areasDeAtuacao.length;
     let next: number | null = null;
@@ -229,6 +292,8 @@ export function AreasDeAtuacao() {
     if (eyebrow) animate(eyebrow, { opacity: 1, y: 0 }, { duration: d(0.5), ease: CONTENT_EASE, delay: d(0.25) });
     if (headline) animate(headline, { y: 0 }, { duration: d(0.5), ease: CONTENT_EASE, delay: d(0.31) });
     if (desc) animate(desc, { opacity: 1, y: 0 }, { duration: d(0.5), ease: CONTENT_EASE, delay: d(0.38) });
+    const detail = panel.querySelector<HTMLElement>('[data-motion="detail"]');
+    if (detail) animate(detail, { opacity: 1, y: 0 }, { duration: d(0.5), ease: CONTENT_EASE, delay: d(0.45) });
     if (indicator && !reduce) {
       animate(indicator, { scaleY: [0, 1] }, { duration: 0.5, ease: CONTENT_EASE, delay: 0.35 });
     }
@@ -259,6 +324,10 @@ export function AreasDeAtuacao() {
     if (desc) {
       controls.push(animate(desc, { opacity: 1, y: 0 }, { duration: d(0.45), ease: CONTENT_EASE, delay: d(0.16) }));
     }
+    const detail = panel.querySelector<HTMLElement>('[data-motion="detail"]');
+    if (detail) {
+      controls.push(animate(detail, { opacity: 1, y: 0 }, { duration: d(0.45), ease: CONTENT_EASE, delay: d(0.22) }));
+    }
     const wrapper = panelWrapperRef.current;
     if (wrapper) {
       const pinned = wrapper.offsetHeight;
@@ -270,13 +339,18 @@ export function AreasDeAtuacao() {
           ease: HEIGHT_EASE,
           onComplete: () => {
             wrapper.style.height = "auto";
+            keepSectionInViewRef.current();
           },
         })
       );
     }
     seqRef.current = controls;
     return () => controls.forEach((control) => control.stop());
-  }, [renderedId, reduce, compact]);
+  // `compact` is deliberately not a dependency: the body never reads it, and
+  // re-running this effect mid-exit starts an enter animation on the same
+  // element, which cancels the exit without firing its onComplete — the swap is
+  // then lost and the panel stays stuck on the previous area.
+  }, [renderedId, reduce]);
 
   const sectionVariants: Variants = {
     hidden: {},
@@ -332,7 +406,7 @@ export function AreasDeAtuacao() {
             aria-label="Áreas de atuação"
             ref={tablistRef}
             variants={listVariants}
-            className="relative flex flex-col"
+            className="relative flex flex-col lg:sticky lg:top-28 lg:self-start"
           >
             <span
               ref={indicatorRef}
@@ -364,7 +438,7 @@ export function AreasDeAtuacao() {
                   <span className="w-7 shrink-0 text-[11px] font-semibold tracking-[0.18em] text-gold">
                     {String(index + 1).padStart(2, "0")}
                   </span>
-                  <span className="font-display text-[clamp(34px,3.2vw,56px)] font-normal leading-[1.05] tracking-[-0.025em]">
+                  <span className="font-display text-[clamp(26px,2.6vw,40px)] font-normal leading-[1.08] tracking-[-0.02em] text-balance">
                     {area.label}
                   </span>
                 </motion.button>

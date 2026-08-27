@@ -6,6 +6,7 @@ export const metadata: Metadata = {
   title: "Política de Privacidade | Telma Santos",
   description:
     "Política de Privacidade do portfólio profissional de Telma Santos — como as informações fornecidas pelo visitante são tratadas.",
+  alternates: { canonical: "/privacidade" },
 };
 
 const { contato } = siteData;
@@ -17,7 +18,7 @@ export default function PrivacidadePage() {
     <LegalPage
       eyebrow="Política de Privacidade"
       title="Política de Privacidade"
-      updatedAt="19 de agosto de 2026"
+      updatedAt="27 de agosto de 2026"
       intro={
         <>
           Esta política descreve como as informações fornecidas pelo visitante são tratadas

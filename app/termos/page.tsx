@@ -6,6 +6,7 @@ export const metadata: Metadata = {
   title: "Termos de Uso | Telma Santos",
   description:
     "Termos de Uso do portfólio profissional de Telma Santos — condições de uso do site e proteção do conteúdo.",
+  alternates: { canonical: "/termos" },
 };
 
 const { contato } = siteData;
@@ -17,7 +18,7 @@ export default function TermosPage() {
     <LegalPage
       eyebrow="Termos de Uso"
       title="Termos de Uso"
-      updatedAt="19 de agosto de 2026"
+      updatedAt="27 de agosto de 2026"
       intro={
         <>
           Estes termos descrevem as condições de utilização do site profissional de{" "}
@@ -30,10 +31,10 @@ export default function TermosPage() {
           title: "Finalidade do site",
           paragraphs: [
             <>
-              Este site tem finalidade institucional e informativa: apresentar a trajetória,
-              a formação e as áreas de atuação da Telma Santos, além de oferecer um canal de
-              contato para serviços educacionais, como formação, assessoria pedagógica,
-              oficinas, palestras e diálogos formativos.
+              Este site tem finalidade institucional e informativa: apresentar a trajetória
+              e as áreas de atuação da Telma Santos, além de oferecer um canal de contato
+              para serviços educacionais, como formação, assessoria pedagógica, oficinas,
+              palestras e diálogos formativos.
             </>,
           ],
         },
@@ -44,7 +45,7 @@ export default function TermosPage() {
               Os textos, fotografias, marca, identidade visual e demais materiais exibidos
               neste site são protegidos conforme a legislação aplicável, respeitados os
               direitos de seus respectivos titulares. A reprodução, distribuição ou uso
-              comercial de qualquer conteúdo sem autorização prévia é vedada.
+              comercial de qualquer conteúdo sem autorização prévia são vedados.
             </>,
             <>
               A menção a programas, políticas públicas, instituições e outras referências

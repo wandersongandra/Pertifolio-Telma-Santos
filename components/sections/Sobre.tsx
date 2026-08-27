@@ -4,7 +4,6 @@ import { CurtainReveal } from "@/components/motion/CurtainReveal";
 import { TiltCard } from "@/components/motion/TiltCard";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { EditorialPhoto } from "@/components/media/EditorialPhoto";
-import { AboutTimeline } from "@/components/sections/AboutTimeline";
 
 export function Sobre() {
   const { sobre } = siteData;
@@ -38,11 +37,6 @@ export function Sobre() {
             </CurtainReveal>
           </TiltCard>
         </Reveal>
-      </div>
-      <div className="mx-auto max-w-7xl px-6 md:px-10 mt-20 lg:mt-24">
-        <div className="border-t border-ivory/10 pt-12 lg:pt-16">
-          <AboutTimeline items={sobre.quickFacts} />
-        </div>
       </div>
     </section>
   );

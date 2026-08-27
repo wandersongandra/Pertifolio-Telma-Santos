@@ -12,7 +12,7 @@ interface TrajetoriaGroup {
 const GROUPS: TrajetoriaGroup[] = [
   { ids: ["inicio"] },
   { ids: ["instituto-ayrton-senna"] },
-  { label: "Coordenação", ids: ["coordenacao-ef", "coordenacao-eja"] },
+  { label: "Coordenação", ids: ["coordenacao-ef"] },
   {
     label: "Currículo e documentos",
     ids: ["referenciais-curriculares", "ppp-tremedal-caraibas", "orientacao-tecnica"],
@@ -24,7 +24,6 @@ const GROUPS: TrajetoriaGroup[] = [
 ];
 
 export function Trajetoria() {
-  const total = siteData.trajetoria.length;
   const byId = new Map(siteData.trajetoria.map((entry) => [entry.id, entry]));
 
   const items = GROUPS.flatMap((group) =>
@@ -42,6 +41,7 @@ export function Trajetoria() {
       .filter((item): item is NonNullable<typeof item> => item !== null)
   );
   const lastIndex = items.length - 1;
+  const total = items.length;
 
   return (
     <section id="trajetoria" className="py-24 md:py-32 bg-charcoal/40 border-y border-warm-gray/20">

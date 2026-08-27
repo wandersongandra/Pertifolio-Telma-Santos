@@ -11,15 +11,16 @@ export function Contato() {
   const [name, setName] = useState("");
 
   const message = useMemo(() => {
-    const base = contato.whatsappMessageTemplate.replace(
-      "{interesse}",
-      interest.toLowerCase()
-    );
+    const base = contato.whatsappMessageTemplate.replace("{interesse}", interest.phrase);
     return name.trim() ? `${base} Meu nome é ${name.trim()}.` : base;
   }, [contato.whatsappMessageTemplate, interest, name]);
 
   const whatsappHref = buildWhatsAppLink(whatsappPhone, message);
-  const mailtoHref = buildMailtoLink(contactEmail, `Contato via portfólio — ${interest}`, message);
+  const mailtoHref = buildMailtoLink(
+    contactEmail,
+    `Contato via portfólio — ${interest.label}`,
+    message
+  );
 
   return (
     <section
@@ -33,10 +34,8 @@ export function Contato() {
               {contato.eyebrow}
             </p>
 
-            <h2 className="mt-6 font-display text-[clamp(56px,5.5vw,88px)] leading-[0.95] tracking-[-0.035em] text-ivory">
-              <span className="block">Vamos construir </span>
-              <span className="block">novos caminhos </span>
-              <span className="block">para a Educação.</span>
+            <h2 className="mt-6 font-display text-[clamp(56px,5.5vw,88px)] leading-[0.95] tracking-[-0.035em] text-ivory text-balance">
+              {contato.heading}
             </h2>
 
             <p className="mt-8 max-w-[520px] text-[clamp(18px,1.25vw,21px)] leading-[1.6] text-ivory/70">
@@ -95,11 +94,11 @@ export function Contato() {
               </legend>
               <div className="mt-4 grid grid-cols-1 gap-x-8 [@media(min-width:480px)]:grid-cols-2">
                 {contato.interests.map((option, index) => {
-                  const selected = interest === option;
+                  const selected = interest.label === option.label;
                   const optionId = `contato-interesse-${index}`;
                   return (
                     <label
-                      key={option}
+                      key={option.label}
                       htmlFor={optionId}
                       className={cn(
                         "group relative flex min-h-11 cursor-pointer items-baseline gap-3 py-2 text-[16px] transition-colors duration-200 has-[:focus-visible]:outline has-[:focus-visible]:outline-1 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-gold/60",
@@ -115,12 +114,12 @@ export function Contato() {
                       >
                         —
                       </span>
-                      <span>{option}</span>
+                      <span>{option.label}</span>
                       <input
                         id={optionId}
                         type="radio"
                         name="contato-interesse"
-                        value={option}
+                        value={option.label}
                         checked={selected}
                         onChange={() => setInterest(option)}
                         className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
