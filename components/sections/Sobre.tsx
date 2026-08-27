@@ -3,7 +3,7 @@ import { Reveal } from "@/components/motion/Reveal";
 import { CurtainReveal } from "@/components/motion/CurtainReveal";
 import { TiltCard } from "@/components/motion/TiltCard";
 import { SectionHeading } from "@/components/ui/SectionHeading";
-import { EditorialPhoto } from "@/components/media/EditorialPhoto";
+import { RotatingEditorialPhoto } from "@/components/media/RotatingEditorialPhoto";
 
 export function Sobre() {
   const { sobre } = siteData;
@@ -26,10 +26,18 @@ export function Sobre() {
         <Reveal delay={0.1} className="order-1 md:order-2">
           <TiltCard strength={3} lift={0} className="max-w-md mx-auto">
             <CurtainReveal>
-              <EditorialPhoto
-                photoId="blue-blazer-macbook"
+              {/* As duas fotos "de trabalho" da sessao. Cada uma leva o seu
+                  proprio enquadramento: o zoom de 1.25 do portrait-editorial
+                  tira o corte bruto da base do retrato em pe, mas cortaria a
+                  borda esquerda do notebook na foto sentada, que por isso usa
+                  o portrait-continuada (1.06). Os retratos em pe estao no
+                  hero. */}
+              <RotatingEditorialPhoto
+                slides={[
+                  { photoId: "blue-blazer-macbook", crop: "portrait-editorial" },
+                  { photoId: "seated-laptop", crop: "portrait-continuada" },
+                ]}
                 variant="natural"
-                crop="portrait-editorial"
                 sizes="(min-width: 768px) 40vw, 85vw"
                 parallax
                 fade="bottom"
