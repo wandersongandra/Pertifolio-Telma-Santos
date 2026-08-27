@@ -1,17 +1,19 @@
-// The production domain is not defined yet, so there is deliberately no
-// hard-coded fallback here: shipping a sitemap, robots.txt, canonical URLs and
-// OpenGraph images that point at a domain which does not resolve is worse than
-// pointing them at the address the site is actually served from.
+// URL pública do site, usada em metadataBase, URLs canônicas, sitemap.xml,
+// robots.txt e nas imagens de OpenGraph.
 //
-// Resolution order:
-//   1. NEXT_PUBLIC_SITE_URL — set this once the real domain is live.
-//   2. CF_PAGES_URL — injected by Cloudflare Pages into every build; on a
-//      production deployment this is the project's .pages.dev address.
-//   3. localhost — only reached by `next build` run outside Pages.
+// O site é publicado por upload direto (`npm run deploy`), ou seja, o build
+// roda nesta máquina e não dentro do Cloudflare — então CF_PAGES_URL não existe
+// no momento do build. Por isso o último recurso é o endereço real de produção,
+// e não localhost: um sitemap apontando para localhost seria publicado.
 //
-// Only build-time code imports this (app/layout.tsx, app/sitemap.ts,
-// app/robots.ts), so a non-NEXT_PUBLIC variable is read correctly.
+// Ordem de resolução:
+//   1. NEXT_PUBLIC_SITE_URL — defina quando houver domínio próprio.
+//   2. CF_PAGES_URL — só existe se o build passar a rodar no Cloudflare
+//      (caso o projeto seja conectado ao git no futuro).
+//   3. PRODUCTION_URL — o endereço atual do projeto no Pages.
+const PRODUCTION_URL = "https://telma-santos.pages.dev";
+
 const resolved =
-  process.env.NEXT_PUBLIC_SITE_URL ?? process.env.CF_PAGES_URL ?? "http://localhost:3000";
+  process.env.NEXT_PUBLIC_SITE_URL ?? process.env.CF_PAGES_URL ?? PRODUCTION_URL;
 
 export const siteUrl = resolved.replace(/\/$/, "");
