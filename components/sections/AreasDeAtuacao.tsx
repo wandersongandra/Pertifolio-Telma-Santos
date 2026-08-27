@@ -438,8 +438,25 @@ export function AreasDeAtuacao() {
                   <span className="w-7 shrink-0 text-[11px] font-semibold tracking-[0.18em] text-gold">
                     {String(index + 1).padStart(2, "0")}
                   </span>
-                  <span className="font-display text-[clamp(26px,2.6vw,40px)] font-normal leading-[1.08] tracking-[-0.02em] text-balance">
-                    {area.label}
+                  {/*
+                    Os cinco rotulos sao todos "Substantivo Adjetivo", mas so
+                    alguns cabem numa linha na largura da coluna ("Oficinas
+                    Pedagogicas" cabe, "Assessoria Pedagogica" nao). Deixar a
+                    quebra por conta do navegador produz uma lista irregular,
+                    com itens de uma e de duas linhas alternando. Quebrar
+                    sempre entre as palavras da a mesma altura a todos os
+                    itens em qualquer largura, e ecoa o "Areas de / Atuacao"
+                    do titulo da secao. O espaco no fim de cada palavra fica
+                    no DOM de proposito: sem ele o nome acessivel do botao
+                    viraria "FormacaoEducacional".
+                  */}
+                  <span className="font-display text-[clamp(26px,2.6vw,40px)] font-normal leading-[1.08] tracking-[-0.02em]">
+                    {area.label.split(" ").map((word, wordIndex, words) => (
+                      <span key={word} className="block">
+                        {word}
+                        {wordIndex < words.length - 1 ? " " : ""}
+                      </span>
+                    ))}
                   </span>
                 </motion.button>
               );
