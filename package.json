@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "preview:headers": "node scripts/serve-with-headers.mjs",
-    "lint": "eslint"
+    "lint": "eslint",
+    "deploy": "next build && wrangler pages deploy out --project-name=telma-santos --branch=main"
   },
   "dependencies": {
     "clsx": "^2.1.1",
@@ -26,6 +27,7 @@
     "eslint-config-next": "16.3.1",
     "playwright": "^1.62.1",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "wrangler": "^4.127.0"
   }
 }

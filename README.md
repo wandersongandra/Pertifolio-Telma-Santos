@@ -274,6 +274,7 @@ npm run dev          # http://localhost:3000
 | `npm run dev` | Servidor de desenvolvimento com hot reload. |
 | `npm run build` | Build de produção. Gera o export estático em `out/`. |
 | `npm run preview:headers` | Serve `out/` **aplicando `public/_headers`**. Use para testar o CSP. |
+| `npm run deploy` | Build + publicação em produção no Cloudflare Pages. |
 | `npm run lint` | ESLint. |
 | `npx tsc --noEmit` | Checagem de tipos. |
 
@@ -285,25 +286,27 @@ npm run dev          # http://localhost:3000
 
 ##  Variáveis de ambiente
 
-Nenhuma é obrigatória para desenvolver. Em produção existe uma:
+Nenhuma é obrigatória: o build funciona sem configurar nada.
 
-| Variável | Onde | Para quê |
+| Variável | Quando existe | Para quê |
 |---|---|---|
-| `NEXT_PUBLIC_SITE_URL` | Painel do Cloudflare Pages → Settings → Environment variables | URL pública do site. Alimenta `sitemap.xml`, `robots.txt`, as URLs canônicas e as imagens de OpenGraph. |
-| `CF_PAGES_URL` | Injetada automaticamente pelo Cloudflare Pages | Usada como fallback quando a de cima não existe. |
-| `CF_PAGES_BRANCH` | Injetada automaticamente pelo Cloudflare Pages | Identifica deploys de preview, que o `robots.ts` marca como não indexáveis. |
+| `NEXT_PUBLIC_SITE_URL` | Se você definir | URL pública do site. Defina **quando houver domínio próprio**. |
+| `CF_PAGES_URL` / `CF_PAGES_BRANCH` | Só se o build passar a rodar dentro do Cloudflare | Hoje o build roda nesta máquina, então **não existem**. Ver "Deploy". |
 
-A resolução está em [`lib/site-url.ts`](lib/site-url.ts), nesta ordem:
+A resolução está em [`lib/site-url.ts`](lib/site-url.ts):
 
 ```
-NEXT_PUBLIC_SITE_URL  →  CF_PAGES_URL  →  http://localhost:3000
+NEXT_PUBLIC_SITE_URL  →  CF_PAGES_URL  →  https://telma-santos.pages.dev
 ```
 
-> **Enquanto não houver domínio próprio**, `NEXT_PUBLIC_SITE_URL` fica sem
-> definir e o site se publica com o endereço `.pages.dev` do deployment. Isso é
-> intencional: um sitemap apontando para um domínio que não resolve é pior do
-> que um apontando para o endereço real. **Ao registrar o domínio definitivo,
-> defina `NEXT_PUBLIC_SITE_URL` no painel** — não é preciso mexer no código.
+O último valor é o endereço real de produção, e não `localhost`, justamente
+porque o build acontece localmente: um fallback para localhost seria publicado
+dentro do `sitemap.xml`.
+
+Alimenta `metadataBase`, as URLs canônicas, `sitemap.xml`, `robots.txt` e as
+imagens de OpenGraph. **Ao registrar o domínio definitivo**, defina
+`NEXT_PUBLIC_SITE_URL` (ou troque a constante no arquivo) — nada mais precisa
+mudar.
 
 ---
 
@@ -331,22 +334,34 @@ O procedimento completo, com o que já foi verificado e quando, está em
 
 ##  Deploy
 
-**Cloudflare Pages, conectado ao repositório no GitHub.**
+**Cloudflare Pages, por upload direto.** O projeto **não está conectado ao
+GitHub** — dar push no repositório *não* publica nada.
 
 | | |
 |---|---|
-| Repositório | `wandersongandra/Pertifolio-Telma-Santos` |
-| Branch de produção | `master` |
-| Comando de build | `npm run build` |
-| Diretório de saída | `out` |
+| Projeto no Cloudflare | `telma-santos` |
+| Endereço de produção | https://telma-santos.pages.dev |
+| Branch de produção **no Cloudflare** | `main` |
+| Branch do repositório | `master` |
+| Build | roda nesta máquina (`next build` → `out/`) |
 
-Publicar é **fazer merge em `master` e dar push** — o Cloudflare detecta o push
-e roda o build sozinho. Não há workflow do GitHub Actions nem `wrangler.toml`
-neste repositório; toda a configuração vive no painel do Cloudflare.
+Para publicar:
 
-Qualquer outra branch enviada ao GitHub gera um **deploy de preview** com URL
-própria. Esses previews servem um `robots.txt` com `Disallow: /`, para não
-concorrerem com a produção nos buscadores (ver `app/robots.ts`).
+```bash
+npm run deploy
+```
+
+Que é `next build` seguido de
+`wrangler pages deploy out --project-name=telma-santos --branch=main`.
+
+> ### ⚠️ O `--branch=main` não é opcional
+>
+> O Cloudflare decide entre **Production** e **Preview** comparando a branch
+> informada com a branch de produção do projeto, que é `main`. Como este
+> repositório usa `master`, um `wrangler pages deploy` sem a flag envia o site
+> para **Preview** — ele fica numa URL de hash e a produção continua na versão
+> antiga, sem erro nenhum. Foi exatamente o que aconteceu com o deploy de
+> `5c5eb84`. O `npm run deploy` já embute a flag; use ele.
 
 ### O que vai junto no deploy
 
@@ -357,10 +372,22 @@ tem efeito em `next dev`**, por isso o `npm run preview:headers`.
 ### Checklist de publicação
 
 1. Rodar a seção **Validação** acima.
-2. Merge em `master` e push.
-3. Acompanhar o build no painel do Cloudflare Pages.
-4. Conferir no site publicado: menu a partir de `/privacidade`, uma URL
-   inexistente (404 em português) e `/sitemap.xml` com o domínio correto.
+2. `npm run deploy`.
+3. Confirmar que caiu em produção, e não em preview:
+   ```bash
+   npx wrangler pages deployment list --project-name=telma-santos
+   ```
+   A linha mais recente precisa dizer **Production**.
+4. Conferir no ar: menu a partir de `/privacidade`, uma URL inexistente (404 em
+   português) e `/sitemap.xml` com o endereço correto.
+
+### Se um dia conectar ao GitHub
+
+Só dá para fazer pelo painel do Cloudflare (o wrangler não configura
+integração git). A partir daí, `CF_PAGES_URL` e `CF_PAGES_BRANCH` passam a
+existir no build, o `app/robots.ts` começa a marcar previews como não
+indexáveis, e publicar volta a ser merge na branch de produção. Atenção ao
+descasamento `main` × `master`.
 
 ---
 

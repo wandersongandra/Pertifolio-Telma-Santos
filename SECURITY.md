@@ -90,6 +90,22 @@ clique). Vale testar `/`, `/privacidade`, `/termos` e uma URL inexistente.
 > Verificado em 27/08/2026 nas quatro páginas: zero violações de CSP, zero erros
 > de console, hidratação e abas funcionando.
 
+### 1b. Headers no site publicado
+
+Depois de publicar, confirme que os headers realmente saíram — se o
+`public/_headers` não tiver ido junto, o site fica sem nenhum deles e nada
+falha visivelmente:
+
+```bash
+curl -sI https://telma-santos.pages.dev/ | grep -iE "content-security|strict-transport|x-frame|cross-origin"
+```
+
+> Verificado em 27/08/2026 no deployment de produção `5d802a6f`: CSP,
+> HSTS, `X-Frame-Options: DENY`, `Cross-Origin-Opener-Policy: same-origin`,
+> `nosniff`, `Referrer-Policy` e `Permissions-Policy` todos presentes. O
+> `Cache-Control` de `/telma/*` respondeu `public, must-revalidate,
+> max-age=86400`, como esperado para arquivos sem hash no nome.
+
 ### 2. Vulnerabilidades em dependências
 
 ```bash
