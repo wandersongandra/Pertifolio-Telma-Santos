@@ -100,7 +100,7 @@ falha visivelmente:
 curl -sI https://telma-santos.pages.dev/ | grep -iE "content-security|strict-transport|x-frame|cross-origin"
 ```
 
-> Verificado em 27/08/2026 no deployment de produção `5d802a6f`: CSP,
+> Verificado em 27/08/2026 no deployment de produção `8c2cd43f`: CSP,
 > HSTS, `X-Frame-Options: DENY`, `Cross-Origin-Opener-Policy: same-origin`,
 > `nosniff`, `Referrer-Policy` e `Permissions-Policy` todos presentes. O
 > `Cache-Control` de `/telma/*` respondeu `public, must-revalidate,
