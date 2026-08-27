@@ -7,8 +7,15 @@ import { useLenis } from "lenis/react";
 import { siteData } from "@/content/site-data";
 import { useReducedMotion } from "@/lib/useReducedMotion";
 
-const PANEL_EASE = [0.76, 0, 0.24, 1] as const;
+// A abertura precisa deslocar o painel já no primeiro quadro depois do clique.
+// A curva ease-in-out anterior começava devagar: após 140 ms, o painel havia
+// percorrido apenas cerca de 5% do caminho e a tela parecia travada. A abertura
+// usa ease-out para responder rapidamente; o fechamento usa ease-in para sair
+// de forma progressiva.
+const PANEL_OPEN_EASE = "cubic-bezier(0.16, 1, 0.3, 1)";
+const PANEL_CLOSE_EASE = "cubic-bezier(0.7, 0, 0.84, 0)";
 const LINK_EASE = [0.22, 1, 0.36, 1] as const;
+const OVERLAY_EASE = "cubic-bezier(0.22, 1, 0.36, 1)";
 
 interface SiteMenuProps {
   open: boolean;
@@ -20,8 +27,9 @@ function useActiveSection(): string | null {
   const [active, setActive] = useState<string | null>(null);
 
   useEffect(() => {
-    // nav hrefs are route-absolute ("/#sobre") so they also work from the legal
-    // pages — the observed element id is the part after the hash.
+    // Os caminhos de navegação são absolutos ("/#sobre") para funcionarem também
+    // nas páginas legais. O elemento observado é identificado pela parte após o
+    // hash.
     const hrefById = new Map(
       siteData.nav
         .map((item) => [item.href.split("#")[1], item.href] as const)
@@ -110,18 +118,14 @@ export function SiteMenu({ open, onClose, triggerRef }: SiteMenuProps) {
     }
   };
 
-  const panelTransition = reducedMotion
-    ? { duration: 0.001 }
-    : { duration: open ? 0.7 : 0.55, ease: PANEL_EASE };
-  const overlayTransition = reducedMotion
-    ? { duration: 0.001 }
-    : { duration: 0.45, ease: LINK_EASE };
-
+  // A transição do painel e do backdrop é controlada pelo CSS para que o
+  // feedback do clique seja imediato. O escalonamento dos links permanece,
+  // mas sem adiar a leitura do conteúdo.
   const listVariants = reducedMotion
     ? { hidden: {}, visible: {} }
     : {
-        hidden: { transition: { staggerChildren: 0.03, staggerDirection: -1 } },
-        visible: { transition: { staggerChildren: 0.07, delayChildren: 0.2 } },
+        hidden: { transition: { staggerChildren: 0.02, staggerDirection: -1 } },
+        visible: { transition: { staggerChildren: 0.035, delayChildren: 0.05 } },
       };
 
   const itemVariants = reducedMotion
@@ -130,27 +134,27 @@ export function SiteMenu({ open, onClose, triggerRef }: SiteMenuProps) {
         visible: { opacity: 1, transition: { duration: 0.001 } },
       }
     : {
-        hidden: { opacity: 0, y: 8, transition: { duration: 0.18, ease: LINK_EASE } },
-        visible: { opacity: 1, y: 0, transition: { duration: 0.55, ease: LINK_EASE } },
+        hidden: { opacity: 0, y: 8, transition: { duration: 0.14, ease: LINK_EASE } },
+        visible: { opacity: 1, y: 0, transition: { duration: 0.28, ease: LINK_EASE } },
       };
 
   return (
     <>
-      <motion.div
+      <div
         aria-hidden="true"
-        className={`fixed inset-0 z-[45] bg-black/60 backdrop-blur-[2px] ${
-          open ? "" : "pointer-events-none"
+        // O desfoque cobria toda a janela e obrigava o navegador a rasterizar o
+        // conteúdo abaixo a cada quadro da animação. Com um fundo preto a 60%,
+        // os 2 px de desfoque quase não eram perceptíveis e custavam desempenho.
+        className={`fixed inset-0 z-[45] bg-black/60 transition-opacity ${
+          open ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"
         }`}
-        initial={false}
-        animate={
-          open
-            ? { opacity: 1, transitionEnd: { visibility: "visible" } }
-            : { opacity: 0, transitionEnd: { visibility: "hidden" } }
-        }
-        transition={overlayTransition}
+        style={{
+          transitionDuration: reducedMotion ? "1ms" : "250ms",
+          transitionTimingFunction: OVERLAY_EASE,
+        }}
         onClick={onClose}
       />
-      <motion.div
+      <div
         id="site-menu"
         ref={panelRef}
         role="dialog"
@@ -158,14 +162,18 @@ export function SiteMenu({ open, onClose, triggerRef }: SiteMenuProps) {
         aria-label="Menu de navegação"
         aria-hidden={open ? undefined : true}
         inert={!open}
-        className="fixed top-0 right-0 z-[48] h-dvh w-full flex-col overflow-y-auto border-l border-gold/15 bg-[#080808] sm:flex sm:w-[clamp(380px,32vw,520px)]"
-        initial={false}
-        animate={
-          open
-            ? { x: "0%", transitionEnd: { visibility: "visible" } }
-            : { x: "100%", transitionEnd: { visibility: "hidden" } }
-        }
-        transition={panelTransition}
+        className={`fixed top-0 right-0 z-[48] h-dvh w-full flex-col overflow-y-auto border-l border-gold/15 bg-[#080808] transition-transform will-change-transform sm:flex sm:w-[clamp(380px,32vw,520px)] ${
+          open ? "pointer-events-auto" : "pointer-events-none"
+        }`}
+        style={{
+          transform: open ? "translateX(0%)" : "translateX(100%)",
+          transitionDuration: reducedMotion ? "1ms" : `${open ? 380 : 300}ms`,
+          transitionTimingFunction: reducedMotion
+            ? "linear"
+            : open
+              ? PANEL_OPEN_EASE
+              : PANEL_CLOSE_EASE,
+        }}
         onKeyDown={handlePanelKeyDown}
       >
         <div className="flex min-h-full flex-col px-6 pt-24 pb-10 md:px-10">
@@ -244,7 +252,7 @@ export function SiteMenu({ open, onClose, triggerRef }: SiteMenuProps) {
             </ul>
           </div>
         </div>
-      </motion.div>
+      </div>
     </>
   );
 }

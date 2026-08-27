@@ -129,11 +129,12 @@ export function AreasDeAtuacao() {
     [reduce]
   );
 
-  // Panels differ hugely in height (4 oficinas vs 20 temas formativos), so
-  // collapsing to a shorter tab can leave the viewport parked past the whole
-  // section. Pull it back only when that actually happened. Held in a ref so
-  // it never widens the enter effect's dependency list — re-running that effect
-  // mid-transition cancels the in-flight exit animation (see the phase guard).
+  // Os painéis têm alturas muito diferentes (4 oficinas contra 20 temas
+  // formativos), então trocar para uma aba mais curta pode deixar a tela
+  // parada depois do fim da seção inteira. Só puxa de volta quando isso
+  // realmente aconteceu. Fica num ref para não entrar na lista de dependências
+  // do efeito de entrada: reexecutar aquele efeito no meio da transição
+  // cancela a animação de saída em curso (ver a proteção de fase).
   const keepSectionInView = useCallback(() => {
     const section = sectionRef.current;
     if (!section) return;
@@ -205,9 +206,9 @@ export function AreasDeAtuacao() {
     }
   };
 
-  // The five areas used to be standalone sections with their own anchors. They
-  // now live in this tab panel, so an incoming `#oficinas`-style hash has no
-  // element to jump to — resolve it to the matching tab instead.
+  // As cinco áreas já foram seções independentes, cada uma com sua âncora.
+  // Hoje elas vivem neste painel de abas, então um hash do tipo `#oficinas` não
+  // tem elemento para onde saltar — resolvemos para a aba correspondente.
   const selectRef = useRef(select);
   useEffect(() => {
     selectRef.current = select;
@@ -346,10 +347,10 @@ export function AreasDeAtuacao() {
     }
     seqRef.current = controls;
     return () => controls.forEach((control) => control.stop());
-  // `compact` is deliberately not a dependency: the body never reads it, and
-  // re-running this effect mid-exit starts an enter animation on the same
-  // element, which cancels the exit without firing its onComplete — the swap is
-  // then lost and the panel stays stuck on the previous area.
+  // `compact` está fora das dependências de propósito: o corpo do efeito nunca
+  // lê essa variável, e reexecutá-lo no meio da saída dispara uma animação de
+  // entrada no mesmo elemento, o que cancela a saída sem chamar o onComplete
+  // dela — a troca se perde e o painel fica preso na área anterior.
   }, [renderedId, reduce]);
 
   const sectionVariants: Variants = {
@@ -439,21 +440,22 @@ export function AreasDeAtuacao() {
                     {String(index + 1).padStart(2, "0")}
                   </span>
                   {/*
-                    Cada rotulo ocupa exatamente uma linha. Com a quebra
-                    automatica a lista saia irregular: "Oficinas Pedagogicas" e
-                    "Dialogos Formativos" cabiam numa linha e os outros tres
-                    nao, entao a altura dos itens alternava.
-                    O `whitespace-nowrap` sozinho estouraria a coluna, entao o
-                    corpo foi calibrado contra a largura real disponivel para o
-                    texto (a coluna menos o numero e o recuo). Medindo o rotulo
-                    mais largo, "Palestras Educacionais", a linha ocupa cerca de
-                    10,2x o corpo da fonte.
-                    Sao duas escalas porque a largura disponivel cai de golpe no
-                    `lg`, quando a lista deixa de ocupar a tela inteira e vira
-                    uma coluna do grid: abaixo o corpo acompanha a tela (5.4vw,
-                    de 18px a 26px), acima acompanha a coluna (2.3vw, de 23px a
+                    Cada rótulo ocupa exatamente uma linha. Com a quebra
+                    automática a lista saía irregular: "Oficinas Pedagógicas" e
+                    "Diálogos Formativos" cabiam numa linha e os outros três
+                    não, então a altura dos itens alternava.
+                    O `whitespace-nowrap` sozinho estouraria a coluna, então o
+                    corpo da fonte foi calibrado contra a largura realmente
+                    disponível para o texto (a coluna menos o número e o recuo).
+                    Medindo o rótulo mais largo, "Palestras Educacionais", a
+                    linha ocupa cerca de 10,2x o corpo da fonte.
+                    São duas escalas porque essa largura cai de golpe no `lg`,
+                    quando a lista deixa de ocupar a tela inteira e vira uma
+                    coluna do grid: abaixo o corpo acompanha a tela (5.4vw, de
+                    18px a 26px), acima acompanha a coluna (2.3vw, de 23px a
                     36px). Ao mexer no corpo, na `grid-cols` ou ao entrar um
-                    rotulo mais longo, remeça: a folga aqui e de poucos pixels.
+                    rótulo mais longo, refaça a medição: a folga aqui é de
+                    poucos pixels.
                   */}
                   <span className="whitespace-nowrap font-display text-[clamp(18px,5.4vw,26px)] font-normal leading-[1.15] tracking-[-0.02em] lg:text-[clamp(23px,2.3vw,36px)]">
                     {area.label}

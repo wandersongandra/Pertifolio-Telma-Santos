@@ -25,7 +25,11 @@ export function Button({
   target,
   rel,
 }: ButtonProps) {
-  const isExternal = href.startsWith("http") || href.startsWith("mailto:") || href.startsWith("tel:");
+  const isExternal = /^(?:https?:|mailto:|tel:)/i.test(href);
+  const externalRel =
+    target === "_blank"
+      ? [rel, "noopener", "noreferrer"].filter(Boolean).join(" ")
+      : rel;
 
   const classes = cn(
     "inline-flex items-center gap-2 px-6 py-3 text-sm font-semibold tracking-wide uppercase rounded-sm transition-[transform,background-color,box-shadow] duration-[250ms]",
@@ -35,7 +39,7 @@ export function Button({
 
   if (isExternal) {
     return (
-      <a href={href} className={classes} target={target} rel={rel}>
+      <a href={href} className={classes} target={target} rel={externalRel}>
         {children}
       </a>
     );

@@ -21,7 +21,8 @@ export interface AreaListItem {
   summary?: string;
 }
 
-/** Extra content rendered inside an area's tab panel, below its lead text. */
+/** Conteúdo extra renderizado dentro do painel de uma área, abaixo do texto
+ * de abertura. */
 export type AreaDetail =
   | { layout: "timeline"; items: TimelineEntry[] }
   | { layout: "list"; meta?: string; summary?: string; items: AreaListItem[] }
@@ -35,8 +36,8 @@ export interface AreaOfPractice {
   detail: AreaDetail;
 }
 
-/** `label` is what the visitor picks; `phrase` is how it reads inside the
- * contact message ("conversar sobre uma oficina", not "sobre oficina"). */
+/** `label` é o que o visitante escolhe; `phrase` é como aquilo aparece dentro
+ * da mensagem de contato ("conversar sobre uma oficina", não "sobre oficina"). */
 export interface ContactInterest {
   label: string;
   phrase: string;

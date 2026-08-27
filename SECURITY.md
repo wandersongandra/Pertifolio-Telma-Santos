@@ -170,3 +170,74 @@ Coisas conhecidas, deliberadamente não alteradas:
 
 Envie para o e-mail de contato publicado no site. Não abra issue pública para
 falhas de segurança.
+
+---
+
+## Auditoria de segurança desta revisão
+
+Data: 27/08/2026. Escopo: código-fonte, build estático, servidor local de
+pré-visualização, dependências e projeto Cloudflare Pages `telma-santos`.
+
+### SEC-001 — servidor de pré-visualização permitia escape de caminho
+
+- **Severidade:** média, limitada ao ambiente local de desenvolvimento.
+- **Localização:** `scripts/serve-with-headers.mjs`, função `resolveFile`.
+- **Evidência:** a implementação anterior validava o destino apenas com
+  `startsWith(path.resolve(OUT))`. Um caminho resolvido para uma pasta irmã cujo
+  nome começasse por `out` poderia passar nessa comparação.
+- **Impacto:** um processo de pré-visualização exposto à rede local poderia
+  tentar servir arquivos fora de `out`, inclusive arquivos do repositório.
+- **Correção:** a validação agora usa `path.relative` e rejeita destinos fora
+  da raiz, trata percent-encoding inválido com HTTP 400 e aceita somente GET e
+  HEAD.
+- **Verificação:** `/` respondeu 200; tentativa de `..` respondeu 404;
+  percent-encoding inválido respondeu 400; POST respondeu 405; HEAD não
+  transferiu o corpo.
+
+### SEC-002 — CSP estática ainda precisa de `unsafe-inline`
+
+- **Severidade:** média como hardening residual; não foi confirmada exploração
+  no site atual.
+- **Localização:** `public/_headers`, regra global `/*`.
+- **Evidência:** `script-src 'self' 'unsafe-inline'` e
+  `style-src 'self' 'unsafe-inline'` são necessários para o payload inline de
+  hidratação do RSC e os estilos inline gerados pelo Motion no export estático.
+- **Impacto:** se um XSS for introduzido futuramente, o CSP oferece menos
+  contenção para scripts inline do que uma política baseada em nonce ou hash.
+- **Situação:** mantido por compatibilidade. O código atual não renderiza HTML
+  não confiável, não usa sinks DOM perigosos e não carrega scripts de terceiros.
+- **Recomendação:** se o projeto passar a processar dados não confiáveis ou
+  exigir CSP estrita, migrar para renderização dinâmica com nonce ou validar a
+  estratégia experimental de SRI do Next em uma mudança isolada.
+
+### SEC-003 — CORS amplo acrescentado pelo Pages
+
+- **Severidade:** informativa no contexto atual.
+- **Localização:** resposta HTTP do projeto Pages, observada em 27/08/2026.
+- **Evidência:** o Cloudflare respondeu `Access-Control-Allow-Origin: *`.
+- **Impacto:** qualquer origem pode ler recursos públicos do site por
+  `fetch`; isso não expõe sessão, dados privados ou uma API porque o projeto é
+  somente estático e não define cookies ou endpoints de dados.
+- **Situação:** sem correção necessária para o conteúdo público atual.
+- **Recomendação:** restringir ou remover CORS caso o projeto passe a publicar
+  conteúdo privado ou uma API no mesmo domínio.
+
+### Resultado dos controles
+
+- `npm audit --omit=dev --audit-level=high`: 0 vulnerabilidades.
+- `npm audit --audit-level=high`: 0 vulnerabilidades.
+- O build passa e o export contém apenas as rotas e arquivos esperados; não há
+  `.env`, chave privada, token, endpoint de API, upload, cookie de sessão,
+  armazenamento web ou HTML inserido por string.
+- Os links externos usam `noopener noreferrer` quando abrem nova aba.
+- O projeto Pages existente está autenticado, usa o projeto
+  `telma-santos`, publica na branch `main` e entrega CSP, HSTS, proteção contra
+  framing, `nosniff`, política de referenciador, COOP e Permissions-Policy.
+
+### Limites da auditoria
+
+O código não contém configuração de DNS, WAF, regras de firewall, alertas,
+domínio personalizado ou permissões administrativas do painel Cloudflare.
+Esses controles permanecem dependentes da conta e foram verificados somente
+pelos comandos e respostas HTTP disponíveis neste ambiente. O token local do
+Wrangler não foi impresso nem alterado.

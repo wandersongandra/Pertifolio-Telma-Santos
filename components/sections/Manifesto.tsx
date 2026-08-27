@@ -125,13 +125,13 @@ export function Manifesto() {
   const sectionRef = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({
     target: sectionRef,
-    // Both ends are anchored to the section's *arrival*, not to its end. Tying
-    // the finish to "end" (the old ["start 0.72", "end 0.45"]) meant the closing
-    // lines only revealed once the section had scrolled past — and on a viewport
-    // shorter than the section that point never coincides with them being on
-    // screen, so the paragraph permanently looked cut off. Anchoring to "start"
-    // makes the text complete as the section settles into place, whatever the
-    // section and viewport heights are.
+    // As duas pontas são ancoradas na *chegada* da seção, não no fim dela.
+    // Amarrar o fim ao "end" (o antigo ["start 0.72", "end 0.45"]) fazia as
+    // últimas linhas só aparecerem depois que a seção já tinha passado — e numa
+    // viewport mais baixa que a seção esse ponto nunca coincide com elas
+    // estarem na tela, então o parágrafo ficava permanentemente cortado.
+    // Ancorando no "start", o texto se completa conforme a seção se acomoda,
+    // independente da altura da seção e da tela.
     offset: ["start 0.95", "start 0.05"],
   });
   const parallaxY = useTransform(scrollYProgress, [0, 1], [18, -14]);

@@ -1,7 +1,8 @@
 import type { MetadataRoute } from "next";
 import { siteUrl } from "@/lib/site-url";
 
-// `output: "export"` requires metadata routes to be statically generated.
+// Com `output: "export"` as rotas de metadados precisam ser geradas
+// estaticamente.
 export const dynamic = "force-static";
 
 const LAST_MODIFIED = new Date("2026-08-27");

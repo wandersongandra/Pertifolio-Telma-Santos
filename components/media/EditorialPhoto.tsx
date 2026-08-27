@@ -22,8 +22,9 @@ interface CropStyle {
   scale: string;
   origin: string;
   scaleFactor: number;
-  /** Optional parallax overrides — some crops carry their own zoom and need a
-   * gentler drift (or none at all) to keep the subject inside the frame. */
+  /** Ajustes opcionais de parallax. Alguns enquadramentos já têm o seu próprio
+   * zoom e precisam de uma deriva mais contida (ou nenhuma) para não empurrar
+   * a pessoa para fora do quadro. */
   parallaxFrom?: string;
   parallaxTo?: string;
   parallaxScale?: number;
@@ -44,12 +45,13 @@ const CROP_STYLES: Record<Crop, CropStyle> = {
     origin: "",
     scaleFactor: 1,
   },
-  // The source PNGs are cut mid-subject at the very bottom edge of the file
-  // (laptop/arms reach y=100%). Showing the full frame puts that raw cut on
-  // the container's edge. Zooming in anchors the top (face stays, headroom
-  // preserved), pushes the cut out of frame, and with the bottom fade the
-  // photo dissolves into the section background instead of ending in a hard
-  // line. Drift is reduced to ±4% so the head never leaves the window.
+  // Os originais terminam cortando a pessoa rente à borda de baixo do arquivo
+  // (notebook e braços chegam a y=100%). Mostrar o quadro inteiro joga esse
+  // corte cru bem na borda do container. O zoom ancora o topo (o rosto fica,
+  // o respiro acima é preservado), empurra o corte para fora do quadro, e com
+  // o esmaecimento da base a foto se dissolve no fundo da seção em vez de
+  // terminar numa linha dura. A deriva cai para ±4% para a cabeça nunca sair
+  // da janela.
   "portrait-editorial": {
     aspect: "aspect-[3/4]",
     position: "object-[50%_0%]",
@@ -60,14 +62,14 @@ const CROP_STYLES: Record<Crop, CropStyle> = {
     parallaxTo: "4%",
     parallaxScale: 1,
   },
-  // Formação Continuada — the seated-laptop source has the same raw bottom
-  // cut, but its subject is ~92% of the source width and its widest band
-  // (the laptop, at ~58% height) reaches x=2.6%, so any zoom beyond ~1.06
-  // clips the laptop's left edge. 1.06 pushes the bottom cut out of frame
-  // (window bottom at 94.3% vs the cut at ~100%) while keeping the laptop
-  // margin. Drift is ±3%: the worst-case window top (2.8%) stays below the
-  // face top (4%) and the worst-case window bottom (97.2%) never reaches
-  // the source cut. The wrapper scale stays 1 — no nested transforms.
+  // A foto sentada tem o mesmo corte cru na base, mas a pessoa ocupa ~92% da
+  // largura do original e a faixa mais larga (o notebook, na altura de ~58%)
+  // chega a x=2,6% — qualquer zoom acima de ~1,06 corta a borda esquerda do
+  // notebook. 1,06 empurra o corte da base para fora do quadro (base da janela
+  // em 94,3% contra o corte em ~100%) sem perder a margem do notebook. A
+  // deriva é de ±3%: no pior caso o topo da janela (2,8%) fica acima do topo
+  // do rosto (4%) e a base (97,2%) nunca alcança o corte do original. A escala
+  // do wrapper continua 1, para não aninhar transforms.
   "portrait-continuada": {
     aspect: "aspect-[3/4]",
     position: "object-[50%_0%]",
@@ -78,10 +80,10 @@ const CROP_STYLES: Record<Crop, CropStyle> = {
     parallaxTo: "3%",
     parallaxScale: 1,
   },
-  // Zoom must anchor from the TOP of the frame (origin-top), not the CSS
-  // default center — a center-anchored scale zooms into whatever sits at the
-  // vertical middle of the pre-scale crop window (the torso, for these
-  // photos), pushing the face further out of frame instead of toward it.
+  // O zoom tem que ancorar no TOPO do quadro (origin-top), não no centro que
+  // é o padrão do CSS: ancorado no centro, a escala aproxima o que estiver no
+  // meio vertical da janela antes do zoom — nestas fotos, o tronco — e empurra
+  // o rosto para fora do quadro em vez de trazê-lo para perto.
   bust: {
     aspect: "aspect-[4/5]",
     position: "object-[50%_0%]",
@@ -99,10 +101,10 @@ const CROP_STYLES: Record<Crop, CropStyle> = {
 };
 
 /**
- * A crop's zoom (CSS transform: scale) enlarges the rendered image beyond its
- * container, so the `sizes` hint given to next/image must be inflated by the
- * same factor — otherwise the browser fetches a source too small for the
- * zoomed-in display size and the result looks soft/blurred.
+ * O zoom de um enquadramento (transform: scale) desenha a imagem maior que o
+ * container, então a dica de `sizes` passada ao next/image precisa crescer no
+ * mesmo fator. Sem isso o navegador baixa um arquivo menor do que o tamanho em
+ * que a imagem vai aparecer, e o resultado sai borrado.
  */
 function inflateSizes(sizes: string, factor: number): string {
   if (factor === 1) return sizes;
@@ -129,11 +131,12 @@ export interface EditorialPhotoProps {
   sizes: string;
   priority?: boolean;
   className?: string;
-  /** Subtle scroll-linked drift on the image, independent of the crop's own transform. */
+  /** Deriva sutil da imagem conforme a rolagem, independente do transform do
+   * próprio enquadramento. */
   parallax?: boolean;
-  /** Dissolve the base of the frame into the section background (soft edge
-   * instead of a hard line where the photo ends). "bottom" mirrors the hero
-   * treatment; "soft" starts the dissolve lower and more gradually. */
+  /** Dissolve a base do quadro no fundo da seção, para a foto não terminar
+   * numa linha dura. "bottom" repete o tratamento do hero; "soft" começa a
+   * dissolver mais embaixo e de forma mais gradual. */
   fade?: "bottom" | "soft";
 }
 

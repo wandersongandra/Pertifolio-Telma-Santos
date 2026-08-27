@@ -1,15 +1,15 @@
-// Serves out/ with the exact headers from public/_headers.
+// Serve out/ aplicando exatamente os headers de public/_headers.
 //
-// The headers in public/_headers are applied by Cloudflare Pages and by nothing
-// else — `next dev` and `next start` ignore the file entirely. Without this
-// script the Content-Security-Policy is never exercised until it is already in
-// production, where a mistake shows up as a blank page.
+// Esses headers são aplicados pelo Cloudflare Pages e por mais nada — `next
+// dev` e `next start` ignoram o arquivo. Sem este script a
+// Content-Security-Policy só é exercitada quando já está em produção, onde um
+// erro aparece como página em branco.
 //
 //     npm run build && npm run preview:headers
 //
-// Then load http://localhost:4321 and check the browser console: a working
-// policy produces no "Refused to ..." errors, and the page hydrates (the
-// Areas de Atuacao tabs respond to clicks).
+// Depois abra http://localhost:4321 e olhe o console do navegador: uma
+// política correta não produz nenhum erro "Refused to ...", e a página
+// hidrata (as abas de Áreas de Atuação respondem ao clique).
 import { createServer } from "node:http";
 import { readFile, stat } from "node:fs/promises";
 import path from "node:path";
@@ -18,11 +18,13 @@ const ROOT = process.argv[2] ?? process.cwd();
 const HEADERS_FILE = path.join(ROOT, "public", "_headers");
 const OUT = path.join(ROOT, "out");
 const PORT = 4321;
+const OUT_ROOT = path.resolve(OUT);
 
-// public/_headers is a list of path patterns, each followed by indented
-// "Header: value" lines. Cloudflare applies every rule whose pattern matches
-// the request path, so a file under /telma/ gets both the global /* rules and
-// its own Cache-Control. Parsing only /* would silently under-test the config.
+// public/_headers é uma lista de padrões de caminho, cada um seguido de linhas
+// indentadas no formato "Header: valor". O Cloudflare aplica toda regra cujo
+// padrão casa com o caminho da requisição, então um arquivo em /telma/ recebe
+// tanto as regras globais de /* quanto o seu próprio Cache-Control. Ler apenas
+// o /* testaria menos do que o que vai para produção, sem avisar.
 const raw = await readFile(HEADERS_FILE, "utf8");
 const rules = [];
 let current = null;
@@ -40,8 +42,8 @@ for (const line of raw.split("\n")) {
   current.headers[trimmed.slice(0, i).trim()] = trimmed.slice(i + 1).trim();
 }
 
-// Glob match for a Cloudflare _headers pattern, done without a regex so the
-// pattern's own punctuation never needs escaping.
+// Casamento de padrão no estilo glob do _headers do Cloudflare, feito sem
+// regex para nunca precisar escapar a pontuação do próprio padrão.
 function matches(pattern, pathname) {
   const parts = pattern.split("*");
   if (parts.length === 1) return pattern === pathname;
@@ -77,21 +79,40 @@ async function resolveFile(pathname) {
     path.join(OUT, pathname, "index.html"),
     path.join(OUT, pathname + ".html"),
   ]) {
-    if (!path.resolve(candidate).startsWith(path.resolve(OUT))) continue;
+    const relative = path.relative(OUT_ROOT, path.resolve(candidate));
+    const outsideRoot =
+      relative === ".." ||
+      relative.startsWith(`..${path.sep}`) ||
+      path.isAbsolute(relative);
+    if (outsideRoot) continue;
     try {
       if ((await stat(candidate)).isFile()) return candidate;
-    } catch {}
+    } catch (error) {
+      if (error?.code !== "ENOENT") throw error;
+    }
   }
   return null;
 }
 
 createServer(async (req, res) => {
-  const pathname = decodeURIComponent(req.url.split("?")[0]);
+  if (req.method !== "GET" && req.method !== "HEAD") {
+    res.setHeader("Allow", "GET, HEAD");
+    res.writeHead(405);
+    return res.end("method not allowed");
+  }
+
+  let pathname;
+  try {
+    pathname = decodeURIComponent((req.url ?? "/").split("?")[0]);
+  } catch {
+    res.writeHead(400);
+    return res.end("bad request");
+  }
   for (const [key, value] of Object.entries(headersFor(pathname))) res.setHeader(key, value);
 
   const file = await resolveFile(pathname);
   if (!file) {
-    // Cloudflare Pages serves 404.html for unmatched routes.
+    // O Cloudflare Pages serve 404.html para rotas que não casam.
     try {
       const body = await readFile(path.join(OUT, "404.html"));
       res.writeHead(404, { "Content-Type": TYPES[".html"] });
@@ -106,7 +127,7 @@ createServer(async (req, res) => {
   res.writeHead(200, {
     "Content-Type": TYPES[path.extname(file)] ?? "application/octet-stream",
   });
-  res.end(body);
+  res.end(req.method === "HEAD" ? undefined : body);
 }).listen(PORT, () => {
   console.log("Regras lidas de public/_headers:");
   for (const rule of rules) {

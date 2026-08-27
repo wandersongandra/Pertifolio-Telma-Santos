@@ -6,30 +6,29 @@ import { useReducedMotion } from "@/lib/useReducedMotion";
 interface RotatingPhoto {
   /** Prender no elemento que envolve as fotos empilhadas. */
   containerRef: React.RefObject<HTMLDivElement | null>;
-  /** Indice da foto visivel agora. */
+  /** Índice da foto visível agora. */
   index: number;
-  /** Quantas fotos ja podem ser montadas no DOM (ver comentario abaixo). */
+  /** Quantas fotos já podem ser montadas no DOM (ver o comentário abaixo). */
   mounted: number;
 }
 
 /**
- * Avanca um indice em intervalo fixo para um conjunto de fotos empilhadas.
+ * Avança um índice em intervalo fixo para um conjunto de fotos empilhadas.
  *
- * Tres cuidados que o `setInterval` sozinho nao tem:
+ * Três cuidados que o `setInterval` sozinho não tem:
  *
  * - **`prefers-reduced-motion`**: quem pediu menos movimento fica na primeira
- *   foto, parada. Trocar a foto sob o leitor e exatamente o tipo de movimento
- *   automatico que a preferencia existe para desligar.
- * - **Fora da tela nao gira.** Sem isso a foto do Sobre trocaria de slide
- *   enquanto o visitante ainda esta no topo, e ele chegaria na secao no meio
- *   de um ciclo — alem de manter um timer rodando a toa. Aba em segundo plano
- *   tambem pausa.
- * - **Montagem progressiva.** Todas as fotos ocupam o mesmo lugar, entao o
- *   `loading="lazy"` do next/image nao adianta: assim que a secao entra na
- *   tela, o navegador considera todas visiveis e baixa o conjunto inteiro.
- *   `mounted` libera a proxima foto um ciclo antes de ela aparecer, o que
- *   espalha o download no tempo e deixa a primeira imagem (a que conta para o
- *   LCP no hero) disputar banda sozinha.
+ *   foto, parada. Trocar a foto sob o leitor é exatamente o tipo de movimento
+ *   automático que essa preferência existe para desligar.
+ * - **Fora da tela não gira.** Sem isso a foto do Sobre trocaria enquanto o
+ *   visitante ainda está no topo, e ele chegaria à seção no meio de um ciclo —
+ *   além de manter um timer rodando à toa. Aba em segundo plano também pausa.
+ * - **Montagem progressiva.** Todas as fotos ocupam o mesmo lugar, então o
+ *   `loading="lazy"` do next/image não resolve: assim que a seção entra na
+ *   tela, o navegador considera todas visíveis e baixa o conjunto inteiro.
+ *   `mounted` libera a foto seguinte um ciclo antes de ela aparecer, o que
+ *   espalha os downloads no tempo e deixa a primeira imagem (a que conta para
+ *   o LCP no hero) disputar banda sozinha.
  */
 export function useRotatingPhoto(count: number, intervalMs: number): RotatingPhoto {
   const containerRef = useRef<HTMLDivElement>(null);

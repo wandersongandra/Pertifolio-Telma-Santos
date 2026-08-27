@@ -1,8 +1,8 @@
-// O prefetch do App Router (segment cache) pede os payloads com os segmentos
+// O pré-carregamento do App Router (cache de segmentos) pede os payloads com os segmentos
 // unidos por ponto, por exemplo `/privacidade/__next.privacidade.__PAGE__.txt`.
 // O `output: "export"` do Next 16.3 grava esses arquivos em pastas
 // (`/privacidade/__next.privacidade/__PAGE__.txt`), o que devolve 404 em um
-// host estatico como o Cloudflare Pages. Este passo cria a versao com nome
+// host estático como o Cloudflare Pages. Este passo cria a versão com nome
 // achatado que o cliente realmente busca, mantendo a original intacta.
 import { readdir, copyFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";

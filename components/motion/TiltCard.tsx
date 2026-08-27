@@ -6,9 +6,11 @@ import { motion, useMotionValue, useSpring, useTransform } from "motion/react";
 interface TiltCardProps {
   children: ReactNode;
   className?: string;
-  /** Max rotation in degrees. Cards read well around 6; large photos want something gentler, e.g. 3. */
+  /** Rotação máxima em graus. Cartões funcionam bem perto de 6; fotos grandes
+   * pedem algo mais contido, como 3. */
   strength?: number;
-  /** Vertical lift (px) on hover. Set 0 to disable — appropriate for photos already mid-page. */
+  /** Elevação vertical em px no hover. Use 0 para desligar, o que faz sentido
+   * em fotos que já estão no meio da página. */
   lift?: number;
 }
 

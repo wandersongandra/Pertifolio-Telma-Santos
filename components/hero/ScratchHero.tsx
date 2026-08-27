@@ -14,10 +14,9 @@ import { TypingHeadline } from "./TypingHeadline";
 
 export function ScratchHero() {
   const { hero } = siteData;
-  // Os tres retratos em pe da sessao, no mesmo enquadramento. O primeiro e o
+  // Os três retratos em pé da sessão, no mesmo enquadramento. O primeiro é o
   // que carrega com `priority` e conta para o LCP; os outros entram depois,
-  // conforme o hook os libera. As fotos "de trabalho" (notebook) estao no
-  // Sobre.
+  // conforme o hook os libera. As fotos com notebook ficam no Sobre.
   const slides = [photos["hero-vignette"], photos["arms-crossed"], photos["book-pen"]];
   const { containerRef, index, mounted } = useRotatingPhoto(slides.length, 7000);
 
@@ -89,8 +88,8 @@ export function ScratchHero() {
                   key={slide.src}
                   src={slide.src}
                   alt={slide.alt}
-                  // As escondidas saem da arvore de acessibilidade: sem isso o
-                  // leitor de tela anunciaria os tres textos alternativos.
+                  // As escondidas saem da árvore de acessibilidade: sem isso
+                  // o leitor de tela anunciaria os três textos alternativos.
                   aria-hidden={position !== index}
                   fill
                   priority={position === 0}

@@ -1,9 +1,9 @@
 import type { PhotoId } from "@/content/site-data";
 
-// Os arquivos servidos sao WebP, gerados a partir dos PNGs em assets/portraits
-// por `node scripts/optimize-portraits.mjs`. Nao troque por .png aqui: o
-// export estatico nao otimiza imagem, entao o que esta em public/ e
-// exatamente o que o visitante baixa — os PNGs sao ~12x maiores.
+// Os arquivos servidos são WebP, gerados a partir dos PNGs de assets/portraits
+// por `node scripts/optimize-portraits.mjs`. Não troque de volta para .png
+// aqui: o export estático não otimiza imagem, então o que está em public/ é
+// exatamente o que o visitante baixa, e os PNGs são cerca de 12x maiores.
 
 interface PhotoAsset {
   src: string;

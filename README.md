@@ -383,7 +383,7 @@ O `npm run build` é `next build` mais
 payloads de prefetch das rotas internas voltam a dar 404. O porquê está em
 [`scripts/flatten-segment-prefetch.mjs`](scripts/flatten-segment-prefetch.mjs).
 
-> ### ⚠️ O `--branch=main` não é opcional
+> ### O `--branch=main` não é opcional
 >
 > O Cloudflare decide entre **Production** e **Preview** comparando a branch
 > informada com a branch de produção do projeto, que é `main`. Como este

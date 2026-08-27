@@ -18,8 +18,8 @@ interface LineRevealProps {
 export function LineReveal({ progress, start, end, children }: LineRevealProps) {
   const span = end - start;
   const y = useTransform(progress, [start, end], ["110%", "0%"]);
-  // Clamped, so a line that has finished revealing stays fully legible instead
-  // of fading back out as the reader moves on.
+  // Limitado nas pontas, para que uma linha que terminou de aparecer continue
+  // totalmente legível em vez de voltar a esmaecer conforme a leitura avança.
   const opacity = useTransform(progress, [start, end], [0, 1]);
   const highlightColor = useTransform(
     progress,

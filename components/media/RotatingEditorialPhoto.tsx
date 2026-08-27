@@ -7,23 +7,24 @@ import { cn } from "@/lib/utils";
 
 export interface PortraitSlide {
   photoId: PhotoId;
-  /** Cada foto tem seu proprio enquadramento seguro — o zoom que tira o corte
-   * bruto da base de um retrato em pe corta o notebook de outro. */
+  /** Cada foto tem o seu enquadramento seguro: o zoom que tira o corte cru da
+   * base de um retrato em pé corta o notebook de outra. */
   crop: NonNullable<EditorialPhotoProps["crop"]>;
 }
 
 interface Props extends Omit<EditorialPhotoProps, "photoId" | "crop"> {
   slides: PortraitSlide[];
-  /** Tempo de cada foto em tela, em ms. */
+  /** Tempo de cada foto em tela, em milissegundos. */
   intervalMs?: number;
 }
 
 /**
- * Empilha os retratos no mesmo quadro e faz a troca em fade lento.
+ * Empilha os retratos no mesmo quadro e troca entre eles com um fade lento.
  *
- * O empilhamento e uma grid de uma celula so (`[grid-area:1/1]`): cada
- * `EditorialPhoto` traz sua propria proporcao, entao a grid ja nasce com a
- * altura certa e nao ha `position: absolute` para o layout ter que adivinhar.
+ * O empilhamento é uma grid de uma célula só (`[grid-area:1/1]`): cada
+ * `EditorialPhoto` traz a sua própria proporção, então a grid já nasce com a
+ * altura certa e não sobra nenhum `position: absolute` para o layout ter que
+ * adivinhar.
  */
 export function RotatingEditorialPhoto({
   slides,
@@ -38,13 +39,14 @@ export function RotatingEditorialPhoto({
     <div ref={containerRef} className={cn("grid", className)}>
       {slides.map((slide, position) => {
         const isActive = position === index;
-        // A foto so entra no DOM quando `mounted` a libera; ver o hook.
+        // A foto só entra no DOM quando `mounted` a libera; ver o hook.
         if (position >= mounted) return null;
         return (
           <div
             key={slide.photoId}
-            // As escondidas saem da arvore de acessibilidade: sem isso o leitor
-            // de tela anunciaria os cinco textos alternativos em sequencia.
+            // As escondidas saem da árvore de acessibilidade: sem isso o
+            // leitor de tela anunciaria todos os textos alternativos em
+            // sequência.
             aria-hidden={!isActive}
             className={cn(
               "[grid-area:1/1] transition-opacity duration-[1200ms] ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none",

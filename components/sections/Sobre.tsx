@@ -26,11 +26,11 @@ export function Sobre() {
         <Reveal delay={0.1} className="order-1 md:order-2">
           <TiltCard strength={3} lift={0} className="max-w-md mx-auto">
             <CurtainReveal>
-              {/* As duas fotos "de trabalho" da sessao. Cada uma leva o seu
-                  proprio enquadramento: o zoom de 1.25 do portrait-editorial
-                  tira o corte bruto da base do retrato em pe, mas cortaria a
-                  borda esquerda do notebook na foto sentada, que por isso usa
-                  o portrait-continuada (1.06). Os retratos em pe estao no
+              {/* As duas fotos com notebook. Cada uma leva o seu próprio
+                  enquadramento: o zoom de 1,25 do portrait-editorial tira o
+                  corte cru da base do retrato em pé, mas cortaria a borda
+                  esquerda do notebook na foto sentada, que por isso usa o
+                  portrait-continuada (1,06). Os retratos em pé ficam no
                   hero. */}
               <RotatingEditorialPhoto
                 slides={[

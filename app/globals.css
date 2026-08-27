@@ -86,7 +86,7 @@ body {
   background-size: 100% 1px;
 }
 
-/* Custom scrollbar */
+/* Barra de rolagem */
 html {
   scrollbar-color: var(--color-gold-muted) var(--color-ink);
   scrollbar-width: thin;
@@ -110,7 +110,7 @@ html {
   background-color: var(--color-gold);
 }
 
-/* Film-grain texture, sits above everything, never intercepts input */
+/* Textura de grão de filme: fica acima de tudo e nunca intercepta o cursor */
 .grain-overlay {
   position: fixed;
   inset: 0;
@@ -131,7 +131,7 @@ html {
   100% { transform: translate(0, 0); }
 }
 
-/* Brand preloader — pure CSS so it degrades safely without JS */
+/* Preloader da marca. CSS puro, para degradar bem sem JavaScript. */
 .preloader {
   position: fixed;
   inset: 0;
@@ -171,9 +171,9 @@ html {
   }
 }
 
-/* Hero portrait — dissolve the base into the dark background so the
-   bottom crop (thighs/legs) fades out instead of ending in a hard line.
-   Top, face and torso stay fully opaque. */
+/* Retrato do hero: dissolve a base no fundo escuro para o corte de baixo
+   (pernas) esmaecer em vez de terminar numa linha dura. Topo, rosto e tronco
+   ficam totalmente opacos. */
 .hero-photo-fade {
   -webkit-mask-image: linear-gradient(
     to bottom,
@@ -189,9 +189,9 @@ html {
   );
 }
 
-/* Editorial portrait — dissolve the base of the frame into the section
-   background so the lower crop (laptop/arms) fades out instead of ending in
-   a hard line. Same treatment as the hero vignette. */
+/* Retrato editorial: dissolve a base do quadro no fundo da seção para o corte
+   de baixo (notebook, braços) esmaecer em vez de terminar numa linha dura.
+   Mesmo tratamento do retrato do hero. */
 .photo-fade-bottom {
   -webkit-mask-image: linear-gradient(
     to bottom,
@@ -207,9 +207,9 @@ html {
   );
 }
 
-/* Softer, later-starting dissolve for photos whose lower content (laptop,
-   hands) must stay readable: the fade becomes visible only past 82% and
-   finishes fully transparent at 100%. */
+/* Dissolução mais suave e que começa mais tarde, para fotos em que o conteúdo
+   de baixo (notebook, mãos) precisa continuar legível: o esmaecimento só fica
+   visível depois de 82% e termina transparente em 100%. */
 .photo-fade-soft {
   -webkit-mask-image: linear-gradient(
     to bottom,
@@ -229,7 +229,7 @@ html {
   );
 }
 
-/* Typing headline caret */
+/* Cursor do título que é digitado */
 .typing-caret {
   display: inline-block;
   width: 0.045em;
@@ -251,7 +251,7 @@ html {
   }
 }
 
-/* Marquee divider */
+/* Faixa de texto em movimento que divide as seções */
 .marquee-track {
   display: flex;
   width: max-content;
