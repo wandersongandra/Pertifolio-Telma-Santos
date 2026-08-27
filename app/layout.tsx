@@ -34,7 +34,9 @@ export const metadata: Metadata = {
     description: siteData.meta.description,
     type: "website",
     locale: "pt_BR",
-    images: ["/telma/portraits/telma-hero-vignette.png"],
+    // JPEG, nao o WebP que o site usa: o suporte a WebP nos raspadores de
+    // link e irregular (LinkedIn em especial), e esta e uma imagem so.
+    images: ["/telma/portraits/telma-hero-vignette.jpg"],
   },
   twitter: {
     card: "summary_large_image",

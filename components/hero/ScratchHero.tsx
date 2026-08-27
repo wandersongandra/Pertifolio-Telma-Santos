@@ -5,6 +5,8 @@ import Image from "next/image";
 import { motion, useScroll, useTransform } from "motion/react";
 import { siteData } from "@/content/site-data";
 import { photos } from "@/lib/photos";
+import { useRotatingPhoto } from "@/lib/useRotatingPhoto";
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
 import { MagneticButton } from "@/components/motion/MagneticButton";
 import { useReducedMotion } from "@/lib/useReducedMotion";
@@ -12,7 +14,12 @@ import { TypingHeadline } from "./TypingHeadline";
 
 export function ScratchHero() {
   const { hero } = siteData;
-  const photo = photos["hero-vignette"];
+  // Os tres retratos em pe da sessao, no mesmo enquadramento. O primeiro e o
+  // que carrega com `priority` e conta para o LCP; os outros entram depois,
+  // conforme o hook os libera. As fotos "de trabalho" (notebook) estao no
+  // Sobre.
+  const slides = [photos["hero-vignette"], photos["arms-crossed"], photos["book-pen"]];
+  const { containerRef, index, mounted } = useRotatingPhoto(slides.length, 7000);
 
   const reducedMotion = useReducedMotion();
   const sectionRef = useRef<HTMLElement>(null);
@@ -73,16 +80,29 @@ export function ScratchHero() {
             initial={reducedMotion ? false : { opacity: 0, scale: 1.03 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.9, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+            ref={containerRef}
             className="relative aspect-[3/4] max-w-md mx-auto md:mx-0 md:ml-auto"
           >
-            <Image
-              src={photo.src}
-              alt={photo.alt}
-              fill
-              priority
-              sizes="(min-width: 768px) 40vw, 85vw"
-              className="hero-photo-fade object-cover object-[50%_10%]"
-            />
+            {slides.map((slide, position) =>
+              position < mounted ? (
+                <Image
+                  key={slide.src}
+                  src={slide.src}
+                  alt={slide.alt}
+                  // As escondidas saem da arvore de acessibilidade: sem isso o
+                  // leitor de tela anunciaria os tres textos alternativos.
+                  aria-hidden={position !== index}
+                  fill
+                  priority={position === 0}
+                  sizes="(min-width: 768px) 40vw, 85vw"
+                  className={cn(
+                    "hero-photo-fade object-cover object-[50%_10%]",
+                    "transition-opacity duration-[1200ms] ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none",
+                    position === index ? "opacity-100" : "opacity-0"
+                  )}
+                />
+              ) : null
+            )}
           </motion.div>
         </div>
       </div>

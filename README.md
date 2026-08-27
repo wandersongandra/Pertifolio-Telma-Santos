@@ -238,15 +238,38 @@ content/
 
 lib/
 ├── site-url.ts          # resolve a URL pública do site
+├── useRotatingPhoto.ts  # rotação dos retratos (hero e Sobre)
 ├── photos.ts · whatsapp.ts · utils.ts · useReducedMotion.ts
+
+assets/
+└── portraits/           # PNGs originais — não vão para o deploy
 
 public/
 ├── _headers             # headers de segurança e cache (Cloudflare Pages)
-└── telma/               # retratos, logo e ícones
+└── telma/               # retratos (WebP), logo e ícones
 
 scripts/
-└── serve-with-headers.mjs   # serve out/ aplicando public/_headers
+├── serve-with-headers.mjs      # serve out/ aplicando public/_headers
+├── optimize-portraits.mjs      # assets/portraits/*.png -> public WebP + OG
+└── flatten-segment-prefetch.mjs # pós-build, ver a seção de Deploy
 ```
+
+### Fotos
+
+Os cinco retratos giram sozinhos em dois pontos: os três em pé no hero e os
+dois com notebook no Sobre, trocando a cada 7s em fade. Quem definiu
+`prefers-reduced-motion: reduce` fica na primeira foto, parada, e a rotação só
+corre com a seção na tela.
+
+Para trocar ou acrescentar uma foto: ponha o PNG em `assets/portraits/`, rode
+`node scripts/optimize-portraits.mjs` (gera o WebP em `public/telma/portraits/`),
+declare a foto em `lib/photos.ts` e o id em `PhotoId` (`content/site-data.ts`),
+e inclua o id na lista de `ScratchHero.tsx` ou de `Sobre.tsx`.
+
+> **Cada foto precisa do seu enquadramento.** Os `crop` em
+> `components/media/EditorialPhoto.tsx` são calibrados por foto — o zoom que
+> tira o corte bruto da base de um retrato em pé corta a borda do notebook na
+> foto sentada. Confira a foto nova no navegador antes de publicar.
 
 ### Onde editar o conteúdo
 

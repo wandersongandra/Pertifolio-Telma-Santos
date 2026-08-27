@@ -122,7 +122,7 @@ const VARIANT_CLASS: Record<Variant, string> = {
   grayscale: "grayscale",
 };
 
-interface EditorialPhotoProps {
+export interface EditorialPhotoProps {
   photoId: PhotoId;
   variant?: Variant;
   crop?: Crop;
