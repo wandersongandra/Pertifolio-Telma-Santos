@@ -401,14 +401,14 @@ export const siteData: SiteData = {
       {
         type: "instagram",
         label: "Instagram",
-        value: "@telmasantosformadora",
-        href: "https://instagram.com/telmasantosformadora",
+        value: "@telma_formadora",
+        href: "https://www.instagram.com/telma_formadora",
       },
       {
         type: "linkedin",
         label: "LinkedIn",
-        value: "linkedin.com/in/prof-telma",
-        href: "https://linkedin.com/in/prof-telma",
+        value: "linkedin.com/in/telma03",
+        href: "https://www.linkedin.com/in/telma03",
       },
     ],
   },

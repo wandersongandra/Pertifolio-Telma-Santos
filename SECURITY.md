@@ -158,9 +158,11 @@ Coisas conhecidas, deliberadamente não alteradas:
   alternativa (ofuscar via JavaScript) piora a acessibilidade.
 - **`'unsafe-inline'` em `script-src`.** Ver a explicação acima. Só sairia com
   um servidor emitindo nonce, ou seja, abandonando o export estático.
-- **Perfis externos não validados.** Os links de Instagram
-  (`@telmasantosformadora`) e LinkedIn (`linkedin.com/in/prof-telma`) não foram
-  verificados automaticamente. Confirme manualmente que os perfis existem.
+- **Perfis externos não validados automaticamente.** Os links de Instagram
+  (`@telma_formadora`) e LinkedIn (`linkedin.com/in/telma03`) foram informados
+  pela própria Telma e apontam para os perfis reais. Ambas as plataformas
+  bloqueiam requisições automatizadas, então a verificação continua sendo
+  manual: ao trocar um handle, abra o link no navegador antes de publicar.
 
 ---
 
