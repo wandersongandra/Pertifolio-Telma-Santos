@@ -46,7 +46,7 @@ export function Header() {
           style={{ paddingTop: paddingY, paddingBottom: paddingY }}
         >
           <Link
-            href="#top"
+            href="/#top"
             className="flex items-center gap-3 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-gold"
           >
             <motion.div whileHover={{ rotate: 8, scale: 1.08 }} transition={{ duration: 0.3 }}>

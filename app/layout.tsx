@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import { Fraunces, Manrope } from "next/font/google";
 import { siteData } from "@/content/site-data";
+import { siteUrl } from "@/lib/site-url";
 import { logo } from "@/lib/photos";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
@@ -24,7 +25,8 @@ const manrope = Manrope({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
+  metadataBase: new URL(siteUrl),
+  alternates: { canonical: "/" },
   title: `${siteData.meta.name} — ${siteData.meta.role}`,
   description: siteData.meta.description,
   openGraph: {

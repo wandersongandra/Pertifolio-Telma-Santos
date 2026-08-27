@@ -15,34 +15,31 @@ export interface TimelineEntry {
   description: string;
 }
 
-export interface Workshop {
-  id: string;
-  title: string;
-  summary: string;
-}
-
-export interface Talk {
+export interface AreaListItem {
   id: string;
   title: string;
   summary?: string;
 }
 
-export interface DialogueTheme {
-  id: string;
-  title: string;
-}
+/** Extra content rendered inside an area's tab panel, below its lead text. */
+export type AreaDetail =
+  | { layout: "timeline"; items: TimelineEntry[] }
+  | { layout: "list"; meta?: string; summary?: string; items: AreaListItem[] }
+  | { layout: "dense"; summary?: string; countLabel: string; items: AreaListItem[] };
 
 export interface AreaOfPractice {
   id: "formacao" | "assessoria" | "oficinas" | "palestras" | "dialogos";
   label: string;
   title: string;
-  description: string;
+  description?: string;
+  detail: AreaDetail;
 }
 
-export interface AcademicCredential {
-  id: string;
-  category: "graduacao" | "pos-graduacao";
-  title: string;
+/** `label` is what the visitor picks; `phrase` is how it reads inside the
+ * contact message ("conversar sobre uma oficina", not "sobre oficina"). */
+export interface ContactInterest {
+  label: string;
+  phrase: string;
 }
 
 export interface ContactChannel {
@@ -77,57 +74,16 @@ export interface SiteData {
     eyebrow: string;
     heading: string;
     paragraphs: string[];
-    quickFacts: { title: string; value: string }[];
   };
   trajetoria: TimelineEntry[];
   areasDeAtuacao: AreaOfPractice[];
-  formacaoContinuada: {
-    eyebrow: string;
-    heading: string;
-    intro: string;
-    items: TimelineEntry[];
-  };
-  assessoriaPedagogica: {
-    eyebrow: string;
-    heading: string;
-    period: string;
-    summary: string;
-    capabilities: string[];
-  };
-  oficinas: {
-    eyebrow: string;
-    heading: string;
-    intro: string;
-    items: Workshop[];
-  };
-  palestras: {
-    eyebrow: string;
-    heading: string;
-    intro: string;
-    items: Talk[];
-  };
-  dialogosFormativos: {
-    eyebrow: string;
-    heading: string;
-    intro: string;
-    items: DialogueTheme[];
-  };
-  formacaoAcademica: {
-    eyebrow: string;
-    heading: string;
-    items: AcademicCredential[];
-  };
   contato: {
     eyebrow: string;
     heading: string;
     intro: string;
     whatsappMessageTemplate: string;
     channels: ContactChannel[];
-    interests: string[];
-  };
-  footer: {
-    copyrightName: string;
-    role: string;
+    interests: ContactInterest[];
   };
 }
 
@@ -145,12 +101,10 @@ export const siteData: SiteData = {
   },
 
   nav: [
-    { label: "Sobre", href: "#sobre" },
-    { label: "Trajetória", href: "#trajetoria" },
-    { label: "Atuação", href: "#atuacao" },
-    { label: "Oficinas", href: "#oficinas" },
-    { label: "Palestras", href: "#palestras" },
-    { label: "Contato", href: "#contato" },
+    { label: "Sobre", href: "/#sobre" },
+    { label: "Trajetória", href: "/#trajetoria" },
+    { label: "Atuação", href: "/#atuacao" },
+    { label: "Contato", href: "/#contato" },
   ],
 
   hero: {
@@ -195,11 +149,6 @@ export const siteData: SiteData = {
       "Telma Santos atua profissionalmente na Educação desde 2001, construindo uma trajetória que passa pela sala de aula, pela formação continuada de professores, pela coordenação pedagógica e pela assessoria a redes municipais de ensino.",
       "Sua atuação é pautada pelo fortalecimento das práticas docentes, pelo acompanhamento pedagógico próximo das equipes escolares e pela defesa de uma educação inclusiva, íntegra e comprometida com a aprendizagem de todos.",
     ],
-    quickFacts: [
-      { title: "2001", value: "Início da trajetória profissional" },
-      { title: "Formação", value: "Letras + Pedagogia" },
-      { title: "Atuação", value: "Formação de professores, assessoria, gestão e palestras" },
-    ],
   },
 
   trajetoria: [
@@ -216,19 +165,13 @@ export const siteData: SiteData = {
       organization: "Instituto Ayrton Senna",
       location: "Municípios baianos",
       description:
-        "Atuação em formação de professores e assessoria pedagógica a municípios, no âmbito das soluções educacionais do Instituto Ayrton Senna.",
+        "Atuação na implementação e acompanhamento das soluções educacionais do Instituto Ayrton Senna em municípios baianos, com formação, suporte técnico e pedagógico, análise de dados e orientação de intervenções, visando ao fortalecimento da gestão e à melhoria da aprendizagem dos estudantes.",
     },
     {
       id: "coordenacao-ef",
       title: "Coordenadora do Ensino Fundamental",
       description:
         "Coordenação pedagógica da etapa do Ensino Fundamental, com acompanhamento das práticas de ensino e das equipes escolares.",
-    },
-    {
-      id: "coordenacao-eja",
-      title: "Coordenadora da EJA",
-      description:
-        "Coordenação pedagógica da modalidade Educação de Jovens e Adultos (EJA).",
     },
     {
       id: "referenciais-curriculares",
@@ -267,209 +210,165 @@ export const siteData: SiteData = {
   areasDeAtuacao: [
     {
       id: "formacao",
-      label: "Formação",
+      label: "Formação Educacional",
       title: "Formação continuada de professores",
       description:
         "Do PNAIC ao Pacto Estadual pela Alfabetização e às soluções educacionais do Instituto Ayrton Senna.",
+      detail: {
+        layout: "timeline",
+        items: [
+          {
+            id: "pnaic",
+            title: "PNAIC",
+            meta: "Formadora • Caraíbas/BA",
+            description:
+              "Formadora do Pacto Nacional pela Alfabetização na Idade Certa (PNAIC) no município de Caraíbas/BA.",
+          },
+          {
+            id: "pacto-estadual",
+            title: "Pacto Estadual pela Alfabetização",
+            meta: "Formadora",
+            description:
+              "Atuação como formadora no Pacto Estadual pela Alfabetização.",
+          },
+          {
+            id: "solucoes-ayrton-senna",
+            title: "Instituto Ayrton Senna",
+            meta: "Formação de professores",
+            description:
+              "Formação de professores no âmbito das soluções educacionais do Instituto Ayrton Senna.",
+          },
+        ],
+      },
     },
     {
       id: "assessoria",
-      label: "Assessoria",
+      label: "Assessoria Pedagógica",
       title: "Assessoria pedagógica a redes municipais",
       description:
         "Organização curricular, análise de indicadores e intervenções estratégicas.",
+      detail: {
+        layout: "list",
+        meta: "2021 — 2024",
+        summary:
+          "Planejamento e execução de assessorias pedagógicas a redes municipais, com acompanhamento próximo das equipes escolares.",
+        items: [
+          { id: "organizacao-curricular", title: "Organização curricular" },
+          { id: "analise-indicadores", title: "Análise de indicadores educacionais" },
+          { id: "apoio-tecnico", title: "Apoio técnico às equipes escolares" },
+          { id: "praticas-de-ensino", title: "Fortalecimento das práticas de ensino" },
+          { id: "intervencoes", title: "Intervenções pedagógicas" },
+          { id: "melhoria-aprendizagem", title: "Melhoria da aprendizagem" },
+        ],
+      },
     },
     {
       id: "oficinas",
-      label: "Oficinas",
-      title: "Espaços de construção e reconstrução do fazer pedagógico",
-      description: "Unindo teoria, prática e experimentação.",
+      label: "Oficinas Pedagógicas",
+      title: "Conhecimento em movimento. Experiências para transformar a prática.",
+      detail: {
+        layout: "list",
+        items: [
+          {
+            id: "alfabetizacao-intervencao",
+            title: "Alfabetização: dos Níveis de Aprendizagem à Intervenção",
+          },
+          { id: "multiplas-linguagens-acao", title: "Múltiplas Linguagens em Ação" },
+          { id: "metodologias-ativas", title: "Metodologias Ativas na Prática" },
+          { id: "tecnologia-aplicada", title: "Tecnologia Aplicada à Educação" },
+          {
+            id: "socioemocionais-movimento",
+            title: "Competências Socioemocionais em Movimento",
+          },
+          {
+            id: "do-dado-a-acao",
+            title: "Do Dado à Ação: Indicadores Educacionais",
+          },
+          {
+            id: "planejamento-intencionalidade",
+            title: "Planejamento com Intencionalidade",
+          },
+        ],
+      },
     },
     {
       id: "palestras",
-      label: "Palestras",
-      title: "Temas que aprofundam, atualizam e mobilizam",
-      description:
-        "Profissionais da Educação em torno das políticas e práticas pedagógicas.",
+      label: "Palestras Educacionais",
+      title: "Ideias que provocam. Diálogos que mobilizam. Educação que transforma.",
+      detail: {
+        layout: "list",
+        items: [
+          { id: "educacao-que-transforma", title: "Educação que Transforma" },
+          { id: "lideranca", title: "Liderança que Faz Acontecer" },
+          {
+            id: "tecnologia",
+            title: "Tecnologia e os Novos Caminhos da Educação",
+          },
+          {
+            id: "indicadores",
+            title: "Indicadores Educacionais: Dados que Orientam Decisões",
+          },
+          {
+            id: "socioemocionais",
+            title: "Competências Socioemocionais: Educar para a Vida",
+          },
+          {
+            id: "multiplas-linguagens",
+            title: "Múltiplas Linguagens: Novas Formas de Ensinar e Aprender",
+          },
+          {
+            id: "escola-familia-pertencimento",
+            title: "Escola, Família e Pertencimento",
+          },
+        ],
+      },
     },
     {
       id: "dialogos",
-      label: "Diálogos",
+      label: "Diálogos Formativos",
       title: "Encontros formativos de escuta e reflexão coletiva",
       description: "Sobre o planejamento, a avaliação e o cotidiano escolar.",
+      detail: {
+        layout: "dense",
+        summary:
+          "Momentos de estudo, escuta e reflexão coletiva — espaços de construção de sentidos, protagonismo docente e planejamento consciente.",
+        countLabel: "Temas formativos",
+        items: [
+          { id: "plano-de-formacao", title: "Plano de formação / Jornada Pedagógica" },
+          { id: "planejamento-sequencia-didatica", title: "Planejamento: sequência didática" },
+          { id: "gestao-escolar", title: "Gestão escolar e dimensão pedagógica" },
+          { id: "implementacao-politicas", title: "Implementação das políticas educacionais" },
+          { id: "trabalho-por-projeto", title: "Trabalho Pedagógico Organizado por Projeto" },
+          { id: "ppp-planejamento-participativo", title: "PPP no contexto do planejamento participativo" },
+          { id: "direito-a-educacao", title: "Direito à Educação e reinvenção do fazer docente" },
+          { id: "avaliacao-diagnostica", title: "Avaliação diagnóstica e formativa: impactos no planejamento" },
+          { id: "educacao-infantil-cotidiano", title: "Educação Infantil, cotidiano e experiências em movimento" },
+          {
+            id: "alfabetizacao-letramento-eixos",
+            title:
+              "Organização do trabalho pedagógico: alfabetização e letramento como eixos orientadores",
+          },
+          {
+            id: "planejamento-avaliacao-desafios",
+            title:
+              "Organização do trabalho pedagógico: possibilidades e desafios no planejamento e avaliação",
+          },
+          {
+            id: "estrategias-pedagogicas",
+            title: "Estratégias pedagógicas e os novos rumos da educação",
+          },
+          { id: "fazeres-pedagogicos", title: "Fazeres pedagógicos" },
+          { id: "bncc-avancos", title: "BNCC" },
+          { id: "novos-olhares", title: "Novos olhares para novos saberes" },
+          { id: "rcm-bncc-computacao", title: "RCM e BNCC Computação" },
+          { id: "inclusao", title: "Inclusão" },
+          { id: "crianca-alfabetizada", title: "Criança alfabetizada" },
+          { id: "educacao-integral-dialogos", title: "Educação Integral" },
+          { id: "eja-direito", title: "EJA" },
+        ],
+      },
     },
   ],
-
-  formacaoContinuada: {
-    eyebrow: "Formação Continuada",
-    heading: "Formação continuada de professores",
-    intro:
-      "Atuação como formadora em programas estruturantes de alfabetização e nas soluções educacionais do Instituto Ayrton Senna.",
-    items: [
-      {
-        id: "pnaic",
-        title: "PNAIC",
-        meta: "Formadora • Caraíbas/BA",
-        description:
-          "Formadora do Pacto Nacional pela Alfabetização na Idade Certa (PNAIC) no município de Caraíbas/BA.",
-      },
-      {
-        id: "pacto-estadual",
-        title: "Pacto Estadual pela Alfabetização",
-        meta: "Formadora",
-        description:
-          "Atuação como formadora no Pacto Estadual pela Alfabetização.",
-      },
-      {
-        id: "solucoes-ayrton-senna",
-        title: "Instituto Ayrton Senna",
-        meta: "Formação de professores",
-        description:
-          "Formação de professores no âmbito das soluções educacionais do Instituto Ayrton Senna.",
-      },
-    ],
-  },
-
-  assessoriaPedagogica: {
-    eyebrow: "Assessoria Pedagógica",
-    heading: "Assessoria pedagógica a redes municipais",
-    period: "2021 — 2024",
-    summary:
-      "Planejamento e execução de assessorias pedagógicas a redes municipais, com acompanhamento próximo das equipes escolares.",
-    capabilities: [
-      "Organização curricular",
-      "Análise de indicadores educacionais",
-      "Apoio técnico às equipes escolares",
-      "Fortalecimento das práticas de ensino",
-      "Intervenções pedagógicas",
-      "Melhoria da aprendizagem",
-    ],
-  },
-
-  oficinas: {
-    eyebrow: "Oficinas",
-    heading: "Oficinas",
-    intro:
-      "As oficinas são espaços de construção e reconstrução do fazer pedagógico — ação, experimentação, diálogo e ampliação de repertórios entre teoria e prática.",
-    items: [
-      {
-        id: "bncc-na-pratica",
-        title: "BNCC na prática",
-        summary:
-          "Ludicidade e Campos de Aprendizagem na Educação Infantil.",
-      },
-      {
-        id: "familia-e-escola",
-        title: "Família e escola",
-        summary: "Uma parceria indissolúvel.",
-      },
-      {
-        id: "sequencia-didatica",
-        title: "Sequência didática",
-        summary: "Na modalidade EJA.",
-      },
-      {
-        id: "jogos",
-        title: "Jogos",
-        summary: "Jogos no Ensino da Matemática.",
-      },
-    ],
-  },
-
-  palestras: {
-    eyebrow: "Palestras",
-    heading: "Palestras",
-    intro:
-      "Experiências voltadas para a atualização, o aprofundamento de temas e a mobilização dos profissionais da Educação.",
-    items: [
-      {
-        id: "educacao-integral-desafios",
-        title: "Educação Integral e os novos desafios da contemporaneidade",
-      },
-      {
-        id: "eja",
-        title: "Educação de Jovens e Adultos",
-        summary: "Desafios, metodologias e práticas formativas.",
-      },
-      {
-        id: "ppp",
-        title: "Projeto Político-Pedagógico",
-        summary: "Construção coletiva e intencionalidade educativa.",
-      },
-      {
-        id: "educacao-infantil-ludicidade",
-        title: "Educação Infantil e ludicidade",
-        summary: "Experiências, direitos e campos de aprendizagem.",
-      },
-      {
-        id: "anos-iniciais",
-        title: "Anos Iniciais",
-        summary: "Práticas pedagógicas, alfabetização e letramento.",
-      },
-      {
-        id: "alfabetizacao-linguagens",
-        title: "Alfabetização e as múltiplas linguagens",
-      },
-      {
-        id: "educacao-integral-dimensoes",
-        title: "Educação Integral",
-        summary:
-          "Desenvolvimento do estudante nas dimensões cognitivas e socioemocionais.",
-      },
-    ],
-  },
-
-  dialogosFormativos: {
-    eyebrow: "Diálogos Formativos",
-    heading: "Diálogos Formativos",
-    intro:
-      "Momentos de estudo, escuta e reflexão coletiva — espaços de construção de sentidos, protagonismo docente e planejamento consciente.",
-    items: [
-      { id: "plano-de-formacao", title: "Plano de formação / Jornada Pedagógica" },
-      { id: "planejamento-sequencia-didatica", title: "Planejamento: sequência didática" },
-      { id: "gestao-escolar", title: "Gestão escolar e dimensão pedagógica" },
-      { id: "implementacao-politicas", title: "Implementação das políticas educacionais" },
-      { id: "trabalho-por-projeto", title: "Trabalho Pedagógico Organizado por Projeto" },
-      { id: "ppp-planejamento-participativo", title: "PPP no contexto do planejamento participativo" },
-      { id: "direito-a-educacao", title: "Direito à Educação e reinvenção do fazer docente" },
-      { id: "avaliacao-diagnostica", title: "Avaliação diagnóstica e formativa: impactos no planejamento" },
-      { id: "educacao-infantil-cotidiano", title: "Educação Infantil, cotidiano e experiências em movimento" },
-      {
-        id: "alfabetizacao-letramento-eixos",
-        title:
-          "Organização do trabalho pedagógico: alfabetização e letramento como eixos orientadores",
-      },
-      {
-        id: "planejamento-avaliacao-desafios",
-        title:
-          "Organização do trabalho pedagógico: possibilidades e desafios no planejamento e avaliação",
-      },
-      {
-        id: "estrategias-pedagogicas",
-        title: "Estratégias pedagógicas e os novos rumos da educação",
-      },
-      { id: "fazeres-pedagogicos", title: "Fazeres pedagógicos" },
-      { id: "bncc-avancos", title: "BNCC" },
-      { id: "novos-olhares", title: "Novos olhares para novos saberes" },
-      { id: "rcm-bncc-computacao", title: "RCM e BNCC Computação" },
-      { id: "inclusao", title: "Inclusão" },
-      { id: "crianca-alfabetizada", title: "Criança alfabetizada" },
-      { id: "educacao-integral-dialogos", title: "Educação Integral" },
-      { id: "eja-direito", title: "EJA" },
-    ],
-  },
-
-  formacaoAcademica: {
-    eyebrow: "Formação Acadêmica",
-    heading: "Formação Acadêmica",
-    items: [
-      { id: "letras", category: "graduacao", title: "Letras" },
-      { id: "pedagogia", category: "graduacao", title: "Pedagogia" },
-      { id: "pos-literatura", category: "pos-graduacao", title: "Literatura" },
-      { id: "pos-lingua-portuguesa", category: "pos-graduacao", title: "Língua Portuguesa" },
-      { id: "pos-psicopedagogia", category: "pos-graduacao", title: "Psicopedagogia" },
-    ],
-  },
 
   contato: {
     eyebrow: "Contato",
@@ -479,12 +378,12 @@ export const siteData: SiteData = {
     whatsappMessageTemplate:
       "Olá, Telma. Conheci seu trabalho através do seu portfólio e gostaria de conversar sobre {interesse}.",
     interests: [
-      "Formação",
-      "Assessoria Pedagógica",
-      "Oficina",
-      "Palestra",
-      "Diálogo Formativo",
-      "Outro",
+      { label: "Formação", phrase: "formação de professores" },
+      { label: "Assessoria Pedagógica", phrase: "assessoria pedagógica" },
+      { label: "Oficina", phrase: "uma oficina" },
+      { label: "Palestra", phrase: "uma palestra" },
+      { label: "Diálogo Formativo", phrase: "um diálogo formativo" },
+      { label: "Outro", phrase: "um projeto educacional" },
     ],
     channels: [
       {
@@ -514,10 +413,6 @@ export const siteData: SiteData = {
     ],
   },
 
-  footer: {
-    copyrightName: "Telma Santos",
-    role: "Formadora Educacional",
-  },
 };
 
 export const whatsappPhone = WHATSAPP_PHONE;

@@ -20,15 +20,22 @@ function useActiveSection(): string | null {
   const [active, setActive] = useState<string | null>(null);
 
   useEffect(() => {
-    const ids = siteData.nav.map((item) => item.href.slice(1));
-    const targets = ids
+    // nav hrefs are route-absolute ("/#sobre") so they also work from the legal
+    // pages — the observed element id is the part after the hash.
+    const hrefById = new Map(
+      siteData.nav
+        .map((item) => [item.href.split("#")[1], item.href] as const)
+        .filter((pair): pair is readonly [string, string] => Boolean(pair[0]))
+    );
+    const targets = [...hrefById.keys()]
       .map((id) => document.getElementById(id))
       .filter((el): el is HTMLElement => el !== null);
 
     const observer = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
-          if (entry.isIntersecting) setActive(`#${entry.target.id}`);
+          const href = hrefById.get(entry.target.id);
+          if (entry.isIntersecting && href) setActive(href);
         }
       },
       { rootMargin: "-35% 0px -55% 0px" }

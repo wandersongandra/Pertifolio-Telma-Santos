@@ -125,7 +125,14 @@ export function Manifesto() {
   const sectionRef = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({
     target: sectionRef,
-    offset: ["start 0.72", "end 0.45"],
+    // Both ends are anchored to the section's *arrival*, not to its end. Tying
+    // the finish to "end" (the old ["start 0.72", "end 0.45"]) meant the closing
+    // lines only revealed once the section had scrolled past — and on a viewport
+    // shorter than the section that point never coincides with them being on
+    // screen, so the paragraph permanently looked cut off. Anchoring to "start"
+    // makes the text complete as the section settles into place, whatever the
+    // section and viewport heights are.
+    offset: ["start 0.95", "start 0.05"],
   });
   const parallaxY = useTransform(scrollYProgress, [0, 1], [18, -14]);
 
