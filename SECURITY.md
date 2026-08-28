@@ -97,11 +97,11 @@ Depois de publicar, confirme que os headers realmente saíram — se o
 falha visivelmente:
 
 ```bash
-curl -sI https://telmaformadoraeducacional.com.br/ | grep -iE "content-security|strict-transport|x-frame|cross-origin"
+curl -sI https://www.telmaformadoraeducacional.com.br/ | grep -iE "content-security|strict-transport|x-frame|cross-origin"
 ```
 
-> Verificado em 28/08/2026 no deployment de produção `9926b146`, servido pelo
-> domínio próprio `telmaformadoraeducacional.com.br`: CSP,
+> Verificado em 28/08/2026 no deployment de produção `daf55140`, servido pelo
+> domínio próprio `www.telmaformadoraeducacional.com.br`: CSP,
 > HSTS, `X-Frame-Options: DENY`, `Cross-Origin-Opener-Policy: same-origin`,
 > `nosniff`, `Referrer-Policy` e `Permissions-Policy` todos presentes. O
 > `Cache-Control` de `/telma/*` respondeu `public, must-revalidate,
@@ -157,8 +157,17 @@ Coisas conhecidas, deliberadamente não alteradas:
 - **E-mail em texto puro.** `mailto:` exposto no HTML pode ser coletado por
   robôs de spam. É o custo de ter um canal de contato direto e clicável; a
   alternativa (ofuscar via JavaScript) piora a acessibilidade.
+- **Registros de e-mail removidos.** O `MX .` (null MX), o `SPF v=spf1 -all` e
+  o `DMARC p=reject` do domínio foram apagados durante a configuração do
+  domínio personalizado. Sem eles o domínio pode ser usado para falsificar
+  remetentes. Não afeta o site, mas deve ser restaurado.
 - **`'unsafe-inline'` em `script-src`.** Ver a explicação acima. Só sairia com
   um servidor emitindo nonce, ou seja, abandonando o export estático.
+- **Apex sem registro DNS.** `telmaformadoraeducacional.com.br` (sem `www`)
+  não resolve: o fluxo de domínio personalizado do Pages substituiu o apex pelo
+  `www` em vez de manter os dois. Quem digitar o endereço sem `www` recebe erro.
+  Correção: recriar `CNAME @ → telma-santos.pages.dev` com proxy no DNS e, feito
+  isso, inverter o canônico para o apex e deixar o `www` com redirect 301.
 - **Perfis externos não validados automaticamente.** Os links de Instagram
   (`@telma_formadora`) e LinkedIn (`linkedin.com/in/telma03`) foram informados
   pela própria Telma e apontam para os perfis reais. Ambas as plataformas

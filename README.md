@@ -319,7 +319,7 @@ Nenhuma é obrigatória: o build funciona sem configurar nada.
 A resolução está em [`lib/site-url.ts`](lib/site-url.ts):
 
 ```
-NEXT_PUBLIC_SITE_URL  →  CF_PAGES_URL  →  https://telmaformadoraeducacional.com.br
+NEXT_PUBLIC_SITE_URL  →  CF_PAGES_URL  →  https://www.telmaformadoraeducacional.com.br
 ```
 
 O último valor é o endereço real de produção, e não `localhost`, justamente
@@ -328,7 +328,7 @@ dentro do `sitemap.xml`.
 
 Alimenta `metadataBase`, as URLs canônicas, `sitemap.xml`, `robots.txt` e as
 imagens de OpenGraph. O domínio definitivo
-(`telmaformadoraeducacional.com.br`) já é o valor padrão; `telma-santos.pages.dev`
+(`www.telmaformadoraeducacional.com.br`) já é o valor padrão; `telma-santos.pages.dev`
 continua respondendo como endereço interno do projeto no Pages, mas não é usado
 em nenhuma URL canônica.
 
@@ -364,7 +364,7 @@ GitHub** — dar push no repositório *não* publica nada.
 | | |
 |---|---|
 | Projeto no Cloudflare | `telma-santos` |
-| Endereço de produção | https://telmaformadoraeducacional.com.br |
+| Endereço de produção | https://www.telmaformadoraeducacional.com.br |
 | Endereço interno do Pages | https://telma-santos.pages.dev |
 | Branch de produção **no Cloudflare** | `main` |
 | Branch do repositório | `master` |
