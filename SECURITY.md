@@ -310,8 +310,13 @@ publicadas no deployment `51ffac8e`.
 
 ### Verificado e sem achado
 
-- **Injeção de HTML:** nenhum `dangerouslySetInnerHTML`, `innerHTML`, `eval`,
-  `new Function` ou `document.write` em todo o projeto.
+- **Injeção de HTML:** nenhum `innerHTML`, `eval`, `new Function` ou
+  `document.write` em todo o projeto. Existe um único
+  `dangerouslySetInnerHTML`, em `components/seo/StructuredData.tsx`: é a forma
+  documentada de emitir JSON-LD, porque o React escaparia as aspas como
+  entidades HTML e entidade não é decodificada dentro de `<script>`. O conteúdo
+  vem de `content/site-data.ts`, nunca do visitante, e passa por uma função que
+  escapa `<` como `<` — fechando a saída por `</script>`.
 - **Armazenamento no navegador:** nenhum uso de `localStorage`,
   `sessionStorage`, cookie ou `postMessage`.
 - **Tipagem:** nenhum `any`, `as any`, `@ts-ignore` ou `@ts-expect-error`.
