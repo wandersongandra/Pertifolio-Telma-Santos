@@ -12,9 +12,21 @@
 # requisição. O build envia o payload inline de hidratação do RSC
 # (self.__next_f.push(...)) e atributos style="" inline do Motion.
 # Remover 'unsafe-inline' quebra a hidratação e todas as animações.
-# Todo o restante está limitado a 'self': o site não carrega script, folha de
-# estilo, fonte, imagem ou XHR de terceiros. As fontes são hospedadas pelo
-# next/font durante o build, então font-src não precisa de fonts.gstatic.com.
+# A única origem de terceiro permitida é o Cloudflare Web Analytics:
+# static.cloudflareinsights.com em script-src (o beacon) e cloudflareinsights.com
+# em connect-src (para onde ele envia). O Cloudflare injeta esse script nas
+# páginas do Pages automaticamente; sem estas duas entradas o navegador o
+# bloqueava e registrava um erro de CSP em toda visita, ou seja, o painel de
+# analytics existia e não recebia dado nenhum.
+#
+# A exceção é aceitável porque o Web Analytics não usa cookie, não cria
+# identificador e não rastreia o visitante entre sites — nada que conflite com a
+# Política de Privacidade publicada. Se um dia o analytics for desligado no
+# painel, remova as duas entradas: exceção de CSP sem uso é só superfície.
+#
+# Fora isso tudo continua limitado a 'self': nenhuma folha de estilo, fonte,
+# imagem ou XHR de terceiros. As fontes são hospedadas pelo next/font durante o
+# build, então font-src não precisa de fonts.gstatic.com.
 #
 # Cross-Origin-Resource-Policy: same-origin impede que outro site embuta os
 # arquivos daqui — as fotos da Telma em particular — carregando-os direto do
@@ -26,7 +38,7 @@
 # interest-cohort=() ao lado cobre o nome antigo, que versões mais velhas ainda
 # entendem.
 /*
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://cloudflareinsights.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests
   X-Frame-Options: DENY
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
