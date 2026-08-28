@@ -28,7 +28,7 @@ const manrope = Manrope({
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   alternates: { canonical: "/" },
-  title: `${siteData.meta.name} — ${siteData.meta.role}`,
+  title: siteData.meta.seoTitle,
   description: siteData.meta.description,
   openGraph: {
     title: `${siteData.meta.name} — ${siteData.meta.role}`,

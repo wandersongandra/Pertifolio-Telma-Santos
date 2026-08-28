@@ -77,16 +77,20 @@ export function TypingHeadline({
     return () => window.clearTimeout(timer);
   }, [text, deleting, phraseIndex, started, reducedMotion, phrases]);
 
+  // h2, e não h1: estas frases são posicionamento, não descrição. O h1 da
+  // página é a linha logo abaixo, que diz o que a Telma faz — ver
+  // `hero.headline` em content/site-data.ts. Trocar a tag não muda um pixel na
+  // tela; muda o peso que o buscador dá a cada texto.
   if (reducedMotion) {
     return (
-      <h1 className={cn(HEADLINE_CLASSES, className)}>
+      <h2 className={cn(HEADLINE_CLASSES, className)}>
         {phrases.slice(0, 2).join(" ")}
-      </h1>
+      </h2>
     );
   }
 
   return (
-    <h1 className={cn(HEADLINE_CLASSES, className)}>
+    <h2 className={cn(HEADLINE_CLASSES, className)}>
       <span className="sr-only">{phrases.join(" ")}</span>
       <span aria-hidden="true" className="relative block">
         <span className="invisible">{longestPhrase}</span>
@@ -95,6 +99,6 @@ export function TypingHeadline({
           <span className="typing-caret" />
         </span>
       </span>
-    </h1>
+    </h2>
   );
 }
