@@ -23,7 +23,7 @@ integrações de terceiros.
   os canais publicados são dados deliberadamente públicos.
 - Modelo de implantação: `output: "export"` gera `out/`, e `npm run deploy`
   envia esse diretório para o projeto Pages `telma-santos` na branch `main`.
-- Exposição: internet pública em `https://telmaformadoraeducacional.com.br`,
+- Exposição: internet pública em `https://www.telmaformadoraeducacional.com.br`,
   domínio personalizado apontado no Cloudflare; `https://telma-santos.pages.dev`
   continua respondendo como endereço interno do projeto no Pages.
 - Autenticação e autorização: não aplicáveis ao conteúdo atual, pois não há
