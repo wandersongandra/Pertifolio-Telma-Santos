@@ -313,13 +313,13 @@ Nenhuma é obrigatória: o build funciona sem configurar nada.
 
 | Variável | Quando existe | Para quê |
 |---|---|---|
-| `NEXT_PUBLIC_SITE_URL` | Se você definir | URL pública do site. Defina **quando houver domínio próprio**. |
+| `NEXT_PUBLIC_SITE_URL` | Se você definir | URL pública do site. Sobrescreve o domínio próprio; útil para builds de teste. |
 | `CF_PAGES_URL` / `CF_PAGES_BRANCH` | Só se o build passar a rodar dentro do Cloudflare | Hoje o build roda nesta máquina, então **não existem**. Ver "Deploy". |
 
 A resolução está em [`lib/site-url.ts`](lib/site-url.ts):
 
 ```
-NEXT_PUBLIC_SITE_URL  →  CF_PAGES_URL  →  https://telma-santos.pages.dev
+NEXT_PUBLIC_SITE_URL  →  CF_PAGES_URL  →  https://telmaformadoraeducacional.com.br
 ```
 
 O último valor é o endereço real de produção, e não `localhost`, justamente
@@ -327,9 +327,10 @@ porque o build acontece localmente: um fallback para localhost seria publicado
 dentro do `sitemap.xml`.
 
 Alimenta `metadataBase`, as URLs canônicas, `sitemap.xml`, `robots.txt` e as
-imagens de OpenGraph. **Ao registrar o domínio definitivo**, defina
-`NEXT_PUBLIC_SITE_URL` (ou troque a constante no arquivo) — nada mais precisa
-mudar.
+imagens de OpenGraph. O domínio definitivo
+(`telmaformadoraeducacional.com.br`) já é o valor padrão; `telma-santos.pages.dev`
+continua respondendo como endereço interno do projeto no Pages, mas não é usado
+em nenhuma URL canônica.
 
 ---
 
@@ -363,7 +364,8 @@ GitHub** — dar push no repositório *não* publica nada.
 | | |
 |---|---|
 | Projeto no Cloudflare | `telma-santos` |
-| Endereço de produção | https://telma-santos.pages.dev |
+| Endereço de produção | https://telmaformadoraeducacional.com.br |
+| Endereço interno do Pages | https://telma-santos.pages.dev |
 | Branch de produção **no Cloudflare** | `main` |
 | Branch do repositório | `master` |
 | Build | roda nesta máquina (`npm run build` → `out/`) |

@@ -97,7 +97,7 @@ Depois de publicar, confirme que os headers realmente saíram — se o
 falha visivelmente:
 
 ```bash
-curl -sI https://telma-santos.pages.dev/ | grep -iE "content-security|strict-transport|x-frame|cross-origin"
+curl -sI https://telmaformadoraeducacional.com.br/ | grep -iE "content-security|strict-transport|x-frame|cross-origin"
 ```
 
 > Verificado em 27/08/2026 no deployment de produção `8c2cd43f`: CSP,
