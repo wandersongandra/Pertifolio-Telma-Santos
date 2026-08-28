@@ -158,10 +158,13 @@ Coisas conhecidas, deliberadamente não alteradas:
 - **E-mail em texto puro.** `mailto:` exposto no HTML pode ser coletado por
   robôs de spam. É o custo de ter um canal de contato direto e clicável; a
   alternativa (ofuscar via JavaScript) piora a acessibilidade.
-- **Registros de e-mail removidos.** O `MX .` (null MX), o `SPF v=spf1 -all` e
-  o `DMARC p=reject` do domínio foram apagados durante a configuração do
-  domínio personalizado. Sem eles o domínio pode ser usado para falsificar
-  remetentes. Não afeta o site, mas deve ser restaurado.
+- **O domínio não envia nem recebe e-mail, por decisão.** Verificado em
+  28/08/2026: `MX .` (null MX, RFC 7505), `SPF v=spf1 -all` e
+  `DMARC v=DMARC1; p=reject; sp=reject; adkim=s; aspf=s`. Os três declaram que
+  nenhuma mensagem legítima parte deste domínio, o que impede o uso do nome da
+  Telma em falsificação de remetente. O contato do site é o `mailto:` de um
+  endereço externo, então isso não afeta ninguém que queira falar com ela.
+  Único reforço possível: um DKIM nulo (`*._domainkey` com `v=DKIM1; p=`).
 - **`'unsafe-inline'` em `script-src`.** Ver a explicação acima. Só sairia com
   um servidor emitindo nonce, ou seja, abandonando o export estático.
 - **Dois endereços servem o site, sem redirect entre eles.** Tanto
