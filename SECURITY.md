@@ -100,8 +100,9 @@ falha visivelmente:
 curl -sI https://www.telmaformadoraeducacional.com.br/ | grep -iE "content-security|strict-transport|x-frame|cross-origin"
 ```
 
-> Verificado em 28/08/2026 no deployment de produção `daf55140`, servido pelo
-> domínio próprio `www.telmaformadoraeducacional.com.br`: CSP,
+> Verificado em 28/08/2026 no deployment de produção `daf55140`, nos dois
+> endereços do domínio próprio (`telmaformadoraeducacional.com.br` e
+> `www.telmaformadoraeducacional.com.br`): CSP,
 > HSTS, `X-Frame-Options: DENY`, `Cross-Origin-Opener-Policy: same-origin`,
 > `nosniff`, `Referrer-Policy` e `Permissions-Policy` todos presentes. O
 > `Cache-Control` de `/telma/*` respondeu `public, must-revalidate,
@@ -163,11 +164,12 @@ Coisas conhecidas, deliberadamente não alteradas:
   remetentes. Não afeta o site, mas deve ser restaurado.
 - **`'unsafe-inline'` em `script-src`.** Ver a explicação acima. Só sairia com
   um servidor emitindo nonce, ou seja, abandonando o export estático.
-- **Apex sem registro DNS.** `telmaformadoraeducacional.com.br` (sem `www`)
-  não resolve: o fluxo de domínio personalizado do Pages substituiu o apex pelo
-  `www` em vez de manter os dois. Quem digitar o endereço sem `www` recebe erro.
-  Correção: recriar `CNAME @ → telma-santos.pages.dev` com proxy no DNS e, feito
-  isso, inverter o canônico para o apex e deixar o `www` com redirect 301.
+- **Dois endereços servem o site, sem redirect entre eles.** Tanto
+  `telmaformadoraeducacional.com.br` quanto `www.telmaformadoraeducacional.com.br`
+  respondem 200 com o mesmo conteúdo. Isso não gera conteúdo duplicado para
+  buscadores porque ambos declaram o mesmo `canonical` e o mesmo `sitemap.xml`
+  (o endereço com `www`, definido em `lib/site-url.ts`). Um redirect 301 do apex
+  para o `www` seria o refinamento, não uma correção.
 - **Perfis externos não validados automaticamente.** Os links de Instagram
   (`@telma_formadora`) e LinkedIn (`linkedin.com/in/telma03`) foram informados
   pela própria Telma e apontam para os perfis reais. Ambas as plataformas
