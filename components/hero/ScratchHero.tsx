@@ -36,14 +36,14 @@ export function ScratchHero() {
     >
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-ink via-ink to-charcoal" />
 
-      <div className="relative mx-auto max-w-7xl w-full px-6 md:px-10 pt-28 pb-16 grid md:grid-cols-2 gap-12 items-center">
+      <div className="relative mx-auto max-w-7xl w-full px-6 md:px-10 pt-24 pb-12 grid gap-8 md:grid-cols-2 md:gap-12 md:pt-28 md:pb-16 items-center">
         <div>
           <motion.div
             initial={reducedMotion ? false : { opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
           >
-            <p className="mb-8 text-[15px] font-medium tracking-[0.2em] uppercase text-gold">
+            <p className="mb-5 text-[13px] font-medium tracking-[0.18em] uppercase text-gold md:mb-8 md:text-[15px] md:tracking-[0.2em]">
               {hero.kicker}
             </p>
           </motion.div>
@@ -63,7 +63,7 @@ export function ScratchHero() {
             initial={reducedMotion ? false : { opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.62, ease: [0.22, 1, 0.36, 1] }}
-            className="mt-7 max-w-[560px] font-display text-[clamp(19px,1.45vw,24px)] leading-[1.35] tracking-[-0.01em] text-gold-muted"
+            className="mt-5 max-w-[560px] font-display text-[clamp(18px,4.6vw,21px)] leading-[1.35] tracking-[-0.01em] text-gold-light md:mt-7 md:text-[clamp(19px,1.45vw,24px)] md:text-gold-muted"
           >
             {hero.headline}
           </motion.h1>
@@ -71,7 +71,7 @@ export function ScratchHero() {
             initial={reducedMotion ? false : { opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.75, ease: [0.22, 1, 0.36, 1] }}
-            className="mt-6 max-w-[600px] text-[clamp(18px,1.3vw,22px)] leading-[1.55] text-ivory/85"
+            className="mt-4 max-w-[600px] text-[clamp(16px,4.2vw,18px)] leading-[1.5] text-ivory/85 md:mt-6 md:text-[clamp(18px,1.3vw,22px)] md:leading-[1.55]"
           >
             {hero.paragraph}
           </motion.p>
@@ -79,7 +79,7 @@ export function ScratchHero() {
             initial={reducedMotion ? false : { opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.95, ease: [0.22, 1, 0.36, 1] }}
-            className="mt-11"
+            className="mt-8 md:mt-11"
           >
             <MagneticButton>
               <Button href={hero.ctaHref}>{hero.ctaLabel} →</Button>
@@ -93,7 +93,7 @@ export function ScratchHero() {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.9, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
             ref={containerRef}
-            className="relative aspect-[3/4] max-w-md mx-auto md:mx-0 md:ml-auto"
+            className="relative aspect-[4/5] max-h-[46svh] w-full max-w-md mx-auto md:aspect-[3/4] md:max-h-none md:mx-0 md:ml-auto"
           >
             {slides.map((slide, position) =>
               position < mounted ? (

@@ -2,6 +2,7 @@
 
 import { useRef, type ReactNode } from "react";
 import { motion, useMotionValue, useSpring, useTransform } from "motion/react";
+import { useCoarsePointer } from "@/lib/useCoarsePointer";
 
 interface TiltCardProps {
   children: ReactNode;
@@ -20,6 +21,7 @@ export function TiltCard({
   strength = 6,
   lift: liftAmount = -6,
 }: TiltCardProps) {
+  const coarsePointer = useCoarsePointer();
   const ref = useRef<HTMLDivElement>(null);
   const x = useMotionValue(0);
   const y = useMotionValue(0);
@@ -42,6 +44,13 @@ export function TiltCard({
     y.set(0);
     lift.set(0);
   };
+
+  // Mesmo motivo do MagneticButton: sem cursor não há inclinação, e o
+  // `transformPerspective` mantinha um contexto 3D vivo em volta de fotos
+  // grandes, o que encarece cada repintura durante a rolagem.
+  if (coarsePointer) {
+    return <div className={className}>{children}</div>;
+  }
 
   return (
     <motion.div

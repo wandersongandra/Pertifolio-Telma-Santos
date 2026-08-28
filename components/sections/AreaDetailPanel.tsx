@@ -81,7 +81,7 @@ function Dense({ detail }: { detail: Extract<AreaDetail, { layout: "dense" }> })
         </p>
       )}
       <div className="mb-10 flex items-baseline gap-4">
-        <span className="font-display text-[clamp(48px,4.5vw,72px)] leading-[0.85] text-ivory">
+        <span className="font-display text-[clamp(38px,9vw,52px)] leading-[0.85] text-ivory md:text-[clamp(48px,4.5vw,72px)]">
           {detail.items.length}
         </span>
         <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gold">

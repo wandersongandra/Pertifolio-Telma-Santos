@@ -9,7 +9,7 @@ export function Sobre() {
   const { sobre } = siteData;
 
   return (
-    <section id="sobre" className="py-24 md:py-32">
+    <section id="sobre" className="py-16 md:py-32">
       <div className="mx-auto max-w-7xl px-6 md:px-10 grid md:grid-cols-2 gap-16 items-center">
         <div className="order-2 md:order-1">
           <SectionHeading eyebrow={sobre.eyebrow} heading={sobre.heading} className="mb-8" />
