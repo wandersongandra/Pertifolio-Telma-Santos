@@ -100,11 +100,12 @@ falha visivelmente:
 curl -sI https://www.telmaformadoraeducacional.com.br/ | grep -iE "content-security|strict-transport|x-frame|cross-origin"
 ```
 
-> Verificado em 28/08/2026 no deployment de produção `daf55140`, nos dois
+> Verificado em 28/08/2026 no deployment de produção `51ffac8e`, nos dois
 > endereços do domínio próprio (`telmaformadoraeducacional.com.br` e
 > `www.telmaformadoraeducacional.com.br`): CSP,
 > HSTS, `X-Frame-Options: DENY`, `Cross-Origin-Opener-Policy: same-origin`,
-> `nosniff`, `Referrer-Policy` e `Permissions-Policy` todos presentes. O
+> `nosniff`, `Referrer-Policy`, `Permissions-Policy` e
+> `Cross-Origin-Resource-Policy` todos presentes. O
 > `Cache-Control` de `/telma/*` respondeu `public, must-revalidate,
 > max-age=86400`, como esperado para arquivos sem hash no nome.
 
@@ -248,6 +249,85 @@ pré-visualização, dependências e projeto Cloudflare Pages `telma-santos`.
 - O projeto Pages existente está autenticado, usa o projeto
   `telma-santos`, publica na branch `main` e entrega CSP, HSTS, proteção contra
   framing, `nosniff`, política de referenciador, COOP e Permissions-Policy.
+
+## Auditoria de 28/08/2026
+
+Segunda passagem, sobre o código inteiro (~4.000 linhas), o build, os headers e
+os scripts locais. As quatro correções abaixo foram implementadas, buildadas e
+publicadas no deployment `51ffac8e`.
+
+### SEC-004 — servidor de pré-visualização ouvia em todas as interfaces
+
+- **Severidade:** baixa, limitada ao ambiente local.
+- **Localização:** `scripts/serve-with-headers.mjs`.
+- **Evidência:** `.listen(PORT, ...)` sem endereço vincula a `0.0.0.0`, ou seja,
+  a todas as interfaces de rede da máquina.
+- **Impacto:** durante uma sessão de `npm run preview:headers`, qualquer
+  dispositivo na mesma rede (Wi-Fi de coworking, rede de hotel) alcançava o
+  conteúdo de `out/`. É o resíduo apontado como TM-003 no threat model.
+- **Correção:** vinculado a `127.0.0.1`.
+
+### SEC-005 — `mailto:` codificava espaço como `+`
+
+- **Severidade:** baixa; defeito funcional com origem em codificação.
+- **Localização:** `lib/whatsapp.ts`, `buildMailtoLink`.
+- **Evidência:** a implementação usava `URLSearchParams`, que segue as regras de
+  formulário HTML e converte espaço em `+`. Numa query de formulário o servidor
+  desfaz isso; numa URI `mailto:` não existe essa etapa.
+- **Impacto:** o cliente de e-mail abria com o assunto literal
+  `Contato+via+portfólio+—+Formação`. A primeira impressão de quem escolhe o
+  canal de e-mail era uma linha de assunto quebrada.
+- **Correção:** codificação com `encodeURIComponent`, que produz `%20`.
+  Verificado no HTML publicado: `subject=Contato%20via%20portf%C3%B3lio`.
+- **Nota de segurança:** as duas codificações neutralizam injeção de cabeçalho
+  (`&cc=`, quebra de linha) no nome digitado. Não havia vulnerabilidade; havia
+  um erro de apresentação.
+
+### SEC-006 — campo de nome sem limite de tamanho
+
+- **Severidade:** baixa.
+- **Localização:** `components/sections/Contato.tsx`.
+- **Evidência:** o `input` do nome não tinha `maxLength`, e seu conteúdo é
+  interpolado na URL do WhatsApp e do `mailto:`.
+- **Impacto:** um texto longo colado por engano gera uma URL que o WhatsApp e
+  alguns clientes de e-mail truncam ou recusam sem mensagem de erro — o botão
+  simplesmente não funcionaria.
+- **Correção:** `maxLength={80}`.
+
+### SEC-007 — recursos podiam ser embutidos por outras origens
+
+- **Severidade:** baixa, hardening.
+- **Localização:** `public/_headers`.
+- **Evidência:** havia `Cross-Origin-Opener-Policy`, mas não
+  `Cross-Origin-Resource-Policy`.
+- **Impacto:** outro site podia carregar as fotos da Telma direto deste domínio
+  (hotlink), consumindo a banda e exibindo a imagem fora de contexto.
+- **Correção:** `Cross-Origin-Resource-Policy: same-origin`. Não afeta o
+  compartilhamento em redes sociais, porque os raspadores de link buscam a
+  imagem de OpenGraph pelo servidor deles, e o CORP só vale para o carregamento
+  feito pelo navegador. Acrescentado também `browsing-topics=()` à
+  `Permissions-Policy`, recusando a API de Topics do Chrome.
+
+### Verificado e sem achado
+
+- **Injeção de HTML:** nenhum `dangerouslySetInnerHTML`, `innerHTML`, `eval`,
+  `new Function` ou `document.write` em todo o projeto.
+- **Armazenamento no navegador:** nenhum uso de `localStorage`,
+  `sessionStorage`, cookie ou `postMessage`.
+- **Tipagem:** nenhum `any`, `as any`, `@ts-ignore` ou `@ts-expect-error`.
+- **Vazamento de recursos:** todo `setInterval`, `setTimeout`,
+  `addEventListener`, `IntersectionObserver` e `ResizeObserver` tem cleanup no
+  retorno do `useEffect` correspondente.
+- **Roteamento por hash:** `AreasDeAtuacao` compara o hash contra a lista
+  conhecida de áreas e ignora o que não casar; não há caminho de injeção.
+- **Foco e teclado:** o menu tem `role="dialog"`, `aria-modal`, `inert` quando
+  fechado, armadilha de foco em Tab/Shift+Tab, fechamento por Escape, trava de
+  rolagem e devolução do foco ao gatilho.
+- **Links externos:** os quatro `target="_blank"` do projeto carregam
+  `rel="noopener noreferrer"`.
+- **Segredos:** nenhum arquivo `.env` ou `.pem` versionado; nenhuma chave,
+  token ou senha no histórico rastreado.
+- **404:** rota inexistente responde 404 de verdade, com `noindex`.
 
 ### Limites da auditoria
 

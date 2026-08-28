@@ -82,6 +82,11 @@ export function Contato() {
                 value={name}
                 onChange={(event) => setName(event.target.value)}
                 autoComplete="name"
+                // O nome entra na URL do WhatsApp e do `mailto:`. Sem limite, um
+                // texto colado por engano gera uma URL longa demais, que o
+                // WhatsApp e alguns clientes de e-mail truncam ou recusam sem
+                // avisar. 80 caracteres cobrem qualquer nome real.
+                maxLength={80}
                 className="mt-3 w-full max-w-[620px] border-0 border-b border-ivory/20 bg-transparent px-0 py-3 text-[clamp(18px,1.15vw,21px)] text-ivory transition-colors duration-200 placeholder:text-ivory/40 focus:border-gold focus:outline-none"
                 placeholder="Seu nome (opcional)"
               />

@@ -15,13 +15,24 @@
 # Todo o restante está limitado a 'self': o site não carrega script, folha de
 # estilo, fonte, imagem ou XHR de terceiros. As fontes são hospedadas pelo
 # next/font durante o build, então font-src não precisa de fonts.gstatic.com.
+#
+# Cross-Origin-Resource-Policy: same-origin impede que outro site embuta os
+# arquivos daqui — as fotos da Telma em particular — carregando-os direto do
+# nosso domínio. Não afeta o compartilhamento em redes sociais: os raspadores de
+# link buscam a imagem de OpenGraph pelo servidor deles, e o CORP só vale para o
+# carregamento feito pelo navegador.
+#
+# browsing-topics=() recusa a API de Topics do Chrome, sucessora do FLoC. O
+# interest-cohort=() ao lado cobre o nome antigo, que versões mais velhas ainda
+# entendem.
 /*
   Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests
   X-Frame-Options: DENY
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
   Cross-Origin-Opener-Policy: same-origin
-  Permissions-Policy: camera=(), microphone=(), geolocation=(), interest-cohort=(), payment=(), usb=()
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), interest-cohort=(), browsing-topics=(), payment=(), usb=()
+  Cross-Origin-Resource-Policy: same-origin
   Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
 
 # O conteúdo recebe hash no build, então o nome muda quando os bytes mudam.
