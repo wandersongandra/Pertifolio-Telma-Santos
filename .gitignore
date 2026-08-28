@@ -48,3 +48,12 @@ next-env.d.ts
 
 # one-off local asset scripts (icons/webp/optimizacao)
 /_tmp-*.mjs
+
+# Cópias de conflito do Google Drive. Este repositório vive dentro de "Meu
+# Drive", e quando o Drive detecta divergência ele não avisa: cria um irmão
+# chamado "arquivo (1).ts" ao lado do original. Dentro de app/ isso é pior que
+# desordem — o roteador do Next varre a pasta, e um "robots (1).ts" perdido ali
+# entra no build. Já aconteceu em 28/08/2026 e quebrou a checagem de tipos.
+*\ (1).*
+*\ (2).*
+*\ (3).*
