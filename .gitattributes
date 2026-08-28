@@ -1,0 +1,20 @@
+# Normaliza a quebra de linha na entrada do repositório.
+#
+# Sem isto, cada `git add` feito nesta máquina avisa que "LF will be replaced by
+# CRLF", e o arquivo entra no histórico com a quebra de linha do Windows. Quem
+# clonar em Linux — ou o próprio build no Cloudflare, se o projeto for conectado
+# ao git um dia — recebe diffs inteiros de arquivos que ninguém tocou.
+#
+# `text=auto` guarda tudo com LF no repositório e deixa o checkout local seguir
+# a plataforma.
+* text=auto
+
+# Binários: nunca converter, sob risco de corromper o arquivo.
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.webp binary
+*.ico  binary
+*.woff binary
+*.woff2 binary
+*.pdf  binary
