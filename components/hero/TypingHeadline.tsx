@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
 import { useReducedMotion } from "@/lib/useReducedMotion";
+import { useCoarsePointer } from "@/lib/useCoarsePointer";
 
 const TYPE_DELAY_MIN = 45;
 const TYPE_DELAY_MAX = 65;
@@ -11,8 +12,13 @@ const DELETE_DELAY_MAX = 40;
 const HOLD_DELAY = 2100;
 const PAUSE_DELAY = 400;
 
+// Duas escalas. A anterior era uma só, com mínimo de 48px: num aparelho de
+// 320px de largura a frase mais longa ocupava 137px de altura e empurrava a
+// foto da Telma para 730px, muito abaixo de uma dobra de 568px. Abaixo do `md`
+// o corpo passa a acompanhar a tela a partir de 40px; do `md` para cima o
+// desktop segue exatamente como era.
 const HEADLINE_CLASSES =
-  "font-display font-normal text-[clamp(48px,5.4vw,92px)] leading-[0.95] tracking-[-0.03em] text-ivory max-w-xl";
+  "font-display font-normal text-[clamp(40px,10vw,52px)] leading-[1.02] tracking-[-0.025em] text-ivory max-w-xl md:text-[clamp(48px,5.4vw,92px)] md:leading-[0.95] md:tracking-[-0.03em]";
 
 function randomBetween(min: number, max: number) {
   return min + Math.floor(Math.random() * (max - min + 1));
@@ -30,9 +36,16 @@ export function TypingHeadline({
   className,
 }: TypingHeadlineProps) {
   const reducedMotion = useReducedMotion();
+  const coarsePointer = useCoarsePointer();
   const [started, setStarted] = useState(false);
   const [phraseIndex, setPhraseIndex] = useState(0);
-  const [text, setText] = useState("");
+  // Começa com a primeira frase inteira, não vazia. Antes o texto nascia em ""
+  // e só aparecia quando a digitação começava — com o atraso de 1550ms do hero,
+  // a área de maior destaque da página ficava em branco por mais de um segundo
+  // e meio, num aparelho que já havia terminado de carregar. Agora a proposta
+  // de valor está legível no primeiro quadro, inclusive sem JavaScript, e a
+  // digitação apenas assume a partir dali.
+  const [text, setText] = useState(() => (lines.length > 0 ? lines[0] : ""));
   const [deleting, setDeleting] = useState(false);
 
   const phrases = useMemo(() => (lines.length > 0 ? lines : [""]), [lines]);
@@ -41,11 +54,15 @@ export function TypingHeadline({
     ""
   );
 
+  // Em toque a frase fica parada. Trocar a manchete sozinha sob o polegar
+  // atrapalha a leitura, e o ciclo mantém um timer vivo durante toda a visita
+  // sem nada em troca. No desktop o ciclo continua, e o atraso inicial deixa de
+  // importar porque a frase já está na tela desde o começo.
   useEffect(() => {
-    if (reducedMotion) return;
+    if (reducedMotion || coarsePointer) return;
     const timer = window.setTimeout(() => setStarted(true), startDelay);
     return () => window.clearTimeout(timer);
-  }, [reducedMotion, startDelay]);
+  }, [reducedMotion, coarsePointer, startDelay]);
 
   useEffect(() => {
     if (reducedMotion || !started) return;
@@ -96,7 +113,12 @@ export function TypingHeadline({
         <span className="invisible">{longestPhrase}</span>
         <span className="absolute inset-0">
           {text}
-          <span className="typing-caret" />
+          {/*
+            O cursor só existe enquanto o ciclo roda. Em toque, e no intervalo
+            antes de a digitação começar, a frase está parada — um cursor
+            piscando ali sugeriria que algo vai acontecer e não vai.
+          */}
+          {started ? <span className="typing-caret" /> : null}
         </span>
       </span>
     </h2>

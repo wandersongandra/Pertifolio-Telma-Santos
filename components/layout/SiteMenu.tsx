@@ -176,7 +176,12 @@ export function SiteMenu({ open, onClose, triggerRef }: SiteMenuProps) {
         }}
         onKeyDown={handlePanelKeyDown}
       >
-        <div className="flex min-h-full flex-col px-6 pt-24 pb-10 md:px-10">
+        <div
+          className="flex min-h-full flex-col px-6 pt-24 md:px-10"
+          // `env(safe-area-inset-bottom)` é 0 num Android comum e vale a barra
+          // de gestos no iPhone, onde o último link ficaria debaixo dela.
+          style={{ paddingBottom: "calc(2.5rem + env(safe-area-inset-bottom, 0px))" }}
+        >
           <motion.nav aria-label="Seções do site">
             <motion.ul
               variants={listVariants}
@@ -233,7 +238,7 @@ export function SiteMenu({ open, onClose, triggerRef }: SiteMenuProps) {
           <div className="mt-auto pt-12">
             <div className="mb-6 h-px w-10 bg-gold/70" aria-hidden="true" />
             <p className="font-display text-lg text-ivory">{siteData.meta.name}</p>
-            <p className="mt-1 text-xs uppercase tracking-[0.18em] text-warm-gray">
+            <p className="mt-1 text-xs uppercase tracking-[0.18em] text-ivory/65">
               {siteData.meta.role}
             </p>
             <ul className="mt-5 flex flex-wrap gap-x-5 gap-y-2">
@@ -243,7 +248,7 @@ export function SiteMenu({ open, onClose, triggerRef }: SiteMenuProps) {
                     href={channel.href}
                     target={channel.type === "email" ? undefined : "_blank"}
                     rel={channel.type === "email" ? undefined : "noopener noreferrer"}
-                    className="link-draw text-sm text-warm-gray pb-0.5 transition-colors hover:text-gold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold"
+                    className="link-draw inline-flex min-h-11 items-center pb-0.5 text-sm text-ivory/70 transition-colors hover:text-gold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold"
                   >
                     {channel.label}
                   </a>

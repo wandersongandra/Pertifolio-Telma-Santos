@@ -92,6 +92,39 @@ html {
   scrollbar-width: thin;
 }
 
+/*
+  Âncoras e cabeçalho fixo.
+  Sem `scroll-padding-top` o topo da seção para exatamente em 0 e fica atrás do
+  cabeçalho: o visitante clica em "Sobre" e chega com o título escondido.
+  Medido: a seção parava em top=0 com um cabeçalho de 72px. O valor cobre o
+  cabeçalho recolhido mais uma folga de respiro.
+
+  Vale para todo mundo, não só para toque — no desktop quem faz o salto é o
+  Lenis, que recebe o mesmo recuo pela opção `anchors` em SmoothScroll. Em
+  toque o Lenis é desligado e quem assume é o `scroll-behavior` abaixo.
+*/
+html {
+  scroll-padding-top: 88px;
+}
+
+/*
+  O `scroll-padding-top` acima cobre a rolagem que o próprio navegador conduz,
+  mas não os saltos feitos por `scrollIntoView` do roteador nem os do Lenis —
+  medido: a seção parava em top=0 nos dois modos. `scroll-margin-top` no alvo é
+  honrado por todos esses caminhos, porque não depende de quem rolou: ele
+  reserva a folga no elemento de destino.
+*/
+section[id],
+[id="main-content"] {
+  scroll-margin-top: 88px;
+}
+
+@media (pointer: coarse) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
 ::-webkit-scrollbar {
   width: 10px;
 }
@@ -123,6 +156,21 @@ html {
   animation: grain-shift 1s steps(4) infinite;
 }
 
+/*
+  Em aparelho de toque a textura fica parada.
+  O elemento é `fixed inset-0` com `mix-blend-mode: overlay`: animar o
+  `transform` dele obriga o navegador a recompor a tela inteira, misturando a
+  camada com tudo o que está abaixo, quatro vezes por segundo, durante toda a
+  visita. Num Android intermediário isso disputa GPU com a rolagem. Parada, a
+  textura entrega praticamente a mesma sensação — a 4,5% de opacidade o
+  deslocamento quase não se percebe.
+*/
+@media (pointer: coarse) {
+  .grain-overlay {
+    animation: none;
+  }
+}
+
 @keyframes grain-shift {
   0% { transform: translate(0, 0); }
   25% { transform: translate(-2%, 2%); }
@@ -131,7 +179,18 @@ html {
   100% { transform: translate(0, 0); }
 }
 
-/* Preloader da marca. CSS puro, para degradar bem sem JavaScript. */
+/*
+  Preloader da marca. CSS puro, para degradar bem sem JavaScript.
+
+  Em toque ele não existe. O site é um export estático servido de CDN: num
+  celular ele já está pronto antes de a animação terminar, então o preloader
+  não cobria espera nenhuma — ele *criava* a espera. Eram 1,3s de tela cheia
+  (0,7s parado mais 0,6s de fade) fazendo um site rápido parecer lento.
+
+  No desktop ele permanece, com propósito de marca, mas encurtado para 0,35s no
+  total. Sob `prefers-reduced-motion` o bloco no topo deste arquivo já reduz
+  qualquer animação a 0,001ms.
+*/
 .preloader {
   position: fixed;
   inset: 0;
@@ -141,12 +200,24 @@ html {
   justify-content: center;
   background: var(--color-ink);
   pointer-events: none;
-  animation: preloader-fade 0.6s ease forwards;
-  animation-delay: 0.7s;
+  animation: preloader-fade 0.25s ease forwards;
+  animation-delay: 0.1s;
 }
 
 .preloader-mark {
-  animation: preloader-mark-in 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: preloader-mark-in 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/*
+  Precisa vir DEPOIS de `.preloader`, não antes: a especificidade é a mesma
+  (uma classe), e envolver em `@media` não aumenta peso nenhum — quem estiver
+  por último vence. Estava acima e o `display: flex` da regra seguinte
+  ressuscitava o preloader no celular; medido com contexto de toque real.
+*/
+@media (pointer: coarse) {
+  .preloader {
+    display: none;
+  }
 }
 
 @keyframes preloader-mark-in {

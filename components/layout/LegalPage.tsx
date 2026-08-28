@@ -19,7 +19,7 @@ export function LegalPage({
   sections: LegalSection[];
 }) {
   return (
-    <div className="mx-auto max-w-3xl px-6 md:px-10 py-24 md:py-32">
+    <div className="mx-auto max-w-3xl px-6 md:px-10 py-16 md:py-32">
       <p className="text-[13px] font-semibold uppercase tracking-[0.2em] text-gold">
         {eyebrow}
       </p>

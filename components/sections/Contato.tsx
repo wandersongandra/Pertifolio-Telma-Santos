@@ -25,24 +25,24 @@ export function Contato() {
   return (
     <section
       id="contato"
-      className="relative pt-32 pb-24 md:pt-40 md:pb-32 bg-charcoal/60 [clip-path:polygon(0_5vw,100%_0,100%_100%,0_100%)]"
+      className="relative pt-20 pb-16 md:pt-40 md:pb-32 bg-charcoal/60 [clip-path:polygon(0_5vw,100%_0,100%_100%,0_100%)]"
     >
       <div className="mx-auto max-w-7xl px-6 md:px-10">
         <div className="lg:grid lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] lg:gap-x-[clamp(48px,5vw,96px)]">
-          <div className="mb-16 lg:mb-0">
+          <div className="mb-12 lg:mb-0">
             <p className="text-[13px] font-semibold uppercase tracking-[0.2em] text-gold">
               {contato.eyebrow}
             </p>
 
-            <h2 className="mt-6 font-display text-[clamp(56px,5.5vw,88px)] leading-[0.95] tracking-[-0.035em] text-ivory text-balance">
+            <h2 className="mt-5 font-display text-[clamp(36px,9vw,48px)] leading-[1.02] tracking-[-0.03em] text-ivory text-balance md:mt-6 md:text-[clamp(56px,5.5vw,88px)] md:leading-[0.95] md:tracking-[-0.035em]">
               {contato.heading}
             </h2>
 
-            <p className="mt-8 max-w-[520px] text-[clamp(18px,1.25vw,21px)] leading-[1.6] text-ivory/70">
+            <p className="mt-6 max-w-[520px] text-[clamp(17px,1.25vw,21px)] leading-[1.6] text-ivory/75 md:mt-8">
               {contato.intro}
             </p>
 
-            <div className="mt-12">
+            <div className="mt-10">
               <p className="font-display text-xl md:text-2xl text-ivory">{siteData.meta.name}</p>
               <p className="mt-1.5 text-[12px] md:text-[13px] uppercase tracking-[0.16em] text-gold-muted">
                 {siteData.hero.kicker}
@@ -58,7 +58,7 @@ export function Contato() {
                       href={channel.href}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="link-draw pb-0.5 text-sm text-ivory/70 hover:text-gold transition-colors"
+                      className="link-draw inline-flex min-h-11 items-center pb-0.5 text-sm text-ivory/75 transition-colors hover:text-gold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold"
                     >
                       {channel.label} · {channel.value}
                     </a>
@@ -87,7 +87,7 @@ export function Contato() {
                 // WhatsApp e alguns clientes de e-mail truncam ou recusam sem
                 // avisar. 80 caracteres cobrem qualquer nome real.
                 maxLength={80}
-                className="mt-3 w-full max-w-[620px] border-0 border-b border-ivory/20 bg-transparent px-0 py-3 text-[clamp(18px,1.15vw,21px)] text-ivory transition-colors duration-200 placeholder:text-ivory/40 focus:border-gold focus:outline-none"
+                className="mt-3 w-full max-w-[620px] border-0 border-b border-ivory/20 bg-transparent px-0 py-3 text-[clamp(18px,1.15vw,21px)] text-ivory transition-colors duration-200 placeholder:text-ivory/55 focus:border-gold focus:outline-none"
                 placeholder="Seu nome (opcional)"
               />
             </div>
@@ -149,7 +149,12 @@ export function Contato() {
                 Prefere e-mail?{" "}
                 <a
                   href={mailtoHref}
-                  className="link-draw pb-0.5 text-ivory transition-colors hover:text-gold"
+                  // `inline-block` com recuo vertical leva o alvo de 24px
+                  // para 44px sem tirar o link de dentro da frase. É um
+                  // caminho de conversão: vale a área extra, ainda que a
+                  // WCAG dispense links embutidos em texto corrido do
+                  // tamanho mínimo.
+                  className="link-draw inline-block py-2.5 pb-0.5 text-ivory transition-colors hover:text-gold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold"
                 >
                   Enviar mensagem <span aria-hidden="true">→</span>
                 </a>

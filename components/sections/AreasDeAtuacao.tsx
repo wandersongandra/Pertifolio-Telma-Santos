@@ -51,7 +51,7 @@ function PanelContent({ area, index, compact }: { area: AreaOfPractice; index: n
         <h3
           data-motion="headline"
           style={{ transform: "translateY(105%)" }}
-          className="mt-6 max-w-[720px] font-display text-[clamp(42px,4vw,68px)] font-normal leading-[1.02] tracking-[-0.03em] text-ivory text-balance"
+          className="mt-5 max-w-[720px] font-display text-[clamp(30px,7.5vw,42px)] font-normal leading-[1.1] tracking-[-0.025em] text-ivory text-balance md:mt-6 md:text-[clamp(42px,4vw,68px)] md:leading-[1.02] md:tracking-[-0.03em]"
         >
           {area.title}
         </h3>
@@ -385,7 +385,7 @@ export function AreasDeAtuacao() {
       initial="hidden"
       animate={inView ? "visible" : "hidden"}
       variants={sectionVariants}
-      className="py-24 md:py-32"
+      className="py-16 md:py-32"
     >
       <div className="mx-auto max-w-7xl px-6 md:px-10">
         <motion.header variants={headerVariants} className="max-w-2xl">
@@ -394,14 +394,14 @@ export function AreasDeAtuacao() {
           </motion.div>
           <motion.h2
             variants={headerItemVariants}
-            className="mt-6 font-display text-[clamp(44px,4vw,64px)] leading-[0.95] tracking-[-0.03em] text-ivory md:mt-7"
+            className="mt-5 font-display text-[clamp(36px,9vw,48px)] leading-[1.0] tracking-[-0.03em] text-ivory md:mt-7 md:text-[clamp(44px,4vw,64px)] md:leading-[0.95]"
           >
             Áreas de
             <span className="block">Atuação</span>
           </motion.h2>
         </motion.header>
 
-        <div className="mt-16 grid grid-cols-1 gap-12 lg:mt-20 lg:grid-cols-[minmax(360px,0.9fr)_minmax(480px,1.1fr)] lg:gap-x-16">
+        <div className="mt-10 grid grid-cols-1 gap-8 md:mt-16 md:gap-12 lg:mt-20 lg:grid-cols-[minmax(360px,0.9fr)_minmax(480px,1.1fr)] lg:gap-x-16">
           <motion.div
             role="tablist"
             aria-label="Áreas de atuação"
@@ -433,7 +433,7 @@ export function AreasDeAtuacao() {
                   className={cn(
                     "relative flex w-full cursor-pointer items-baseline gap-5 py-3.5 pl-5 text-left transition-colors duration-200 md:py-4 md:pl-6",
                     "focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-4 focus-visible:outline-gold",
-                    isActive ? "text-ivory" : "text-ivory/38 hover:text-ivory/75"
+                    isActive ? "text-ivory" : "text-ivory/55 hover:text-ivory/80"
                   )}
                 >
                   <span className="w-7 shrink-0 text-[11px] font-semibold tracking-[0.18em] text-gold">
@@ -465,7 +465,7 @@ export function AreasDeAtuacao() {
             })}
           </motion.div>
 
-          <div ref={panelWrapperRef} className="border-t border-ivory/10 pt-12 lg:border-0 lg:pt-0">
+          <div ref={panelWrapperRef} className="border-t border-ivory/10 pt-8 md:pt-12 lg:border-0 lg:pt-0">
             <div
               id={`atuacao-panel-${renderedId}`}
               role="tabpanel"

@@ -44,7 +44,7 @@ export function Trajetoria() {
   const total = items.length;
 
   return (
-    <section id="trajetoria" className="py-24 md:py-32 bg-charcoal/40 border-y border-warm-gray/20">
+    <section id="trajetoria" className="py-16 md:py-32 bg-charcoal/40 border-y border-warm-gray/20">
       <div className="mx-auto max-w-6xl px-6 md:px-10 grid md:grid-cols-[260px_minmax(0,1fr)] gap-16">
         <div className="md:sticky md:top-28 self-start">
           <SectionHeading eyebrow="Trajetória" heading="Trajetória Profissional" />
@@ -105,7 +105,7 @@ export function Trajetoria() {
                     className={cn(
                       "font-display text-ivory text-balance",
                       isOpening
-                        ? "mt-4 md:mt-5 text-[clamp(34px,2.8vw,48px)] leading-[1.08] tracking-[-0.025em]"
+                        ? "mt-4 md:mt-5 text-[clamp(27px,6.5vw,34px)] md:text-[clamp(34px,2.8vw,48px)] leading-[1.12] md:leading-[1.08] tracking-[-0.02em] md:tracking-[-0.025em]"
                         : "text-[clamp(24px,1.9vw,38px)] leading-[1.12] tracking-[-0.02em]"
                     )}
                   >
@@ -117,7 +117,7 @@ export function Trajetoria() {
                         "mt-2",
                         isHighlight
                           ? "text-xs font-semibold uppercase tracking-[0.12em] text-gold"
-                          : "text-[13px] font-medium tracking-[0.02em] text-ivory/45"
+                          : "text-[13px] font-medium tracking-[0.02em] text-ivory/65"
                       )}
                     >
                       {meta}
