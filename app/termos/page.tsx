@@ -7,6 +7,12 @@ export const metadata: Metadata = {
   description:
     "Termos de Uso do portfólio profissional de Telma Santos — condições de uso do site e proteção do conteúdo.",
   alternates: { canonical: "/termos" },
+  openGraph: {
+    title: "Termos de Uso | Telma Santos",
+    description:
+      "Condições de uso do portfólio profissional de Telma Santos.",
+    url: "/termos",
+  },
 };
 
 const { contato } = siteData;

@@ -7,6 +7,12 @@ export const metadata: Metadata = {
   description:
     "Política de Privacidade do portfólio profissional de Telma Santos — como as informações fornecidas pelo visitante são tratadas.",
   alternates: { canonical: "/privacidade" },
+  openGraph: {
+    title: "Política de Privacidade | Telma Santos",
+    description:
+      "Como as informações fornecidas pelo visitante do portfólio de Telma Santos são tratadas.",
+    url: "/privacidade",
+  },
 };
 
 const { contato } = siteData;

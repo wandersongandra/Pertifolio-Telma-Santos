@@ -32,6 +32,10 @@ export const metadata: Metadata = {
   openGraph: {
     title: `${siteData.meta.name} — ${siteData.meta.role}`,
     description: siteData.meta.description,
+    // Sem `url` o Next não emite `og:url`, e o raspador de link passa a inferir
+    // o endereço a partir de onde foi compartilhado — inclusive com parâmetros
+    // de rastreamento colados no fim.
+    url: "/",
     type: "website",
     locale: "pt_BR",
     // JPEG, não o WebP que o site usa: o suporte a WebP nos raspadores de link

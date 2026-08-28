@@ -18,6 +18,11 @@ const ROOT = process.argv[2] ?? process.cwd();
 const HEADERS_FILE = path.join(ROOT, "public", "_headers");
 const OUT = path.join(ROOT, "out");
 const PORT = 4321;
+// Vincular ao loopback, não a 0.0.0.0. Este servidor existe só para conferir os
+// headers de um build local; ouvindo em todas as interfaces ele fica alcançável
+// por qualquer máquina da rede (Wi-Fi de coworking, rede de hotel), servindo o
+// conteúdo de `out/` a quem estiver por perto. Não há motivo para isso.
+const HOST = "127.0.0.1";
 const OUT_ROOT = path.resolve(OUT);
 
 // public/_headers é uma lista de padrões de caminho, cada um seguido de linhas
@@ -128,10 +133,10 @@ createServer(async (req, res) => {
     "Content-Type": TYPES[path.extname(file)] ?? "application/octet-stream",
   });
   res.end(req.method === "HEAD" ? undefined : body);
-}).listen(PORT, () => {
+}).listen(PORT, HOST, () => {
   console.log("Regras lidas de public/_headers:");
   for (const rule of rules) {
     console.log(`  ${rule.pattern} -> ${Object.keys(rule.headers).join(", ")}`);
   }
-  console.log(`\nREADY http://localhost:${PORT}`);
+  console.log(`\nREADY http://${HOST}:${PORT}`);
 });
