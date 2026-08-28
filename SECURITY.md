@@ -100,7 +100,8 @@ falha visivelmente:
 curl -sI https://telmaformadoraeducacional.com.br/ | grep -iE "content-security|strict-transport|x-frame|cross-origin"
 ```
 
-> Verificado em 27/08/2026 no deployment de produção `8c2cd43f`: CSP,
+> Verificado em 28/08/2026 no deployment de produção `9926b146`, servido pelo
+> domínio próprio `telmaformadoraeducacional.com.br`: CSP,
 > HSTS, `X-Frame-Options: DENY`, `Cross-Origin-Opener-Policy: same-origin`,
 > `nosniff`, `Referrer-Policy` e `Permissions-Policy` todos presentes. O
 > `Cache-Control` de `/telma/*` respondeu `public, must-revalidate,
