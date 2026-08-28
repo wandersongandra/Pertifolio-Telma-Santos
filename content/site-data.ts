@@ -54,12 +54,16 @@ export interface SiteData {
   meta: {
     name: string;
     role: string;
+    /** Título da aba e do resultado de busca. Ver o comentário no valor. */
+    seoTitle: string;
     tagline: string;
     description: string;
   };
   nav: { label: string; href: string }[];
   hero: {
     kicker: string;
+    /** O h1 da página. Ver o comentário no valor. */
+    headline: string;
     rotatingHeadlines: string[];
     paragraph: string;
     ctaLabel: string;
@@ -96,9 +100,23 @@ export const siteData: SiteData = {
   meta: {
     name: "Telma Santos",
     role: "Formadora Educacional",
+    // O título anterior era "Telma Santos — Formadora Educacional": só o nome
+    // dela e o cargo, então a página só aparecia para quem já a conhecia. O
+    // título é o texto de maior peso da página inteira; dizer o serviço e a
+    // região é o que permite alguém chegar sem saber o nome.
+    //
+    // O recorte na Bahia é verdadeiro — a trajetória inteira é em municípios
+    // baianos — e é o que torna a disputa vencível: "formação de professores"
+    // sozinho compete com institutos nacionais e universidades.
+    //
+    // Mantido em 47 caracteres de propósito: acima de ~60 o Google corta o
+    // final na exibição, e o final é justamente o diferencial. "Assessoria
+    // pedagógica" não cabe aqui e por isso vive no h1, o segundo elemento de
+    // maior peso.
+    seoTitle: "Telma Santos — Formação de Professores na Bahia",
     tagline: "Educação, formação e práticas pedagógicas que transformam.",
     description:
-      "Portfólio profissional de Telma Santos, educadora e formadora com atuação em formação de professores, assessoria pedagógica, oficinas, palestras e desenvolvimento educacional.",
+      "Telma Santos é formadora educacional com mais de duas décadas de atuação na Bahia, em formação de professores, assessoria pedagógica a redes municipais, oficinas, palestras e desenvolvimento educacional.",
   },
 
   nav: [
@@ -110,6 +128,15 @@ export const siteData: SiteData = {
 
   hero: {
     kicker: "Formadora Educacional • Consultora • Palestrante",
+    // O h1 da página. Antes, o h1 eram as frases rotativas ("Presença que deixa
+    // marcas."): bonitas, mas sem uma única palavra que alguém digitaria numa
+    // busca. As frases continuam iguais na tela, agora como h2, e o h1 passa a
+    // dizer o que ela faz.
+    //
+    // O texto é visível, não escondido. Texto oculto para buscador é punido, e
+    // com razão — além de deixar o leitor de tela anunciando algo que não está
+    // na tela.
+    headline: "Formação de professores e assessoria pedagógica a redes municipais",
     rotatingHeadlines: [
       "Presença que deixa marcas.",
       "Educação que inspira.",

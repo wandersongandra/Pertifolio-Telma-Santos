@@ -54,11 +54,24 @@ export function ScratchHero() {
           >
             <TypingHeadline lines={hero.rotatingHeadlines} startDelay={1550} />
           </motion.div>
+          {/*
+            O h1 da página. As frases rotativas acima são h2: elas dizem o
+            posicionamento, esta linha diz o ofício. Fica visível e legível —
+            texto escondido para buscador é punido e atrapalha leitor de tela.
+          */}
+          <motion.h1
+            initial={reducedMotion ? false : { opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.62, ease: [0.22, 1, 0.36, 1] }}
+            className="mt-7 max-w-[560px] font-display text-[clamp(19px,1.45vw,24px)] leading-[1.35] tracking-[-0.01em] text-gold-muted"
+          >
+            {hero.headline}
+          </motion.h1>
           <motion.p
             initial={reducedMotion ? false : { opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.75, ease: [0.22, 1, 0.36, 1] }}
-            className="mt-9 max-w-[600px] text-[clamp(18px,1.3vw,22px)] leading-[1.55] text-ivory/85"
+            className="mt-6 max-w-[600px] text-[clamp(18px,1.3vw,22px)] leading-[1.55] text-ivory/85"
           >
             {hero.paragraph}
           </motion.p>
