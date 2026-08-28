@@ -20,7 +20,7 @@ elimina categorias inteiras de risco por construção:
 | Formulário com POST | Não existe. O bloco de contato monta um link `wa.me` / `mailto:` no navegador; nada é enviado a um servidor deste site. |
 | Cookies / analytics | Nenhum. Por isso também não há banner de consentimento. |
 | Dependências em runtime | `clsx`, `lenis`, `motion`, `next`, `react`, `react-dom`. |
-| Recursos de terceiros | **Nenhum.** Nenhum script, CSS, fonte ou imagem é carregado de outra origem. |
+| Recursos de terceiros | **Um.** O beacon do Cloudflare Web Analytics (`static.cloudflareinsights.com`), injetado pelo Pages e liberado na CSP. Nenhum CSS, fonte ou imagem vem de outra origem. |
 
 O que resta como risco relevante: **conteúdo estático servido ao navegador** e
 **links de saída**. É o que os controles abaixo endereçam.
@@ -129,7 +129,9 @@ grep -rhoE 'https?://[a-zA-Z0-9._/-]+' out --include=*.html --include=*.js --inc
   | sed 's#\(https\?://[^/]*\).*#\1#' | sort | uniq -c | sort -rn
 ```
 
-O esperado são apenas: a própria URL do site, `w3.org` (namespaces de SVG),
+O esperado são apenas: a própria URL do site, `cloudflareinsights.com` (o
+beacon de analytics, injetado pelo Pages em tempo de resposta e não presente em
+`out/`), `w3.org` (namespaces de SVG),
 `wa.me` / `instagram.com` / `linkedin.com` (links de contato) e
 `nextjs.org` / `react.dev` / `github.com` (mensagens de erro dentro do bundle do
 framework). **Qualquer outra origem indica um recurso externo novo, que o CSP
@@ -221,7 +223,9 @@ pré-visualização, dependências e projeto Cloudflare Pages `telma-santos`.
 - **Impacto:** se um XSS for introduzido futuramente, o CSP oferece menos
   contenção para scripts inline do que uma política baseada em nonce ou hash.
 - **Situação:** mantido por compatibilidade. O código atual não renderiza HTML
-  não confiável, não usa sinks DOM perigosos e não carrega scripts de terceiros.
+  não confiável e não usa sinks DOM perigosos. O único script de terceiro é o
+  beacon do Cloudflare Web Analytics, servido pela própria infraestrutura que
+  hospeda o site.
 - **Recomendação:** se o projeto passar a processar dados não confiáveis ou
   exigir CSP estrita, migrar para renderização dinâmica com nonce ou validar a
   estratégia experimental de SRI do Next em uma mudança isolada.
@@ -307,6 +311,25 @@ publicadas no deployment `51ffac8e`.
   imagem de OpenGraph pelo servidor deles, e o CORP só vale para o carregamento
   feito pelo navegador. Acrescentado também `browsing-topics=()` à
   `Permissions-Policy`, recusando a API de Topics do Chrome.
+
+### SEC-008 — analytics do Cloudflare bloqueado pela própria CSP
+
+- **Severidade:** informativa; nenhum risco, mas invalidava um controle que se
+  supunha ativo.
+- **Localização:** `public/_headers`, diretiva `script-src`.
+- **Evidência:** o console do navegador registrava, em toda visita:
+  `Loading the script 'https://static.cloudflareinsights.com/beacon.min.js'
+  violates the following Content Security Policy directive`.
+- **Impacto:** o Cloudflare injeta o beacon do Web Analytics nas respostas do
+  Pages, mas a CSP o bloqueava. O painel de analytics existia e não recebia
+  dado nenhum — a pior forma de falha, porque parece funcionar.
+- **Correção:** `https://static.cloudflareinsights.com` em `script-src` e
+  `https://cloudflareinsights.com` em `connect-src`. Nada além disso foi
+  afrouxado.
+- **Por que a exceção é aceitável:** o Web Analytics não usa cookie, não cria
+  identificador e não acompanha o visitante entre sites, então não conflita com
+  a Política de Privacidade publicada. Se o analytics for desligado no painel,
+  as duas entradas devem sair: exceção de CSP sem uso é só superfície.
 
 ### Verificado e sem achado
 
