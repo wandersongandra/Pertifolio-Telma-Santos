@@ -60,7 +60,7 @@ export function Header() {
           style={{ opacity: menuOpen ? 1 : backgroundOpacity }}
         />
         <motion.div
-          className="relative mx-auto max-w-7xl px-6 md:px-10 flex items-center justify-between"
+          className="relative mx-auto max-w-7xl shell flex items-center justify-between"
           style={
             coarsePointer
               ? { paddingTop: 18, paddingBottom: 18 }

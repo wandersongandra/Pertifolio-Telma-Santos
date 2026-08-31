@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import Image from "next/image";
 import { Fraunces, Manrope } from "next/font/google";
 import { siteData } from "@/content/site-data";
@@ -24,6 +24,24 @@ const manrope = Manrope({
   subsets: ["latin"],
   display: "swap",
 });
+
+/*
+  Sem esta exportacao o Next emite apenas `width=device-width, initial-scale=1`,
+  e sem `viewport-fit=cover` toda funcao `env(safe-area-inset-*)` do projeto
+  resolve para 0 — inclusive as do cabecalho, do menu e do botao de voltar ao
+  topo, que existiam justamente para desviar do entalhe e da barra de gestos do
+  iPhone. Com `cover` a pagina passa a ocupar a tela inteira e as goteiras
+  (`.shell` em globals.css) reservam a area segura de verdade.
+
+  `maximumScale` e `userScalable` ficam de fora de proposito: limitar o zoom
+  quebra WCAG 1.4.4.
+*/
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  themeColor: "#050505",
+};
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),

@@ -36,8 +36,22 @@ export function ScratchHero() {
     >
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-ink via-ink to-charcoal" />
 
-      <div className="relative mx-auto max-w-7xl w-full px-6 md:px-10 pt-24 pb-12 grid gap-8 md:grid-cols-2 md:gap-12 md:pt-28 md:pb-16 items-center">
-        <div>
+      {/*
+        Duas composições diferentes, não uma empilhada.
+
+        No desktop continua a divisão em duas colunas: texto à esquerda,
+        retrato à direita, os dois no mesmo quadro. No celular essa divisão não
+        existe — e empilhá-la produzia o pior dos dois mundos: quatro blocos de
+        texto seguidos e, embaixo deles, um retrato que a dobra cortava ao meio
+        (medido: 46% da foto visível num iPhone SE, 82% num iPhone 14).
+
+        Abaixo do `md` o retrato passa a abrir a página, sangrado até as bordas
+        da tela, e o texto vem depois. A primeira tela deixa de ser uma coluna
+        de texto e passa a ser rosto, posicionamento e oferta — que é o que o
+        desktop já entregava de outro jeito.
+      */}
+      <div className="relative mx-auto max-w-7xl w-full shell pt-20 pb-12 grid gap-7 md:grid-cols-2 md:gap-12 md:pt-28 md:pb-16 md:items-center">
+        <div className="order-2 md:order-1">
           <motion.div
             initial={reducedMotion ? false : { opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
@@ -63,7 +77,7 @@ export function ScratchHero() {
             initial={reducedMotion ? false : { opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.62, ease: [0.22, 1, 0.36, 1] }}
-            className="mt-5 max-w-[560px] font-display text-[clamp(18px,4.6vw,21px)] leading-[1.35] tracking-[-0.01em] text-gold-light md:mt-7 md:text-[clamp(19px,1.45vw,24px)] md:text-gold-muted"
+            className="mt-4 max-w-[560px] font-display text-[clamp(18px,4.6vw,21px)] leading-[1.35] tracking-[-0.01em] text-gold-light md:mt-7 md:text-[clamp(19px,1.45vw,24px)] md:text-gold-muted"
           >
             {hero.headline}
           </motion.h1>
@@ -79,7 +93,7 @@ export function ScratchHero() {
             initial={reducedMotion ? false : { opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.95, ease: [0.22, 1, 0.36, 1] }}
-            className="mt-8 md:mt-11"
+            className="mt-7 md:mt-11"
           >
             <MagneticButton>
               <Button href={hero.ctaHref}>{hero.ctaLabel} →</Button>
@@ -87,13 +101,24 @@ export function ScratchHero() {
           </motion.div>
         </div>
 
-        <div className="relative">
+        <div className="relative order-1 md:order-2">
           <motion.div
             initial={reducedMotion ? false : { opacity: 0, scale: 1.03 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.9, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
             ref={containerRef}
-            className="relative aspect-[4/5] max-h-[46svh] w-full max-w-md mx-auto md:aspect-[3/4] md:max-h-none md:mx-0 md:ml-auto"
+            /*
+              No celular o retrato é uma faixa sangrada até as bordas da tela.
+              A altura em `svh` é o que permite ao resto da dobra caber: 44svh
+              deixam a manchete, o h1, o parágrafo e o botão dentro da primeira
+              tela num aparelho de 844px. Os limites em px seguram os extremos
+              — abaixo de 280 a foto vira um friso, acima de 400 ela empurra o
+              botão para fora.
+
+              Do `md` para cima tudo volta ao que era: proporção 3/4, largura
+              máxima, alinhado à direita e dentro da goteira.
+            */
+            className="shell-bleed relative h-[44svh] max-h-[400px] min-h-[280px] md:mx-0 md:h-auto md:max-h-none md:min-h-0 md:aspect-[3/4] md:max-w-md md:ml-auto"
           >
             {slides.map((slide, position) =>
               position < mounted ? (
@@ -106,9 +131,18 @@ export function ScratchHero() {
                   aria-hidden={position !== index}
                   fill
                   priority={position === 0}
-                  sizes="(min-width: 768px) 40vw, 85vw"
+                  // `100vw` no celular porque a foto agora sangra: pedir 85vw
+                  // entregaria um arquivo menor do que a área onde ele é
+                  // desenhado, e o retrato sairia borrado justamente no
+                  // elemento que conta para o LCP.
+                  sizes="(min-width: 768px) 40vw, 100vw"
                   className={cn(
-                    "hero-photo-fade object-cover object-[50%_10%]",
+                    // No celular o quadro é largo e baixo, então o recorte
+                    // desce um pouco: em `50% 10%` a faixa pegava testa e
+                    // cabelo com pouco tronco. `14%` mantém o rosto com folga
+                    // acima e ganha ombros. No `md` o quadro volta a ser 3/4 e
+                    // o recorte volta ao que era.
+                    "hero-photo-fade object-cover object-[50%_14%] md:object-[50%_10%]",
                     "transition-opacity duration-[1200ms] ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none",
                     position === index ? "opacity-100" : "opacity-0"
                   )}
@@ -125,7 +159,13 @@ export function ScratchHero() {
         initial={reducedMotion ? false : { opacity: 0 }}
         animate={{ opacity: reducedMotion ? 0 : 1 }}
         transition={{ delay: 1.3, duration: 0.6 }}
-        className="pointer-events-none absolute bottom-6 left-1/2 -translate-x-1/2 hidden flex-col items-center gap-2 sm:flex"
+        /*
+          Só do `md` para cima. A dica está ancorada na base da *seção*, e
+          abaixo do `md` a seção é mais alta que a tela — a seta nascia fora da
+          dobra, avisando sobre uma rolagem para quem já teria rolado até ela.
+          No desktop o hero cabe numa tela e a âncora coincide com a dobra.
+        */
+        className="pointer-events-none absolute bottom-6 left-1/2 -translate-x-1/2 hidden flex-col items-center gap-2 md:flex"
       >
         <span className="text-[10px] tracking-[0.25em] uppercase text-ivory/50">
           Rolar

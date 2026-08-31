@@ -27,9 +27,23 @@ export function Contato() {
       id="contato"
       className="relative pt-20 pb-16 md:pt-40 md:pb-32 bg-charcoal/60 [clip-path:polygon(0_5vw,100%_0,100%_100%,0_100%)]"
     >
-      <div className="mx-auto max-w-7xl px-6 md:px-10">
-        <div className="lg:grid lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] lg:gap-x-[clamp(48px,5vw,96px)]">
-          <div className="mb-12 lg:mb-0">
+      <div className="mx-auto max-w-7xl shell">
+        {/*
+          Três blocos, não duas colunas.
+
+          No desktop a leitura é lado a lado e a ordem vertical dentro da coluna
+          esquerda não custa nada. Empilhada no celular, ela custava: título,
+          intro, assinatura e redes sociais vinham inteiros antes do formulário,
+          e quem tinha chegado até a última seção com intenção de falar com a
+          Telma ainda precisava rolar mais de meia tela para achar o botão.
+
+          Agora são três blocos irmãos, na ordem em que se lê no celular:
+          abertura, formulário, assinatura. Do `lg` para cima o grid recoloca a
+          assinatura embaixo da abertura, na primeira coluna, e o formulário
+          ocupa as duas linhas da segunda — exatamente o desenho anterior.
+        */}
+        <div className="flex flex-col lg:grid lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] lg:grid-rows-[auto_1fr] lg:gap-x-[clamp(48px,5vw,96px)]">
+          <div className="lg:col-start-1 lg:row-start-1">
             <p className="text-[13px] font-semibold uppercase tracking-[0.2em] text-gold">
               {contato.eyebrow}
             </p>
@@ -42,32 +56,9 @@ export function Contato() {
               {contato.intro}
             </p>
 
-            <div className="mt-10">
-              <p className="font-display text-xl md:text-2xl text-ivory">{siteData.meta.name}</p>
-              <p className="mt-1.5 text-[12px] md:text-[13px] uppercase tracking-[0.16em] text-gold-muted">
-                {siteData.hero.kicker}
-              </p>
-            </div>
-
-            <ul className="mt-10 flex flex-wrap gap-x-8 gap-y-3">
-              {contato.channels
-                .filter((channel) => channel.type === "instagram" || channel.type === "linkedin")
-                .map((channel) => (
-                  <li key={channel.type}>
-                    <a
-                      href={channel.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="link-draw inline-flex min-h-11 items-center pb-0.5 text-sm text-ivory/75 transition-colors hover:text-gold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold"
-                    >
-                      {channel.label} · {channel.value}
-                    </a>
-                  </li>
-                ))}
-            </ul>
           </div>
 
-          <div className="xl:border-l xl:border-ivory/[0.08] xl:pl-14 lg:pt-16">
+          <div className="mt-12 lg:col-start-2 lg:row-start-1 lg:row-span-2 lg:mt-0 lg:pt-16 xl:border-l xl:border-ivory/[0.08] xl:pl-14">
             <div>
               <label
                 htmlFor="contato-nome"
@@ -87,7 +78,18 @@ export function Contato() {
                 // WhatsApp e alguns clientes de e-mail truncam ou recusam sem
                 // avisar. 80 caracteres cobrem qualquer nome real.
                 maxLength={80}
-                className="mt-3 w-full max-w-[620px] border-0 border-b border-ivory/20 bg-transparent px-0 py-3 text-[clamp(18px,1.15vw,21px)] text-ivory transition-colors duration-200 placeholder:text-ivory/55 focus:border-gold focus:outline-none"
+                // A borda era `ivory/20`: 1,70:1 sobre o fundo composto desta
+                // seção. A WCAG 1.4.11 pede 3:1 para o contorno de um
+                // componente de interface, e esse fio é o único contorno que o
+                // campo tem — abaixo disso ele lê como texto corrido com um
+                // risco embaixo, não como algo onde se digita. `ivory/40` dá
+                // 3,41:1 sem mudar a estética.
+                //
+                // O `focus:outline-none` saiu junto. Ele trocava o anel de foco
+                // por uma mudança de cor de 1px: para quem navega por teclado,
+                // o indicador do único campo da página era um fio mudando de
+                // cinza para dourado.
+                className="mt-3 w-full max-w-[620px] border-0 border-b border-ivory/40 bg-transparent px-0 py-3 text-[clamp(18px,1.15vw,21px)] text-ivory transition-colors duration-200 placeholder:text-ivory/55 focus:border-gold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-gold"
                 placeholder="Seu nome (opcional)"
               />
             </div>
@@ -106,18 +108,37 @@ export function Contato() {
                       key={option.label}
                       htmlFor={optionId}
                       className={cn(
-                        "group relative flex min-h-11 cursor-pointer items-baseline gap-3 py-2 text-[16px] transition-colors duration-200 has-[:focus-visible]:outline has-[:focus-visible]:outline-1 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-gold/60",
-                        selected ? "text-ivory" : "text-ivory/55 hover:text-ivory/80"
+                        "group relative flex min-h-11 cursor-pointer items-start gap-3 py-2.5 text-[16px] transition-colors duration-200 has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-gold",
+                        selected ? "text-ivory" : "text-ivory/70 hover:text-ivory/90"
                       )}
                     >
+                      {/*
+                        O estado NÃO selecionado precisa ter forma.
+
+                        Antes o único sinal era um travessão dourado ao lado da
+                        opção ativa: as outras cinco eram texto cinza, sem
+                        círculo, sem caixa, sem borda — indistinguíveis de uma
+                        lista qualquer. Num celular ninguém entendia que aquilo
+                        era escolhível, e a seção é a última antes da conversão.
+
+                        O anel usa `ivory/40` (3,41:1 sobre o fundo desta seção)
+                        porque é o contorno de um controle: a WCAG 1.4.11 pede
+                        3:1 para ele, e o anel vazio é justamente o que comunica
+                        que existe uma escolha a fazer.
+                      */}
                       <span
                         aria-hidden="true"
                         className={cn(
-                          "inline-block w-[1.1em] shrink-0 font-display text-gold transition-opacity duration-200",
-                          selected ? "opacity-100" : "opacity-0"
+                          "mt-[3px] grid h-[18px] w-[18px] shrink-0 place-items-center rounded-full border transition-colors duration-200",
+                          selected ? "border-gold" : "border-ivory/40 group-hover:border-ivory/70"
                         )}
                       >
-                        —
+                        <span
+                          className={cn(
+                            "h-[8px] w-[8px] rounded-full bg-gold transition-opacity duration-200",
+                            selected ? "opacity-100" : "opacity-0"
+                          )}
+                        />
                       </span>
                       <span>{option.label}</span>
                       <input
@@ -140,26 +161,78 @@ export function Contato() {
                 href={whatsappHref}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex w-full items-center justify-center gap-3 bg-gold px-8 py-4 text-ink text-sm font-semibold tracking-[0.08em] transition-all duration-200 hover:-translate-y-0.5 hover:bg-gold-light sm:w-auto"
+                // O anel de foco é marfim, não dourado: dourado sobre um botão
+                // dourado não aparece. Com o recuo de 4px ele cai fora do
+                // botão, sobre o fundo escuro da seção.
+                className="inline-flex w-full items-center justify-center gap-3 bg-gold px-8 py-4 text-ink text-sm font-semibold tracking-[0.08em] transition-all duration-200 hover:-translate-y-0.5 hover:bg-gold-light focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ivory sm:w-auto"
               >
                 Conversar pelo WhatsApp <span aria-hidden="true">→</span>
               </a>
 
               <p className="mt-6 text-ivory/70">
                 Prefere e-mail?{" "}
+                {/*
+                  O alvo media 36px, não os 44px que a versão anterior deste
+                  comentário afirmava: `py-2.5` punha 10px em cima e embaixo, e
+                  o `pb-0.5` logo em seguida devolvia o de baixo para 2px —
+                  10 + 24 da linha + 2 = 36. O `pb-0.5` existia para o
+                  sublinhado do `.link-draw` não descolar do texto, já que ele é
+                  desenhado na base da caixa.
+
+                  Agora são dois elementos: a âncora carrega o alvo (44px de
+                  altura, medido) e o span interno carrega o traço, colado ao
+                  texto. O `group-hover`/`group-focus-visible` mantém o
+                  sublinhado respondendo à âncora inteira, e não só à parte dela
+                  que tem letra embaixo do dedo.
+                */}
                 <a
                   href={mailtoHref}
-                  // `inline-block` com recuo vertical leva o alvo de 24px
-                  // para 44px sem tirar o link de dentro da frase. É um
-                  // caminho de conversão: vale a área extra, ainda que a
-                  // WCAG dispense links embutidos em texto corrido do
-                  // tamanho mínimo.
-                  className="link-draw inline-block py-2.5 pb-0.5 text-ivory transition-colors hover:text-gold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold"
+                  className="group inline-block py-2.5 text-ivory transition-colors hover:text-gold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold"
                 >
-                  Enviar mensagem <span aria-hidden="true">→</span>
+                  <span className="link-draw pb-0.5 group-hover:[background-size:100%_1px] group-focus-visible:[background-size:100%_1px]">
+                    Enviar mensagem <span aria-hidden="true">→</span>
+                  </span>
                 </a>
               </p>
             </div>
+          </div>
+
+          {/*
+            A assinatura vem depois do formulário também na marcação, não só na
+            tela. Reordenar com `order` teria posto o teclado em desacordo com
+            os olhos — o Tab passaria por Instagram e LinkedIn antes de chegar
+            ao campo de nome, que é o oposto do que a tela mostra (WCAG 2.4.3).
+
+            Nesta ordem os dois coincidem nas duas composições: no celular, uma
+            coluna — abertura, formulário, assinatura; no desktop, o grid põe
+            abertura e assinatura na primeira coluna e o formulário na segunda,
+            e a leitura em Z passa por abertura, formulário e assinatura, na
+            mesma sequência do documento.
+          */}
+          <div className="mt-14 lg:col-start-1 lg:row-start-2 lg:mt-10">
+            <div>
+              <p className="font-display text-xl md:text-2xl text-ivory">{siteData.meta.name}</p>
+              <p className="mt-1.5 text-[13px] uppercase tracking-[0.16em] text-gold-muted">
+                {siteData.hero.kicker}
+              </p>
+            </div>
+
+            <ul className="mt-8 flex flex-wrap gap-x-8 gap-y-3 lg:mt-10">
+              {contato.channels
+                .filter((channel) => channel.type === "instagram" || channel.type === "linkedin")
+                .map((channel) => (
+                  <li key={channel.type}>
+                    <a
+                      href={channel.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="link-draw inline-flex min-h-11 items-center pb-0.5 text-sm text-ivory/75 transition-colors hover:text-gold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold"
+                    >
+                      {channel.label} · {channel.value}
+                    </a>
+                  </li>
+                ))}
+            </ul>
           </div>
         </div>
       </div>

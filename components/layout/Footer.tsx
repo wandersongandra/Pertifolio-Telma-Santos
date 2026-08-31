@@ -6,7 +6,7 @@ export function Footer() {
 
   return (
     <footer className="border-t border-ivory/[0.08]">
-      <div className="mx-auto max-w-7xl px-6 md:px-10 py-8 md:py-10">
+      <div className="mx-auto max-w-7xl shell py-8 md:py-10">
         <p className="font-display text-[clamp(26px,6vw,32px)] leading-none text-ivory md:text-[clamp(30px,2.5vw,44px)]">
           {siteData.meta.name}
         </p>

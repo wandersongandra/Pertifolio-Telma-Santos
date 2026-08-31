@@ -45,17 +45,22 @@ export const photos: Record<PhotoId, PhotoAsset> = {
   },
 };
 
+/*
+  O monograma aparece em dois tamanhos: 40px no cabeçalho e 64px no preloader.
+
+  O arquivo era o PNG de origem, 819x694 e 323KB, servido inteiro — o export
+  estático não redimensiona nada, então o visitante baixava 323KB para desenhar
+  40px, com `priority`, disputando banda com o retrato do hero, que pesa 95KB e
+  é o elemento de LCP. O WebP de 128px cobre 40px em DPR 3,2 e 64px em DPR 2
+  (o preloader não existe em toque, onde os DPR altos moram) e custa 7,2KB.
+
+  Para regerar depois de mexer na marca: `node scripts/optimize-logo.mjs`.
+*/
 export const logo = {
   mark: {
-    src: "/telma/logo/logo-mark.png",
-    width: 819,
-    height: 694,
+    src: "/telma/logo/logo-mark.webp",
+    width: 128,
+    height: 108,
     alt: "Monograma TS — Telma Santos, Formadora",
-  },
-  full: {
-    src: "/telma/logo/logo-full.png",
-    width: 1167,
-    height: 672,
-    alt: "Telma Santos — Formadora Educacional",
   },
 };

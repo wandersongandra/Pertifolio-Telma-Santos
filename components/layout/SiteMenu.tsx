@@ -39,11 +39,25 @@ function useActiveSection(): string | null {
       .map((id) => document.getElementById(id))
       .filter((el): el is HTMLElement => el !== null);
 
+    /*
+      Sair de uma seção também é informação.
+
+      Antes só a entrada marcava: o estado ativo era escrito e nunca apagado.
+      Quem descia até "Sobre" e voltava ao topo abria o menu com "Sobre" ainda
+      em dourado, apontando para uma seção que não estava na tela — e no topo da
+      página, onde a resposta certa é "nenhuma", o menu afirmava uma.
+
+      A saída só limpa se quem saiu era o item ativo. Sem essa checagem, a seção
+      que acabou de entrar seria apagada pela que acabou de sair, já que as duas
+      chegam no mesmo lote de entradas.
+    */
     const observer = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
           const href = hrefById.get(entry.target.id);
-          if (entry.isIntersecting && href) setActive(href);
+          if (!href) continue;
+          if (entry.isIntersecting) setActive(href);
+          else setActive((current) => (current === href ? null : current));
         }
       },
       { rootMargin: "-35% 0px -55% 0px" }
@@ -55,6 +69,9 @@ function useActiveSection(): string | null {
 
   return active;
 }
+
+const whatsapp = siteData.contato.channels.find((channel) => channel.type === "whatsapp");
+const otherChannels = siteData.contato.channels.filter((channel) => channel.type !== "whatsapp");
 
 export function SiteMenu({ open, onClose, triggerRef }: SiteMenuProps) {
   const reducedMotion = useReducedMotion();
@@ -162,7 +179,7 @@ export function SiteMenu({ open, onClose, triggerRef }: SiteMenuProps) {
         aria-label="Menu de navegação"
         aria-hidden={open ? undefined : true}
         inert={!open}
-        className={`fixed top-0 right-0 z-[48] h-dvh w-full flex-col overflow-y-auto border-l border-gold/15 bg-[#080808] transition-transform will-change-transform sm:flex sm:w-[clamp(380px,32vw,520px)] ${
+        className={`fixed top-0 right-0 z-[48] flex h-dvh w-full flex-col overflow-y-auto border-l border-gold/15 bg-[#080808] transition-transform will-change-transform sm:w-[clamp(380px,32vw,520px)] ${
           open ? "pointer-events-auto" : "pointer-events-none"
         }`}
         style={{
@@ -177,7 +194,15 @@ export function SiteMenu({ open, onClose, triggerRef }: SiteMenuProps) {
         onKeyDown={handlePanelKeyDown}
       >
         <div
-          className="flex min-h-full flex-col px-6 pt-24 md:px-10"
+          /*
+            O cabecalho tem z-index maior que o painel, entao a barra opaca fica
+            POR CIMA dos primeiros pixels do menu: o recuo superior precisa
+            limpar a altura dela (~80px) ou o primeiro link nasce escondido.
+            O `clamp` com `dvh` cuida do celular deitado, onde os 96px fixos
+            comiam um quarto da altura util; nunca desce abaixo dos 80px que a
+            barra ocupa.
+          */
+          className="shell flex min-h-full flex-col pt-[calc(env(safe-area-inset-top,0px)+clamp(80px,12dvh,96px))]"
           // `env(safe-area-inset-bottom)` é 0 num Android comum e vale a barra
           // de gestos no iPhone, onde o último link ficaria debaixo dela.
           style={{ paddingBottom: "calc(2.5rem + env(safe-area-inset-bottom, 0px))" }}
@@ -236,13 +261,34 @@ export function SiteMenu({ open, onClose, triggerRef }: SiteMenuProps) {
           </motion.nav>
 
           <div className="mt-auto pt-12">
-            <div className="mb-6 h-px w-10 bg-gold/70" aria-hidden="true" />
+            {/*
+              O menu tem quatro links e um rodapé de assinatura; entre os dois
+              sobrava um vão de meia tela no celular. É a área mais visível do
+              site depois do hero, e o caminho de conversão estava ali como um
+              "WhatsApp" de 14px no meio de outros três canais.
+
+              O botão não substitui a lista de canais — tira o WhatsApp dela,
+              para não oferecer a mesma coisa duas vezes na mesma tela.
+            */}
+            {whatsapp && (
+              <a
+                href={whatsapp.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={onClose}
+                className="inline-flex w-full items-center justify-center gap-3 bg-gold px-6 py-4 text-sm font-semibold uppercase tracking-[0.08em] text-ink transition-colors duration-200 hover:bg-gold-light focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ivory"
+              >
+                Conversar pelo WhatsApp <span aria-hidden="true">→</span>
+              </a>
+            )}
+
+            <div className="mb-6 mt-12 h-px w-10 bg-gold/70" aria-hidden="true" />
             <p className="font-display text-lg text-ivory">{siteData.meta.name}</p>
             <p className="mt-1 text-xs uppercase tracking-[0.18em] text-ivory/65">
               {siteData.meta.role}
             </p>
             <ul className="mt-5 flex flex-wrap gap-x-5 gap-y-2">
-              {siteData.contato.channels.map((channel) => (
+              {otherChannels.map((channel) => (
                 <li key={channel.type}>
                   <a
                     href={channel.href}
