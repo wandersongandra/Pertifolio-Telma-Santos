@@ -6,6 +6,7 @@ import { motion, useScroll, useTransform } from "motion/react";
 import type { PhotoId } from "@/content/site-data";
 import { photos } from "@/lib/photos";
 import { cn } from "@/lib/utils";
+import { useReducedMotion } from "@/lib/useReducedMotion";
 
 type Variant = "natural" | "grayscale";
 type Crop =
@@ -158,6 +159,15 @@ export function EditorialPhoto({
   const photo = photos[photoId];
   const cropStyle = CROP_STYLES[crop];
   const containerRef = useRef<HTMLDivElement>(null);
+  const reducedMotion = useReducedMotion();
+
+  // A deriva é movimento amarrado à rolagem: a foto se desloca sozinha
+  // enquanto a pessoa lê, sem que ela tenha pedido. É o caso central de
+  // `prefers-reduced-motion`, e o bloco global em globals.css não alcança este
+  // efeito — quem escreve o `transform` aqui é a Motion, por script, não uma
+  // transição CSS. Com a preferência ligada a foto fica parada; o
+  // enquadramento e o zoom continuam iguais, só a deriva some.
+  const parallaxOn = parallax && !reducedMotion;
 
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -166,7 +176,7 @@ export function EditorialPhoto({
   const y = useTransform(
     scrollYProgress,
     [0, 1],
-    parallax ? [cropStyle.parallaxFrom ?? "-6%", cropStyle.parallaxTo ?? "6%"] : ["0%", "0%"]
+    parallaxOn ? [cropStyle.parallaxFrom ?? "-6%", cropStyle.parallaxTo ?? "6%"] : ["0%", "0%"]
   );
 
   return (
@@ -181,7 +191,7 @@ export function EditorialPhoto({
     >
       <motion.div
         className="absolute inset-0"
-        style={parallax ? { y, scale: cropStyle.parallaxScale ?? 1.15 } : undefined}
+        style={parallaxOn ? { y, scale: cropStyle.parallaxScale ?? 1.15 } : undefined}
       >
         <Image
           src={photo.src}

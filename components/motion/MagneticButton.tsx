@@ -3,6 +3,7 @@
 import { useRef, type ReactNode } from "react";
 import { motion, useMotionValue, useSpring } from "motion/react";
 import { useCoarsePointer } from "@/lib/useCoarsePointer";
+import { useReducedMotion } from "@/lib/useReducedMotion";
 
 interface MagneticButtonProps {
   children: ReactNode;
@@ -16,6 +17,7 @@ export function MagneticButton({
   className,
 }: MagneticButtonProps) {
   const coarsePointer = useCoarsePointer();
+  const reducedMotion = useReducedMotion();
   const ref = useRef<HTMLDivElement>(null);
   const x = useMotionValue(0);
   const y = useMotionValue(0);
@@ -37,7 +39,12 @@ export function MagneticButton({
   // Em toque o efeito nunca dispara — não há cursor para seguir — mas as duas
   // molas continuam montadas e o elemento continua sendo composto numa camada
   // própria. Devolver o filho puro elimina esse custo e não muda nada na tela.
-  if (coarsePointer) {
+  //
+  // Sob `prefers-reduced-motion` a razão é outra: o botão fugir do cursor é
+  // movimento disparado por interação (WCAG 2.3.3), e as molas da Motion são
+  // aplicadas por script — a regra CSS global de movimento reduzido não as
+  // alcança.
+  if (coarsePointer || reducedMotion) {
     return <div className={className ?? "inline-block"}>{children}</div>;
   }
 

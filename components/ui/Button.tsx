@@ -10,11 +10,20 @@ interface ButtonProps {
   rel?: string;
 }
 
+/*
+  Cada variante traz o seu próprio anel de foco, porque a cor depende do que
+  está embaixo: num botão dourado sólido um anel dourado desaparece, então ali
+  ele é marfim. O recuo joga o anel para fora da caixa, sobre o fundo escuro.
+
+  Antes não havia nenhum: o botão principal do hero — o único elemento
+  interativo da primeira tela — dependia do anel padrão do navegador, diferente
+  do resto do site.
+*/
 const VARIANTS = {
   solid:
-    "bg-gold text-ink hover:bg-gold-light hover:-translate-y-0.5 hover:shadow-[0_14px_36px_-18px_rgba(200,162,77,0.45)]",
-  outline: "border border-gold text-gold hover:bg-gold hover:text-ink",
-  ghost: "text-ivory hover:text-gold",
+    "bg-gold text-ink hover:bg-gold-light hover:-translate-y-0.5 hover:shadow-[0_14px_36px_-18px_rgba(200,162,77,0.45)] focus-visible:outline-ivory",
+  outline: "border border-gold text-gold hover:bg-gold hover:text-ink focus-visible:outline-gold",
+  ghost: "text-ivory hover:text-gold focus-visible:outline-gold",
 };
 
 export function Button({
@@ -32,7 +41,7 @@ export function Button({
       : rel;
 
   const classes = cn(
-    "inline-flex items-center gap-2 px-6 py-3 text-sm font-semibold tracking-wide uppercase rounded-sm transition-[transform,background-color,box-shadow] duration-[250ms]",
+    "inline-flex items-center gap-2 px-6 py-3 text-sm font-semibold tracking-wide uppercase rounded-sm transition-[transform,background-color,box-shadow] duration-[250ms] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4",
     VARIANTS[variant],
     className
   );

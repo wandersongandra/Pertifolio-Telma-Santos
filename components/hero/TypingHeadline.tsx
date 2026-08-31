@@ -108,7 +108,19 @@ export function TypingHeadline({
 
   return (
     <h2 className={cn(HEADLINE_CLASSES, className)}>
-      <span className="sr-only">{phrases.join(" ")}</span>
+      {/*
+        A primeira frase, e só ela. Antes as quatro entravam concatenadas e o
+        leitor de tela anunciava um título de página com quatro sentenças sem
+        relação entre si — "Presença que deixa marcas. Educação que inspira.
+        Conhecimento que transforma. Experiências que despertam." Em toque,
+        onde a digitação nunca começa, isso descrevia uma tela que mostrava
+        uma frase só.
+
+        O nome acessível de um cabeçalho precisa ser estável: as outras três
+        frases são variação de posicionamento, não informação nova, e o que a
+        página de fato oferece está no h1 logo abaixo.
+      */}
+      <span className="sr-only">{phrases[0]}</span>
       <span aria-hidden="true" className="relative block">
         <span className="invisible">{longestPhrase}</span>
         <span className="absolute inset-0">

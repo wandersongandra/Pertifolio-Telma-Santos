@@ -3,6 +3,7 @@
 import { useRef, type ReactNode } from "react";
 import { motion, useMotionValue, useSpring, useTransform } from "motion/react";
 import { useCoarsePointer } from "@/lib/useCoarsePointer";
+import { useReducedMotion } from "@/lib/useReducedMotion";
 
 interface TiltCardProps {
   children: ReactNode;
@@ -22,6 +23,7 @@ export function TiltCard({
   lift: liftAmount = -6,
 }: TiltCardProps) {
   const coarsePointer = useCoarsePointer();
+  const reducedMotion = useReducedMotion();
   const ref = useRef<HTMLDivElement>(null);
   const x = useMotionValue(0);
   const y = useMotionValue(0);
@@ -45,10 +47,17 @@ export function TiltCard({
     lift.set(0);
   };
 
-  // Mesmo motivo do MagneticButton: sem cursor não há inclinação, e o
-  // `transformPerspective` mantinha um contexto 3D vivo em volta de fotos
-  // grandes, o que encarece cada repintura durante a rolagem.
-  if (coarsePointer) {
+  // Duas razões distintas para devolver o filho puro.
+  //
+  // `coarsePointer`: sem cursor não há inclinação, e o `transformPerspective`
+  // mantinha um contexto 3D vivo em volta de fotos grandes, o que encarece
+  // cada repintura durante a rolagem.
+  //
+  // `reducedMotion`: a inclinação é movimento disparado por interação, que é
+  // exatamente o que a WCAG 2.3.3 pede para desligar sob essa preferência. O
+  // bloco de `prefers-reduced-motion` em globals.css não alcança este efeito —
+  // ele não é uma transição CSS, é uma mola que a Motion aplica por script.
+  if (coarsePointer || reducedMotion) {
     return <div className={className}>{children}</div>;
   }
 

@@ -10,7 +10,7 @@ export function Sobre() {
 
   return (
     <section id="sobre" className="py-16 md:py-32">
-      <div className="mx-auto max-w-7xl px-6 md:px-10 grid md:grid-cols-2 gap-16 items-center">
+      <div className="mx-auto max-w-7xl shell grid gap-12 md:grid-cols-2 md:gap-16 md:items-center">
         <div className="order-2 md:order-1">
           <SectionHeading eyebrow={sobre.eyebrow} heading={sobre.heading} className="mb-8" />
           <Reveal>
@@ -24,7 +24,15 @@ export function Sobre() {
           </Reveal>
         </div>
         <Reveal delay={0.1} className="order-1 md:order-2">
-          <TiltCard strength={3} lift={0} className="max-w-md mx-auto">
+          {/*
+            No celular o retrato vai até as bordas da tela. Com `max-w-md
+            mx-auto` ele ficava com 342px de largura no meio de uma faixa preta,
+            lido como um cartão dentro de uma coluna de texto — que é o que
+            sobra quando as duas colunas do desktop empilham e tudo passa a
+            viver na mesma goteira. Do `md` para cima volta a ser a caixa
+            centralizada de antes.
+          */}
+          <TiltCard strength={3} lift={0} className="shell-bleed md:mx-auto md:max-w-md">
             <CurtainReveal>
               {/* As duas fotos com notebook. Cada uma leva o seu próprio
                   enquadramento: o zoom de 1,25 do portrait-editorial tira o
@@ -38,7 +46,9 @@ export function Sobre() {
                   { photoId: "seated-laptop", crop: "portrait-continuada" },
                 ]}
                 variant="natural"
-                sizes="(min-width: 768px) 40vw, 85vw"
+                // 100vw abaixo do `md` porque a foto agora sangra: pedir 85vw
+                // entregaria um arquivo menor que a área desenhada.
+                sizes="(min-width: 768px) 40vw, 100vw"
                 parallax
                 fade="bottom"
               />

@@ -45,6 +45,68 @@ body {
   background: var(--color-ink);
   color: var(--color-ivory);
   font-family: var(--font-sans);
+  /*
+    Uma palavra maior que a coluna (um e-mail, uma URL, um termo composto sem
+    hifenizacao) empurra a linha inteira para fora da tela e o documento passa a
+    rolar na horizontal. Aqui ela quebra dentro da coluna.
+  */
+  overflow-wrap: break-word;
+}
+
+/*
+  Rede de seguranca contra rolagem horizontal acidental.
+
+  `clip` e nao `hidden`: `hidden` transformaria a viewport num container de
+  rolagem e quebraria o `position: sticky` da lista da Trajetoria e das abas de
+  Atuacao. `clip` corta o transbordo sem criar scroll port, entao sticky, fixed
+  e o Lenis continuam funcionando como antes.
+*/
+html {
+  overflow-x: clip;
+}
+
+@layer components {
+  /*
+    Goteira unica de todo o site. Antes cada secao repetia `px-6 md:px-10`, o
+    que tornava impossivel ajustar a margem lateral num lugar so — e nenhuma
+    delas somava a area segura, entao num iPhone deitado o texto passava a
+    correr por baixo do entalhe.
+
+    O valor base continua identico ao que existia (24px, 40px a partir do md):
+    em telas sem entalhe `env()` vale 0 e o resultado e exatamente o de antes.
+  */
+  .shell {
+    --shell-gutter: 1.5rem;
+    padding-left: calc(var(--shell-gutter) + env(safe-area-inset-left, 0px));
+    padding-right: calc(var(--shell-gutter) + env(safe-area-inset-right, 0px));
+  }
+
+  @media (min-width: 768px) {
+    .shell {
+      --shell-gutter: 2.5rem;
+    }
+  }
+
+  /*
+    Sangria lateral: cancela a goteira do `.shell` para o elemento alcançar as
+    bordas da tela. A margem negativa repete exatamente o que a goteira somou,
+    area segura inclusive, entao a borda cai no limite fisico do aparelho e nao
+    alguns pixels antes.
+
+    Existe por causa do celular. No desktop a assimetria vem do grid — hero em
+    duas colunas, coluna fixa da Trajetoria, painel lateral da Atuacao. Quando
+    essas colunas empilham, tudo passa a viver na mesma goteira de 24px e as
+    fotos viram cartoes ilhados dentro de uma coluna de texto. Quem usa esta
+    classe devolve o elemento a goteira no `md` com `md:mx-0`, que vence por
+    estar na camada de utilitarios.
+
+    Depende de `--shell-gutter`, entao so funciona dentro de um `.shell`:
+    propriedade customizada e herdada, o valor desce para os descendentes.
+  */
+  .shell-bleed {
+    margin-left: calc(-1 * (var(--shell-gutter) + env(safe-area-inset-left, 0px)));
+    margin-right: calc(-1 * (var(--shell-gutter) + env(safe-area-inset-right, 0px)));
+  }
 }
 
 ::selection {
@@ -104,7 +166,7 @@ html {
   toque o Lenis é desligado e quem assume é o `scroll-behavior` abaixo.
 */
 html {
-  scroll-padding-top: 88px;
+  scroll-padding-top: calc(88px + env(safe-area-inset-top, 0px));
 }
 
 /*
@@ -116,7 +178,7 @@ html {
 */
 section[id],
 [id="main-content"] {
-  scroll-margin-top: 88px;
+  scroll-margin-top: calc(88px + env(safe-area-inset-top, 0px));
 }
 
 @media (pointer: coarse) {
@@ -327,6 +389,21 @@ section[id],
   display: flex;
   width: max-content;
   animation: marquee-scroll 28s linear infinite;
+}
+
+/*
+  Em toque a faixa fica parada, pelo mesmo motivo do grao de filme algumas
+  regras acima: e um `translateX` que roda em laco durante toda a visita, sem
+  gesto que o interrompa. A WCAG 2.2.2 pede um jeito de pausar movimento que
+  dure mais de cinco segundos, e este dura ate a pessoa sair da pagina.
+
+  Parada ela continua entregando a faixa de palavras-chave — muda de fita
+  correndo para regua tipografica, que e o que ela ja e no primeiro quadro.
+*/
+@media (pointer: coarse) {
+  .marquee-track {
+    animation: none;
+  }
 }
 
 @keyframes marquee-scroll {

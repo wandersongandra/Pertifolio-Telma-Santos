@@ -149,7 +149,7 @@ export function Manifesto() {
 
   return (
     <section ref={sectionRef} className="border-y border-warm-gray/20 bg-charcoal/40">
-      <div className="mx-auto max-w-4xl px-6 md:px-10 py-16 md:py-32">
+      <div className="mx-auto max-w-4xl shell py-16 md:py-32">
         {reducedMotion ? (
           <Kicker className="mb-6">{manifesto.eyebrow}</Kicker>
         ) : (
