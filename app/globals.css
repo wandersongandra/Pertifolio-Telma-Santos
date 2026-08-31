@@ -322,6 +322,32 @@ section[id],
   );
 }
 
+/*
+  Os 76% acima foram calibrados para o quadro alto do desktop, onde a faixa que
+  dissolve corresponde a uma fatia pequena da foto. No celular o quadro e curto
+  e largo, entao os mesmos 24% de altura passaram a valer quase 15% do retrato:
+  a dissolucao comecava na altura dos antebracos e apagava meio tronco.
+
+  Comecando em 88% ela volta a ser o que sempre foi — o rodape da imagem se
+  desmanchando no fundo — em vez de um vinhetado sobre a figura.
+*/
+@media (max-width: 767px) {
+  .hero-photo-fade {
+    -webkit-mask-image: linear-gradient(
+      to bottom,
+      black 0%,
+      black 88%,
+      transparent 100%
+    );
+    mask-image: linear-gradient(
+      to bottom,
+      black 0%,
+      black 88%,
+      transparent 100%
+    );
+  }
+}
+
 /* Retrato editorial: dissolve a base do quadro no fundo da seção para o corte
    de baixo (notebook, braços) esmaecer em vez de terminar numa linha dura.
    Mesmo tratamento do retrato do hero. */
