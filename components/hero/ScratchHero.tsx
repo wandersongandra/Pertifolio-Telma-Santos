@@ -109,16 +109,21 @@ export function ScratchHero() {
             ref={containerRef}
             /*
               No celular o retrato é uma faixa sangrada até as bordas da tela.
-              A altura em `svh` é o que permite ao resto da dobra caber: 44svh
-              deixam a manchete, o h1, o parágrafo e o botão dentro da primeira
-              tela num aparelho de 844px. Os limites em px seguram os extremos
-              — abaixo de 280 a foto vira um friso, acima de 400 ela empurra o
-              botão para fora.
+              A altura em `svh` equilibra duas coisas: quanto da foto sobrevive
+              ao recorte e quanto da dobra sobra para o texto.
+
+              Eram 44svh, e o quadro ficava largo demais para um retrato de
+              corpo inteiro — proporção 1,05 contra 0,67 da foto, o que jogava
+              fora 36% da altura dela. 48svh baixam esse descarte para 28% e o
+              corte de baixo passa da cintura para a barra do blazer, que é um
+              lugar bem mais natural para a imagem terminar. Os limites em px
+              seguram os extremos — abaixo de 300 a foto vira um friso, acima
+              de 430 ela empurra o botão para fora da tela.
 
               Do `md` para cima tudo volta ao que era: proporção 3/4, largura
               máxima, alinhado à direita e dentro da goteira.
             */
-            className="shell-bleed relative h-[44svh] max-h-[400px] min-h-[280px] md:mx-0 md:h-auto md:max-h-none md:min-h-0 md:aspect-[3/4] md:max-w-md md:ml-auto"
+            className="shell-bleed relative h-[48svh] max-h-[430px] min-h-[300px] md:mx-0 md:h-auto md:max-h-none md:min-h-0 md:aspect-[3/4] md:max-w-md md:ml-auto"
           >
             {slides.map((slide, position) =>
               position < mounted ? (
@@ -137,12 +142,24 @@ export function ScratchHero() {
                   // elemento que conta para o LCP.
                   sizes="(min-width: 768px) 40vw, 100vw"
                   className={cn(
-                    // No celular o quadro é largo e baixo, então o recorte
-                    // desce um pouco: em `50% 10%` a faixa pegava testa e
-                    // cabelo com pouco tronco. `14%` mantém o rosto com folga
-                    // acima e ganha ombros. No `md` o quadro volta a ser 3/4 e
-                    // o recorte volta ao que era.
-                    "hero-photo-fade object-cover object-[50%_14%] md:object-[50%_10%]",
+                    /*
+                      Ancorado no topo no celular, e isso não é escolha
+                      estética: o arquivo de origem não tem folga acima da
+                      cabeça. Medido no proprio arquivo, o topo do cabelo fica
+                      em torno de 0,5% da altura — a coroa encosta na borda de
+                      cima do original.
+
+                      Qualquer `object-position` acima de 0% come cabeça. Com
+                      `14%` a janela comecava em 4,9% da foto num iPhone 14 e
+                      em 6,7% num SE: eram cinco a sete por cento de cabelo
+                      cortados fora, e era isso que se via.
+
+                      No `md` o quadro volta a ser 3/4, o recorte vertical cai
+                      para ~11% e os 10% de `object-position` valem só 1,1% da
+                      foto — por isso o desktop sempre esteve certo e continua
+                      exatamente como estava.
+                    */
+                    "hero-photo-fade object-cover object-[50%_0%] md:object-[50%_10%]",
                     "transition-opacity duration-[1200ms] ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none",
                     position === index ? "opacity-100" : "opacity-0"
                   )}
