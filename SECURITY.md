@@ -425,5 +425,4 @@ npm audit --omit=dev --audit-level=high
 npm audit --audit-level=high
 ```
 
-O workflow de CI executa esses gates e mantém uma varredura completa de
-segredos com Gitleaks.
+O workflow de CI executa esses gates com `npm ci --ignore-scripts` e mantém uma varredura completa de segredos com Gitleaks. O comando oficial de deploy também executa `npm run check:production` depois do upload; sem esse healthcheck verde, a publicação não deve ser tratada como validada.
