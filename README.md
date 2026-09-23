@@ -283,7 +283,7 @@ texto corrido está no próprio arquivo da página.
 
 ##  Desenvolvimento local
 
-Requer **Node.js 20+** (o Next 16 não roda em versões anteriores).
+Requer **Node.js 20.9+** (requisito da linha Next.js 16.3).
 
 ```bash
 npm install
@@ -299,7 +299,7 @@ npm run dev          # http://localhost:3000
 | `npm run preview:headers` | Serve `out/` **aplicando `public/_headers`**. Use para testar o CSP. |
 | `npm run deploy` | Build + publicação em produção no Cloudflare Pages. |
 | `npm run lint` | ESLint. |
-| `npx tsc --noEmit` | Checagem de tipos. |
+| `npm run typecheck` | Checagem de tipos. |
 
 > `npm run start` existe por padrão do Next, mas **não serve para este projeto**:
 > com `output: "export"` não há servidor Next em produção. Para ver o build
@@ -339,7 +339,7 @@ em nenhuma URL canônica.
 Antes de publicar:
 
 ```bash
-npx tsc --noEmit                    # tipos
+npm run typecheck                   # tipos
 npm run lint                        # lint
 npm run build                       # o build precisa passar
 npm run preview:headers             # e o CSP precisa não quebrar a página
@@ -456,14 +456,16 @@ O projeto busca manter boas práticas como:
 ##  Segurança
 
 O site é um export estático: **não há backend, banco de dados, autenticação,
-formulário com POST, cookie ou analytics**, e nenhum recurso de terceiros é
-carregado — nem fontes, que o `next/font` auto-hospeda no build.
+formulário com POST nem cookie próprio**. O único recurso de terceiro permitido
+é o **Cloudflare Web Analytics**, injetado pela própria hospedagem e limitado na
+CSP; as fontes continuam auto-hospedadas pelo `next/font`.
 
 O que protege o que resta são os headers em
 [`public/_headers`](public/_headers), aplicados pelo Cloudflare Pages: CSP
 travado em `'self'`, HSTS, `frame-ancestors 'none'`, `nosniff`,
-`Referrer-Policy`, `Cross-Origin-Opener-Policy` e `Permissions-Policy`
-desligando câmera, microfone, geolocalização, pagamento e USB.
+`Referrer-Policy`, `Cross-Origin-Opener-Policy`, `Cross-Origin-Resource-Policy`,
+`X-DNS-Prefetch-Control` e `Permissions-Policy` bloqueando APIs não usadas.
+Há também `/.well-known/security.txt` para reporte responsável de falhas.
 
 **[SECURITY.md](SECURITY.md)** detalha cada controle, explica as duas
 limitações conhecidas (`'unsafe-inline'` em `script-src`, obrigatório num export
