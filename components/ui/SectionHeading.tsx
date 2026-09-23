@@ -3,6 +3,7 @@
 import { motion } from "motion/react";
 import { cn } from "@/lib/utils";
 import { Kicker } from "./Kicker";
+import { useReducedMotion } from "@/lib/useReducedMotion";
 
 interface SectionHeadingProps {
   eyebrow?: string;
@@ -17,23 +18,29 @@ export function SectionHeading({
   align = "left",
   className,
 }: SectionHeadingProps) {
+  const reducedMotion = useReducedMotion();
+
   return (
     <div className={cn(align === "center" && "text-center", className)}>
       {eyebrow && (
         <motion.div
-          initial={{ opacity: 0, y: 10 }}
+          initial={reducedMotion ? false : { opacity: 0, y: 10 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-10% 0px -10% 0px" }}
-          transition={{ duration: 0.5 }}
+          transition={{ duration: reducedMotion ? 0 : 0.5 }}
         >
           <Kicker className="mb-3">{eyebrow}</Kicker>
         </motion.div>
       )}
       <motion.h2
-        initial={{ clipPath: "inset(0 100% 0 0)" }}
+        initial={reducedMotion ? false : { clipPath: "inset(0 100% 0 0)" }}
         whileInView={{ clipPath: "inset(0 0% 0 0)" }}
         viewport={{ once: true, margin: "-10% 0px -10% 0px" }}
-        transition={{ duration: 0.8, delay: 0.1, ease: [0.65, 0, 0.35, 1] }}
+        transition={{
+          duration: reducedMotion ? 0 : 0.8,
+          delay: reducedMotion ? 0 : 0.1,
+          ease: [0.65, 0, 0.35, 1],
+        }}
         className="font-display text-3xl sm:text-4xl md:text-5xl leading-[1.1] text-ivory text-balance"
       >
         {heading}
