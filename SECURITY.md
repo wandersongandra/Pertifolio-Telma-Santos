@@ -33,23 +33,28 @@ Todos vivem em [`public/_headers`](public/_headers), lido pelo Cloudflare Pages.
 
 ### Content-Security-Policy
 
+A política fonte em `public/_headers` é deliberadamente *fail closed*: não
+libera scripts inline. Depois do export, `scripts/generate-csp.mjs` calcula um
+hash SHA-256 para cada script inline realmente emitido pelo Next.js e reescreve
+a CSP em `out/_headers`.
+
+O artefato publicado fica no formato:
+
 ```
-default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';
-img-src 'self' data:; font-src 'self'; connect-src 'self'; object-src 'none';
-base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests
+default-src 'self'; script-src 'self' 'sha256-…' https://static.cloudflareinsights.com;
+script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' data:;
+font-src 'self'; connect-src 'self' https://cloudflareinsights.com; media-src 'none';
+object-src 'none'; frame-src 'none'; worker-src 'none'; manifest-src 'self';
+base-uri 'none'; form-action 'none'; frame-ancestors 'none'; upgrade-insecure-requests
 ```
 
-Tudo travado em `'self'`. Duas observações honestas:
+Assim, a hidratação do React continua funcionando sem `'unsafe-inline'` em
+`script-src`. `style-src` ainda precisa de `'unsafe-inline'` por causa de
+estilos inline gerados por React/Motion; isso não autoriza execução de
+JavaScript. `script-src-attr 'none'` bloqueia handlers HTML inline.
 
-- **`'unsafe-inline'` em `script-src` é obrigatório aqui.** Um export estático
-  não tem servidor para emitir *nonce* por requisição, e o build embute o
-  payload de hidratação do React inline (`self.__next_f.push(...)`). Remover
-  `'unsafe-inline'` quebra a hidratação e todas as animações. É uma limitação
-  do modelo estático, não um descuido — e o impacto é mitigado pelo fato de que
-  não há entrada de usuário refletida em HTML: todo o conteúdo vem de
-  `content/site-data.ts`, escrito no repositório.
-- **`font-src 'self'` é suficiente** porque `next/font` baixa Fraunces e Manrope
-  em tempo de build e as auto-hospeda. O site não fala com `fonts.gstatic.com`.
+`font-src 'self'` é suficiente porque `next/font` baixa Fraunces e Manrope
+em tempo de build e as auto-hospeda.
 
 ### Demais headers
 
@@ -168,8 +173,9 @@ Coisas conhecidas, deliberadamente não alteradas:
   Telma em falsificação de remetente. O contato do site é o `mailto:` de um
   endereço externo, então isso não afeta ninguém que queira falar com ela.
   Único reforço possível: um DKIM nulo (`*._domainkey` com `v=DKIM1; p=`).
-- **`'unsafe-inline'` em `script-src`.** Ver a explicação acima. Só sairia com
-  um servidor emitindo nonce, ou seja, abandonando o export estático.
+- **Estilos inline.** `style-src 'unsafe-inline'` permanece necessário para
+  estilos emitidos por React/Motion. Scripts inline, por outro lado, são
+  autorizados individualmente por SHA-256 no artefato final.
 - **Dois endereços servem o site, sem redirect entre eles.** Tanto
   `telmaformadoraeducacional.com.br` quanto `www.telmaformadoraeducacional.com.br`
   respondem 200 com o mesmo conteúdo. Isso não gera conteúdo duplicado para
@@ -212,23 +218,18 @@ pré-visualização, dependências e projeto Cloudflare Pages `telma-santos`.
   percent-encoding inválido respondeu 400; POST respondeu 405; HEAD não
   transferiu o corpo.
 
-### SEC-002 — CSP estática ainda precisa de `unsafe-inline`
+### SEC-002 — CSP de scripts migrada para hashes
 
-- **Severidade:** média como hardening residual; não foi confirmada exploração
-  no site atual.
-- **Localização:** `public/_headers`, regra global `/*`.
-- **Evidência:** `script-src 'self' 'unsafe-inline'` e
-  `style-src 'self' 'unsafe-inline'` são necessários para o payload inline de
-  hidratação do RSC e os estilos inline gerados pelo Motion no export estático.
-- **Impacto:** se um XSS for introduzido futuramente, o CSP oferece menos
-  contenção para scripts inline do que uma política baseada em nonce ou hash.
-- **Situação:** mantido por compatibilidade. O código atual não renderiza HTML
-  não confiável e não usa sinks DOM perigosos. O único script de terceiro é o
-  beacon do Cloudflare Web Analytics, servido pela própria infraestrutura que
-  hospeda o site.
-- **Recomendação:** se o projeto passar a processar dados não confiáveis ou
-  exigir CSP estrita, migrar para renderização dinâmica com nonce ou validar a
-  estratégia experimental de SRI do Next em uma mudança isolada.
+- **Situação original:** o export estático dependia de `'unsafe-inline'` em
+  `script-src` para o payload de hidratação do Next.
+- **Correção atual:** `scripts/generate-csp.mjs` percorre os HTMLs exportados,
+  calcula SHA-256 dos scripts inline e reescreve `out/_headers`.
+- **Resultado:** `script-src` não contém `'unsafe-inline'` nem
+  `'unsafe-eval'`; handlers inline são bloqueados por
+  `script-src-attr 'none'`.
+- **Fail closed:** `public/_headers` também não libera scripts inline. Se a
+  geração de hashes não acontecer, a aplicação não deve ser publicada; o
+  pipeline de deploy executa a geração e a validação antes do upload.
 
 ### SEC-003 — CORS amplo acrescentado pelo Pages
 
