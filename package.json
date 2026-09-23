@@ -8,7 +8,8 @@
     "start": "next start",
     "preview:headers": "node scripts/serve-with-headers.mjs",
     "lint": "eslint",
-    "deploy": "npm run build && wrangler pages deploy out --project-name=telma-santos --branch=main"
+    "deploy": "npm run build && wrangler pages deploy out --project-name=telma-santos --branch=main",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "clsx": "^2.1.1",
@@ -24,10 +25,13 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
-    "eslint-config-next": "16.3.1",
+    "eslint-config-next": "16.3.6",
     "playwright": "^1.62.1",
     "tailwindcss": "^4",
     "typescript": "^5",
     "wrangler": "^4.127.0"
+  },
+  "engines": {
+    "node": ">=20.9.0"
   }
 }
