@@ -124,18 +124,19 @@ flowchart TD
    bloqueia esse caminho.
 4. Deploy manual sem branch/artefato correto → versão antiga ou preview chega à
    URL pública → perda de integridade e indexação incorreta.
-5. Configuração futura de asset privado no mesmo Pages → CORS amplo do Pages →
-   leitura cross-origin por qualquer origem → exposição de conteúdo.
+5. Regressão futura de CORS para origem curinga → leitura cross-origin por
+   qualquer origem → risco de exposição caso o domínio passe a servir dados
+   não públicos. O artefato atual restringe CORS ao domínio canônico.
 
 ## Threat model table
 
 | Threat ID | Threat source | Prerequisites | Threat action | Impact | Impacted assets | Existing controls (evidence) | Gaps | Recommended mitigations | Detection ideas | Likelihood | Impact severity | Priority |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
 | TM-001 | Cadeia de suprimentos | Dependência ou script de build comprometido | Executar código no build e modificar `out/` | Site adulterado | Artefato, conteúdo | lockfile; `npm audit`; revisão; build estático | Não há verificação de assinatura do artefato | Usar `npm ci`, revisão de lockfile, proteção de branch e checagem de hash/preview antes do deploy | Alertar mudanças inesperadas em lockfile e no bundle; comparar deployment com commit | baixa | alta | medium |
-| TM-002 | Alteração futura do código | Novo dado externo chega a JSX, URL ou sink DOM | Inserir script, URL ativa ou markup não sanitizado | XSS no domínio público | Conteúdo e futura sessão | React escapa JSX; varredura não encontrou `dangerouslySetInnerHTML`, `innerHTML`, `eval` ou redirects dinâmicos; CSP | `unsafe-inline` reduz contenção | Manter conteúdo estruturado, validar esquemas de URL, remover sinks e reavaliar CSP ao adicionar integrações | CSP reports, teste automatizado de sinks e revisão de qualquer terceiro | baixa | alta | medium |
+| TM-002 | Alteração futura do código | Novo dado externo chega a JSX, URL ou sink DOM | Inserir script, URL ativa ou markup não sanitizado | XSS no domínio público | Conteúdo e futura sessão | React escapa JSX; CSP de scripts usa hashes SHA-256, `script-src-attr 'none'`, `base-uri 'none'` e `form-action 'none'`; o build rejeita handlers inline e `javascript:` | `style-src` ainda usa `unsafe-inline` para estilos do React/Motion | Manter conteúdo estruturado, validar esquemas de URL, evitar sinks e reavaliar CSP ao adicionar integrações | Teste automatizado do artefato e revisão de qualquer terceiro | baixa | alta | medium |
 | TM-003 | Atacante na rede local | Servidor `preview:headers` em execução e alcançável | Enviar traversal ou método inesperado | Leitura local ou abuso do processo | Arquivos do desenvolvedor | validação com `path.relative`; somente GET/HEAD; 400 para URI inválida | O script ainda é uma ferramenta local e não deve ser exposto | Vincular a loopback se o uso em rede não for necessário | Teste de traversal e monitoramento do processo/porta 4321 | baixa | média | low |
 | TM-004 | Operador ou automação de deploy | Credencial Wrangler e permissão de publicação | Enviar artefato errado ou malicioso à branch `main` | Indisponibilidade ou fraude reputacional | Artefato, integridade da URL | projeto/branch explícitos em `package.json`; `whoami`; headers e smoke HTTP | Projeto usa upload direto, sem revisão remota automática | Proteger credenciais, exigir revisão e preferir pipeline com artefato imutável | Alertas de novo deployment e auditoria de quem publicou | baixa | alta | medium |
-| TM-005 | Origem web arbitrária | Conteúdo privado/API futura no mesmo Pages | Ler recurso por CORS `*` | Exposição cross-origin | Dados futuros | hoje só há assets públicos e não há cookies/API | CORS amplo é acrescentado pelo Pages | Remover/restringir CORS antes de publicar qualquer dado privado | Teste de headers em cada release e inventário de recursos públicos | baixa | baixa | low |
+| TM-005 | Origem web arbitrária | Regressão futura de CORS ou conteúdo privado no mesmo domínio | Ler recurso cross-origin | Exposição cross-origin | Dados futuros | `Access-Control-Allow-Origin` restrito ao domínio canônico e gate que rejeita `*`; hoje não há cookies/API | Configuração edge pode regredir fora do código | Manter healthcheck de produção e rever CORS antes de qualquer API/dado privado | Teste de headers em cada release e inventário de recursos públicos | baixa | média | low |
 
 ## Criticality calibration
 
@@ -146,8 +147,7 @@ flowchart TD
   público ou indisponibilidade ampla; exemplos: dependência comprometida,
   deploy malicioso aceito ou futura API sem controle de acesso.
 - **Medium:** enfraquecimento de defesa com pré-condição adicional; exemplos:
-  CSP com `unsafe-inline` combinada com um XSS futuro ou deploy manual sem
-  revisão.
+  regressão da CSP/CORS ou deploy manual sem revisão.
 - **Low:** impacto local, informativo ou dependente de dado que hoje não existe;
   exemplos: traversal no preview local corrigido, CORS em assets públicos e
   header de hardening ausente.
