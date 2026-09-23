@@ -1,15 +1,15 @@
 // URL pública do site, usada em metadataBase, URLs canônicas, sitemap.xml,
 // robots.txt e nas imagens de OpenGraph.
 //
-// O site é publicado por upload direto (`npm run deploy`), ou seja, o build
-// roda nesta máquina e não dentro do Cloudflare — então CF_PAGES_URL não existe
-// no momento do build. Por isso o último recurso é o endereço real de produção,
-// e não localhost: um sitemap apontando para localhost seria publicado.
+// O site é publicado pelo Cloudflare Pages via integração com o GitHub:
+// merge/push no branch `master` dispara o build e o deploy de produção.
+// Em builds executados pelo Pages, CF_PAGES_URL/CF_PAGES_BRANCH ficam
+// disponíveis. O domínio próprio continua como fallback seguro para builds
+// locais e CI, evitando metadata apontando para localhost.
 //
 // Ordem de resolução:
 //   1. NEXT_PUBLIC_SITE_URL — sobrescreve tudo; use para builds de teste.
-//   2. CF_PAGES_URL — só existe se o build passar a rodar no Cloudflare
-//      (caso o projeto seja conectado ao git no futuro).
+//   2. CF_PAGES_URL — fornecida pelo Cloudflare Pages no build integrado ao Git.
 //   3. PRODUCTION_URL — o domínio próprio, com `www`.
 //
 // Por que `www` e não o apex: hoje só `www.telmaformadoraeducacional.com.br`
