@@ -473,8 +473,7 @@ travado em `'self'`, HSTS, `frame-ancestors 'none'`, `nosniff`,
 Há também `/.well-known/security.txt` para reporte responsável de falhas.
 
 **[SECURITY.md](SECURITY.md)** detalha cada controle, explica as duas
-limitações conhecidas (`'unsafe-inline'` em `script-src`, obrigatório num export
-estático, e o `preload` do HSTS) e traz os comandos para reverificar tudo — CSP
+limitações conhecidas (`style-src 'unsafe-inline'` para estilos gerados em runtime e o `preload` do HSTS) e traz os comandos para reverificar tudo — CSP
 contra o build real, `npm audit`, varredura de origens externas no bundle e
 checagem de segredos versionados.
 
