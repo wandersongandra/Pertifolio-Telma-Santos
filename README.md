@@ -295,9 +295,11 @@ npm run dev          # http://localhost:3000
 | Comando | O que faz |
 |---|---|
 | `npm run dev` | Servidor de desenvolvimento com hot reload. |
-| `npm run build` | Build de produção. Gera o export estático em `out/`. |
-| `npm run preview:headers` | Serve `out/` **aplicando `public/_headers`**. Use para testar o CSP. |
-| `npm run deploy` | Build + publicação em produção no Cloudflare Pages. |
+| `npm run build` | Build de produção + flatten de prefetch + CSP por hashes SHA-256. |
+| `npm run validate:build-security` | Valida rotas, CSP, headers, artefatos sensíveis e crédito Gandra Tech no export. |
+| `npm run preview:headers` | Serve `out/` **aplicando `out/_headers`**. Use para testar o CSP final. |
+| `npm run check:production` | Faz healthcheck do domínio publicado e dos headers de segurança. |
+| `npm run deploy` | Build + validação de segurança + publicação em produção no Cloudflare Pages. |
 | `npm run lint` | ESLint. |
 | `npm run typecheck` | Checagem de tipos. |
 
@@ -341,9 +343,11 @@ Antes de publicar:
 ```bash
 npm run typecheck                   # tipos
 npm run lint                        # lint
-npm run build                       # o build precisa passar
-npm run preview:headers             # e o CSP precisa não quebrar a página
-npm audit --omit=dev                # dependências que chegam ao navegador
+npm run build                       # build + CSP por hashes
+npm run validate:build-security     # artefato final e headers
+npm run preview:headers             # CSP final precisa hidratar sem violações
+npm audit --omit=dev --audit-level=high
+npm audit --audit-level=high
 ```
 
 Com o `preview:headers` rodando, abra `http://localhost:4321` e confira no
@@ -379,11 +383,12 @@ npm run deploy
 Que é `npm run build` seguido de
 `wrangler pages deploy out --project-name=telma-santos --branch=main`.
 
-O `npm run build` é `next build` mais
-`node scripts/flatten-segment-prefetch.mjs` — **publique sempre pelo
-`npm run build`/`npm run deploy`, nunca pelo `next build` puro**, senão os
-payloads de prefetch das rotas internas voltam a dar 404. O porquê está em
-[`scripts/flatten-segment-prefetch.mjs`](scripts/flatten-segment-prefetch.mjs).
+O `npm run build` executa `next build`, corrige os payloads de prefetch com
+`scripts/flatten-segment-prefetch.mjs` e, por fim, gera a CSP estrita com
+hashes SHA-256 em `scripts/generate-csp.mjs`. **Publique sempre pelo
+`npm run build`/`npm run deploy`, nunca pelo `next build` puro**: além dos
+prefetches, o `next build` isolado não gera os hashes que autorizam a
+hidratação na CSP de produção.
 
 > ### O `--branch=main` não é opcional
 >
