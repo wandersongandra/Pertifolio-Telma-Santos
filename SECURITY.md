@@ -256,9 +256,9 @@ pré-visualização, dependências e projeto Cloudflare Pages `telma-santos`.
   `.env`, chave privada, token, endpoint de API, upload, cookie de sessão,
   armazenamento web ou HTML inserido por string.
 - Os links externos usam `noopener noreferrer` quando abrem nova aba.
-- O projeto Pages existente está autenticado, usa o projeto
-  `telma-santos`, publica na branch `main` e entrega CSP, HSTS, proteção contra
-  framing, `nosniff`, política de referenciador, COOP e Permissions-Policy.
+- O projeto Pages `telma-santos` está integrado ao GitHub; merge/push em
+  `master` dispara build/deploy automático. O domínio de produção entrega os
+  controles definidos no artefato após a propagação do deployment.
 
 ## Auditoria de 28/08/2026
 
@@ -425,4 +425,8 @@ npm audit --omit=dev --audit-level=high
 npm audit --audit-level=high
 ```
 
-O workflow de CI executa esses gates com `npm ci --ignore-scripts` e mantém uma varredura completa de segredos com Gitleaks. O comando oficial de deploy também executa `npm run check:production` depois do upload; sem esse healthcheck verde, a publicação não deve ser tratada como validada.
+O workflow de CI executa esses gates com `npm ci --ignore-scripts` e mantém
+uma varredura completa de segredos com Gitleaks. Depois do merge em `master`,
+o Cloudflare Pages publica automaticamente; o workflow **Production Security
+Check** valida o domínio real. Sem esse healthcheck verde, a publicação não deve
+ser tratada como validada.
