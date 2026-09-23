@@ -21,8 +21,9 @@ integrações de terceiros.
   sociais e a máquina do visitante.
 - Uso pretendido: site institucional público com links de contato; o nome e
   os canais publicados são dados deliberadamente públicos.
-- Modelo de implantação: `output: "export"` gera `out/`, e `npm run deploy`
-  envia esse diretório para o projeto Pages `telma-santos` na branch `main`.
+- Modelo de implantação: `output: "export"` gera `out/`; merge/push no
+  branch `master` dispara o build/deploy automático do projeto Cloudflare
+  Pages `telma-santos`. `npm run deploy` existe apenas como fallback manual.
 - Exposição: internet pública em `https://www.telmaformadoraeducacional.com.br`,
   domínio personalizado apontado no Cloudflare; `https://telma-santos.pages.dev`
   continua respondendo como endereço interno do projeto no Pages.
@@ -42,8 +43,8 @@ integrações de terceiros.
   animações, abas e links de contato (`components/`, `lib/`).
 - Artefato público: `out/`, incluindo `_headers`, páginas, assets e bundles
   do Next.
-- Edge de entrega: Cloudflare Pages recebe o diretório via Wrangler e serve os
-  arquivos para visitantes.
+- Edge de entrega: Cloudflare Pages builda o branch de produção integrado ao
+  GitHub e serve o artefato estático para visitantes.
 
 ### Data flows and trust boundaries
 
@@ -51,9 +52,9 @@ integrações de terceiros.
   pacote lockfile atravessam o limite de build local; o lockfile e o build
   determinam o artefato, mas scripts de instalação continuam sendo uma fronteira
   de cadeia de suprimentos.
-- Build local → Cloudflare Pages: arquivos estáticos atravessam HTTPS pelo
-  Wrangler; a autorização é a sessão local do Wrangler e a seleção explícita
-  de projeto/branch no script `deploy`.
+- GitHub → Cloudflare Pages: merge/push em `master` aciona o build integrado;
+  o Cloudflare gera `out/` e promove o deployment de produção. O Wrangler é
+  apenas um caminho de recuperação manual.
 - Cloudflare Pages → navegador: HTML, JS, CSS, fontes e imagens atravessam
   HTTPS; `_headers` entrega CSP, HSTS, `X-Frame-Options`, `nosniff`, COOP,
   Referrer-Policy e Permissions-Policy.
@@ -79,7 +80,7 @@ flowchart TD
 | Artefato `out/` | É o conteúdo que o visitante recebe e que define a identidade do site. | Integridade e disponibilidade (I/A) |
 | Conteúdo, links e metadados | Alteração pode causar fraude, perda de contato ou dano reputacional. | Integridade (I) |
 | Imagens e fontes públicas | Afetam identidade, acessibilidade e desempenho, mas não são secretas. | Integridade e disponibilidade (I/A) |
-| Sessão do Wrangler | Permite publicar no Pages; comprometimento permite adulterar o site. | Confidencialidade e integridade (C/I) |
+| Integração GitHub ↔ Cloudflare | Controla o build/deploy automático; comprometimento pode adulterar a produção. | Confidencialidade e integridade (C/I) |
 | Dependências e lockfile | Código de build e runtime pode alterar o artefato publicado. | Integridade (I) |
 
 ## Attacker model
@@ -97,7 +98,7 @@ flowchart TD
 ### Non-capabilities
 
 - Não há evidência de que o atacante controle `site-data.ts`, o repositório, a
-  sessão do Wrangler ou a conta Cloudflare; esses são cenários de comprometimento
+  integração GitHub/Cloudflare ou a conta Cloudflare; esses são cenários de comprometimento
   de desenvolvimento/CI, não uma entrada pública do site.
 - Não há API, banco, cookie próprio, upload ou endpoint de mutação para atacar.
 
@@ -110,7 +111,7 @@ flowchart TD
 | Links de contato | Clique em `wa.me`, `mailto`, Instagram e LinkedIn | navegador → terceiros | Não há retorno de dados para o site. | `content/site-data.ts`, `lib/whatsapp.ts` |
 | Headers de segurança | Resposta HTTP no Pages | Pages → navegador | Inclui CSP e defesa contra framing. | `public/_headers` |
 | Pré-visualização local | Requisições HTTP na porta 4321 | rede local → script Node | Não é runtime de produção; validação de caminho foi corrigida. | `scripts/serve-with-headers.mjs` |
-| Cadeia de build | `npm install`, `npm run build`, Wrangler | dependências/desenvolvedor → artefato | Risco de supply chain e publicação incorreta. | `package.json`, `package-lock.json` |
+| Cadeia de build | `npm ci`, `npm run build`, integração Pages | dependências/GitHub → artefato | Risco de supply chain e publicação incorreta. | `package.json`, `package-lock.json`, `.github/workflows/` |
 
 ## Top abuse paths
 
@@ -122,8 +123,8 @@ flowchart TD
 3. Uso do servidor local em rede compartilhada → caminho malformado → leitura
    de arquivo fora de `out` → exposição de arquivos locais; a validação atual
    bloqueia esse caminho.
-4. Deploy manual sem branch/artefato correto → versão antiga ou preview chega à
-   URL pública → perda de integridade e indexação incorreta.
+4. Configuração incorreta da integração Git/branch de produção → versão antiga
+   ou preview não promovido → perda de integridade e indexação incorreta.
 5. Regressão futura de CORS para origem curinga → leitura cross-origin por
    qualquer origem → risco de exposição caso o domínio passe a servir dados
    não públicos. O artefato atual restringe CORS ao domínio canônico.
@@ -135,7 +136,7 @@ flowchart TD
 | TM-001 | Cadeia de suprimentos | Dependência ou script de build comprometido | Executar código no build e modificar `out/` | Site adulterado | Artefato, conteúdo | lockfile; `npm audit`; revisão; build estático | Não há verificação de assinatura do artefato | Usar `npm ci`, revisão de lockfile, proteção de branch e checagem de hash/preview antes do deploy | Alertar mudanças inesperadas em lockfile e no bundle; comparar deployment com commit | baixa | alta | medium |
 | TM-002 | Alteração futura do código | Novo dado externo chega a JSX, URL ou sink DOM | Inserir script, URL ativa ou markup não sanitizado | XSS no domínio público | Conteúdo e futura sessão | React escapa JSX; CSP de scripts usa hashes SHA-256, `script-src-attr 'none'`, `base-uri 'none'` e `form-action 'none'`; o build rejeita handlers inline e `javascript:` | `style-src` ainda usa `unsafe-inline` para estilos do React/Motion | Manter conteúdo estruturado, validar esquemas de URL, evitar sinks e reavaliar CSP ao adicionar integrações | Teste automatizado do artefato e revisão de qualquer terceiro | baixa | alta | medium |
 | TM-003 | Atacante na rede local | Servidor `preview:headers` em execução e alcançável | Enviar traversal ou método inesperado | Leitura local ou abuso do processo | Arquivos do desenvolvedor | validação com `path.relative`; somente GET/HEAD; 400 para URI inválida | O script ainda é uma ferramenta local e não deve ser exposto | Vincular a loopback se o uso em rede não for necessário | Teste de traversal e monitoramento do processo/porta 4321 | baixa | média | low |
-| TM-004 | Operador ou automação de deploy | Credencial Wrangler e permissão de publicação | Enviar artefato errado ou malicioso à branch `main` | Indisponibilidade ou fraude reputacional | Artefato, integridade da URL | projeto/branch explícitos em `package.json`; `whoami`; headers e smoke HTTP | Projeto usa upload direto, sem revisão remota automática | Proteger credenciais, exigir revisão e preferir pipeline com artefato imutável | Alertas de novo deployment e auditoria de quem publicou | baixa | alta | medium |
+| TM-004 | Operador ou automação de deploy | Acesso de escrita ao repositório ou à integração Pages | Enviar código/artefato indevido ao branch de produção | Indisponibilidade ou fraude reputacional | Artefato, integridade da URL | PR/CI, branch `master`, build automático e healthcheck de produção | Branch protection deve permanecer ativa e a integração Cloudflare precisa ser protegida | Exigir revisão/checks, menor privilégio e auditoria de deployments | Alertas de deployment e correlação commit ↔ produção | baixa | alta | medium |
 | TM-005 | Origem web arbitrária | Regressão futura de CORS ou conteúdo privado no mesmo domínio | Ler recurso cross-origin | Exposição cross-origin | Dados futuros | `Access-Control-Allow-Origin` restrito ao domínio canônico e gate que rejeita `*`; hoje não há cookies/API | Configuração edge pode regredir fora do código | Manter healthcheck de produção e rever CORS antes de qualquer API/dado privado | Teste de headers em cada release e inventário de recursos públicos | baixa | média | low |
 
 ## Criticality calibration
