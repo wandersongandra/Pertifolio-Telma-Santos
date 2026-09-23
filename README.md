@@ -362,22 +362,27 @@ O procedimento completo, com o que já foi verificado e quando, está em
 
 ##  Deploy
 
-**Cloudflare Pages integrado ao GitHub.** Merge ou push no branch `master`
-dispara automaticamente o build e o deploy de produção.
+**Cloudflare Pages integrado ao GitHub com branch de produção `main`.**
+`master` é a branch de desenvolvimento/merge. Depois que o workflow
+**CI and Security** passa em `master`, **Sync Cloudflare Production Branch**
+faz fast-forward do mesmo commit validado para `main`; o push em `main`
+é o gatilho esperado do build/deploy automático no Pages.
 
 | | |
 |---|---|
 | Projeto no Cloudflare | `telma-santos` |
 | Endereço de produção | https://www.telmaformadoraeducacional.com.br |
 | Endereço interno do Pages | https://telma-santos.pages.dev |
-| Branch monitorado no GitHub | `master` |
-| Build | executado pelo Cloudflare Pages |
+| Branch principal do repositório | `master` |
+| Branch de produção do Cloudflare | `main` |
+| Sincronização | `master` validado → `main` via GitHub Actions |
+| Build | executado pelo Cloudflare Pages após push em `main` |
 | Diretório publicado | `out/` |
 
 O fluxo normal de publicação é:
 
 ```
-PR validado → merge em master → Cloudflare Pages builda → produção
+PR → merge em master → CI verde → sync para main → Cloudflare Pages → produção
 ```
 
 O comando `npm run deploy` permanece apenas como **fallback manual** via
@@ -405,18 +410,21 @@ tem efeito em `next dev`**, por isso o `npm run preview:headers`.
 
 1. CI e segurança verdes no PR.
 2. Merge no branch `master`.
-3. Aguardar o build/deploy automático do Cloudflare Pages.
-4. Executar `npm run check:production` (ou conferir o workflow
+3. Confirmar que **Sync Cloudflare Production Branch** atualizou `main`.
+4. Aguardar o build/deploy automático do Cloudflare Pages a partir de `main`.
+5. Executar `npm run check:production` (ou conferir o workflow
    **Production Security Check**) e só considerar concluído quando rotas, 404,
    CSP por hashes, headers, `security.txt` e o crédito/link da Gandra Tech
    estiverem presentes no domínio público.
 
 ### Integração GitHub → Cloudflare
 
-O Pages está conectado ao repositório. Em builds do Cloudflare,
-`CF_PAGES_URL` e `CF_PAGES_BRANCH` identificam a URL e a branch do
-deployment. `app/robots.ts` usa essa informação para impedir indexação de
-previews.
+O fluxo esperado é Pages conectado ao repositório e observando `main`.
+Em builds do Cloudflare, `CF_PAGES_URL` e `CF_PAGES_BRANCH` identificam a
+URL e a branch do deployment. `app/robots.ts` usa essa informação para
+impedir indexação de previews. Se o Git integration estiver desconectado ou os
+automatic deployments estiverem pausados, o healthcheck de produção permanece
+vermelho mesmo com GitHub CI verde.
 
 ---
 
