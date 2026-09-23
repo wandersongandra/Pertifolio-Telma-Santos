@@ -316,7 +316,7 @@ Nenhuma é obrigatória: o build funciona sem configurar nada.
 | Variável | Quando existe | Para quê |
 |---|---|---|
 | `NEXT_PUBLIC_SITE_URL` | Se você definir | URL pública do site. Sobrescreve o domínio próprio; útil para builds de teste. |
-| `CF_PAGES_URL` / `CF_PAGES_BRANCH` | Só se o build passar a rodar dentro do Cloudflare | Hoje o build roda nesta máquina, então **não existem**. Ver "Deploy". |
+| `CF_PAGES_URL` / `CF_PAGES_BRANCH` | Cloudflare Pages | Informam a URL/branch do deployment durante o build integrado ao Git. |
 
 A resolução está em [`lib/site-url.ts`](lib/site-url.ts):
 
@@ -362,41 +362,38 @@ O procedimento completo, com o que já foi verificado e quando, está em
 
 ##  Deploy
 
-**Cloudflare Pages, por upload direto.** O projeto **não está conectado ao
-GitHub** — dar push no repositório *não* publica nada.
+**Cloudflare Pages integrado ao GitHub.** Merge ou push no branch `master`
+dispara automaticamente o build e o deploy de produção.
 
 | | |
 |---|---|
 | Projeto no Cloudflare | `telma-santos` |
 | Endereço de produção | https://www.telmaformadoraeducacional.com.br |
 | Endereço interno do Pages | https://telma-santos.pages.dev |
-| Branch de produção **no Cloudflare** | `main` |
-| Branch do repositório | `master` |
-| Build | roda nesta máquina (`npm run build` → `out/`) |
+| Branch monitorado no GitHub | `master` |
+| Build | executado pelo Cloudflare Pages |
+| Diretório publicado | `out/` |
 
-Para publicar:
+O fluxo normal de publicação é:
 
-```bash
-npm run deploy
+```
+PR validado → merge em master → Cloudflare Pages builda → produção
 ```
 
-Que executa build, validação do artefato, `wrangler pages deploy out --project-name=telma-santos --branch=main` e, por último, `npm run check:production`. Se o healthcheck final falhar, o comando retorna erro e a publicação não é considerada validada.
+O comando `npm run deploy` permanece apenas como **fallback manual** via
+Wrangler; não é o caminho normal de produção.
 
 O `npm run build` executa `next build`, corrige os payloads de prefetch com
 `scripts/flatten-segment-prefetch.mjs` e, por fim, gera a CSP estrita com
-hashes SHA-256 em `scripts/generate-csp.mjs`. **Publique sempre pelo
-`npm run build`/`npm run deploy`, nunca pelo `next build` puro**: além dos
-prefetches, o `next build` isolado não gera os hashes que autorizam a
-hidratação na CSP de produção.
+hashes SHA-256 em `scripts/generate-csp.mjs`. O Cloudflare Pages deve usar
+`npm run build` como comando de build e publicar `out/`; `next build`
+isolado não executa os pós-processamentos de segurança.
 
-> ### O `--branch=main` não é opcional
+> ### Fallback manual com Wrangler
 >
-> O Cloudflare decide entre **Production** e **Preview** comparando a branch
-> informada com a branch de produção do projeto, que é `main`. Como este
-> repositório usa `master`, um `wrangler pages deploy` sem a flag envia o site
-> para **Preview** — ele fica numa URL de hash e a produção continua na versão
-> antiga, sem erro nenhum. Foi exatamente o que aconteceu com o deploy de
-> `5c5eb84`. O `npm run deploy` já embute a flag; use ele.
+> Se o deploy manual for usado em emergência, o script `npm run deploy`
+> continua apontando explicitamente para o projeto `telma-santos` e executa
+> o healthcheck depois do upload. O fluxo padrão, porém, é GitHub → Cloudflare.
 
 ### O que vai junto no deploy
 
@@ -406,22 +403,20 @@ tem efeito em `next dev`**, por isso o `npm run preview:headers`.
 
 ### Checklist de publicação
 
-1. Rodar a seção **Validação** acima.
-2. `npm run deploy`.
-3. Confirmar que caiu em produção, e não em preview:
-   ```bash
-   npx wrangler pages deployment list --project-name=telma-santos
-   ```
-   A linha mais recente precisa dizer **Production**.
-4. O próprio `npm run deploy` executa `npm run check:production` após o upload. O gate verifica as rotas públicas, 404, CSP por hashes, headers fortes, `security.txt` e o crédito/link da Gandra Tech.
+1. CI e segurança verdes no PR.
+2. Merge no branch `master`.
+3. Aguardar o build/deploy automático do Cloudflare Pages.
+4. Executar `npm run check:production` (ou conferir o workflow
+   **Production Security Check**) e só considerar concluído quando rotas, 404,
+   CSP por hashes, headers, `security.txt` e o crédito/link da Gandra Tech
+   estiverem presentes no domínio público.
 
-### Se um dia conectar ao GitHub
+### Integração GitHub → Cloudflare
 
-Só dá para fazer pelo painel do Cloudflare (o wrangler não configura
-integração git). A partir daí, `CF_PAGES_URL` e `CF_PAGES_BRANCH` passam a
-existir no build, o `app/robots.ts` começa a marcar previews como não
-indexáveis, e publicar volta a ser merge na branch de produção. Atenção ao
-descasamento `main` × `master`.
+O Pages está conectado ao repositório. Em builds do Cloudflare,
+`CF_PAGES_URL` e `CF_PAGES_BRANCH` identificam a URL e a branch do
+deployment. `app/robots.ts` usa essa informação para impedir indexação de
+previews.
 
 ---
 
