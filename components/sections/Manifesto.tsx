@@ -66,7 +66,7 @@ function ParagraphBlock({
     return (
       <div>
         <p className="sr-only">{fullText}</p>
-        <p ref={containerRef} className={PARAGRAPH_CLASSES}>
+        <p ref={containerRef} aria-hidden="true" className={PARAGRAPH_CLASSES}>
           {tokens.map((token, index) => (
             <Fragment key={index}>
               <span data-word={index} className="inline-block">
