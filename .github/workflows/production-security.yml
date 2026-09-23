@@ -1,0 +1,42 @@
+name: Production Security Check
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+  schedule:
+    - cron: "17 */6 * * *"
+
+concurrency:
+  group: production-security-check
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  production-security:
+    name: production-security
+    runs-on: ubuntu-22.04
+    timeout-minutes: 6
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: "22"
+
+      - name: Validate production surface with propagation retries
+        run: |
+          for attempt in 1 2 3 4 5 6; do
+            echo "Production check attempt ${attempt}/6"
+            if node scripts/check-production.mjs; then
+              exit 0
+            fi
+            if [ "${attempt}" -lt 6 ]; then
+              sleep 30
+            fi
+          done
+          exit 1
