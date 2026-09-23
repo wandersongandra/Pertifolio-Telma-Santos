@@ -3,6 +3,7 @@
 import { motion } from "motion/react";
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
+import { useReducedMotion } from "@/lib/useReducedMotion";
 
 interface CurtainRevealProps {
   children: ReactNode;
@@ -15,15 +16,20 @@ export function CurtainReveal({
   className,
   direction = "right",
 }: CurtainRevealProps) {
+  const reducedMotion = useReducedMotion();
+
   return (
     <div className={cn("relative overflow-hidden", className)}>
       {children}
       <motion.div
         aria-hidden="true"
-        initial={{ scaleX: 1 }}
+        initial={reducedMotion ? { scaleX: 0 } : { scaleX: 1 }}
         whileInView={{ scaleX: 0 }}
         viewport={{ once: true, margin: "-10% 0px -10% 0px" }}
-        transition={{ duration: 0.9, ease: [0.76, 0, 0.24, 1] }}
+        transition={{
+          duration: reducedMotion ? 0 : 0.9,
+          ease: [0.76, 0, 0.24, 1],
+        }}
         style={{ originX: direction === "right" ? 1 : 0 }}
         className="absolute inset-0 bg-gold pointer-events-none"
       />

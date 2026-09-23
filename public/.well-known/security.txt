@@ -1,0 +1,4 @@
+Contact: mailto:telmapereira030@gmail.com
+Canonical: https://www.telmaformadoraeducacional.com.br/.well-known/security.txt
+Preferred-Languages: pt-BR, en
+Expires: 2027-09-23T23:59:59Z

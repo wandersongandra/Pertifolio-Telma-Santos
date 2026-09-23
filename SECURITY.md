@@ -18,7 +18,7 @@ elimina categorias inteiras de risco por construção:
 | Autenticação | Não existe. Não há login, sessão, cookie de sessão ou token. |
 | Upload de arquivos | Não existe. |
 | Formulário com POST | Não existe. O bloco de contato monta um link `wa.me` / `mailto:` no navegador; nada é enviado a um servidor deste site. |
-| Cookies / analytics | Nenhum. Por isso também não há banner de consentimento. |
+| Cookies / analytics | Não há cookies próprios. O Cloudflare Web Analytics é o único analytics e não depende de cookie próprio do site. |
 | Dependências em runtime | `clsx`, `lenis`, `motion`, `next`, `react`, `react-dom`. |
 | Recursos de terceiros | **Um.** O beacon do Cloudflare Web Analytics (`static.cloudflareinsights.com`), injetado pelo Pages e liberado na CSP. Nenhum CSS, fonte ou imagem vem de outra origem. |
 
@@ -29,27 +29,32 @@ O que resta como risco relevante: **conteúdo estático servido ao navegador** e
 
 ## Controles aplicados
 
-Todos vivem em [`public/_headers`](public/_headers), lido pelo Cloudflare Pages.
+Os headers-base vivem em [`public/_headers`](public/_headers). O build endurece a CSP no artefato final por meio de `scripts/generate-csp.mjs`, e `scripts/validate-build-security.mjs` verifica o resultado antes do deploy.
 
 ### Content-Security-Policy
 
+A política fonte em `public/_headers` é deliberadamente *fail closed*: não
+libera scripts inline. Depois do export, `scripts/generate-csp.mjs` calcula um
+hash SHA-256 para cada script inline realmente emitido pelo Next.js e reescreve
+a CSP em `out/_headers`.
+
+O artefato publicado fica no formato:
+
 ```
-default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';
-img-src 'self' data:; font-src 'self'; connect-src 'self'; object-src 'none';
-base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests
+default-src 'self'; script-src 'self' 'sha256-…' https://static.cloudflareinsights.com;
+script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' data:;
+font-src 'self'; connect-src 'self' https://cloudflareinsights.com; media-src 'none';
+object-src 'none'; frame-src 'none'; worker-src 'none'; manifest-src 'self';
+base-uri 'none'; form-action 'none'; frame-ancestors 'none'; upgrade-insecure-requests
 ```
 
-Tudo travado em `'self'`. Duas observações honestas:
+Assim, a hidratação do React continua funcionando sem `'unsafe-inline'` em
+`script-src`. `style-src` ainda precisa de `'unsafe-inline'` por causa de
+estilos inline gerados por React/Motion; isso não autoriza execução de
+JavaScript. `script-src-attr 'none'` bloqueia handlers HTML inline.
 
-- **`'unsafe-inline'` em `script-src` é obrigatório aqui.** Um export estático
-  não tem servidor para emitir *nonce* por requisição, e o build embute o
-  payload de hidratação do React inline (`self.__next_f.push(...)`). Remover
-  `'unsafe-inline'` quebra a hidratação e todas as animações. É uma limitação
-  do modelo estático, não um descuido — e o impacto é mitigado pelo fato de que
-  não há entrada de usuário refletida em HTML: todo o conteúdo vem de
-  `content/site-data.ts`, escrito no repositório.
-- **`font-src 'self'` é suficiente** porque `next/font` baixa Fraunces e Manrope
-  em tempo de build e as auto-hospeda. O site não fala com `fonts.gstatic.com`.
+`font-src 'self'` é suficiente porque `next/font` baixa Fraunces e Manrope
+em tempo de build e as auto-hospeda.
 
 ### Demais headers
 
@@ -59,7 +64,13 @@ Tudo travado em `'self'`. Duas observações honestas:
 | `X-Content-Type-Options` | `nosniff` | Impede o navegador de reinterpretar o tipo de um arquivo. |
 | `Referrer-Policy` | `strict-origin-when-cross-origin` | O caminho da página não vaza para WhatsApp, Instagram ou LinkedIn ao clicar num link de saída. |
 | `Cross-Origin-Opener-Policy` | `same-origin` | Isola o contexto de navegação de janelas de outras origens. |
-| `Permissions-Policy` | câmera, microfone, geolocalização, pagamento e USB desligados | O site não usa nenhuma dessas APIs; desligar remove o risco de um recurso futuro (ou um script injetado) usá-las. |
+| `Cross-Origin-Resource-Policy` | `same-origin` | Impede incorporação cross-origin dos assets no navegador. |
+| `Cross-Origin-Embedder-Policy` | `require-corp` | Exige política explícita para recursos cross-origin. |
+| `Access-Control-Allow-Origin` | domínio canônico | Sobrescreve o CORS curinga do Pages e evita leitura cross-origin arbitrária. |
+| `Origin-Agent-Cluster` | `?1` | Solicita isolamento por origem no processo do navegador. |
+| `X-Permitted-Cross-Domain-Policies` | `none` | Recusa políticas legadas de cross-domain. |
+| `X-DNS-Prefetch-Control` | `off` | Desliga prefetch DNS não necessário. |
+| `Permissions-Policy` | APIs de câmera, microfone, localização, sensores, pagamento, USB, serial, HID, Bluetooth, autoplay e fullscreen desligadas | O site não usa essas capacidades; bloqueá-las reduz superfície futura. |
 | `Strict-Transport-Security` | `max-age=31536000; includeSubDomains; preload` | Força HTTPS. Veja a ressalva sobre `preload` abaixo. |
 
 ### Links de saída
@@ -168,8 +179,9 @@ Coisas conhecidas, deliberadamente não alteradas:
   Telma em falsificação de remetente. O contato do site é o `mailto:` de um
   endereço externo, então isso não afeta ninguém que queira falar com ela.
   Único reforço possível: um DKIM nulo (`*._domainkey` com `v=DKIM1; p=`).
-- **`'unsafe-inline'` em `script-src`.** Ver a explicação acima. Só sairia com
-  um servidor emitindo nonce, ou seja, abandonando o export estático.
+- **Estilos inline.** `style-src 'unsafe-inline'` permanece necessário para
+  estilos emitidos por React/Motion. Scripts inline, por outro lado, são
+  autorizados individualmente por SHA-256 no artefato final.
 - **Dois endereços servem o site, sem redirect entre eles.** Tanto
   `telmaformadoraeducacional.com.br` quanto `www.telmaformadoraeducacional.com.br`
   respondem 200 com o mesmo conteúdo. Isso não gera conteúdo duplicado para
@@ -212,35 +224,29 @@ pré-visualização, dependências e projeto Cloudflare Pages `telma-santos`.
   percent-encoding inválido respondeu 400; POST respondeu 405; HEAD não
   transferiu o corpo.
 
-### SEC-002 — CSP estática ainda precisa de `unsafe-inline`
+### SEC-002 — CSP de scripts migrada para hashes
 
-- **Severidade:** média como hardening residual; não foi confirmada exploração
-  no site atual.
-- **Localização:** `public/_headers`, regra global `/*`.
-- **Evidência:** `script-src 'self' 'unsafe-inline'` e
-  `style-src 'self' 'unsafe-inline'` são necessários para o payload inline de
-  hidratação do RSC e os estilos inline gerados pelo Motion no export estático.
-- **Impacto:** se um XSS for introduzido futuramente, o CSP oferece menos
-  contenção para scripts inline do que uma política baseada em nonce ou hash.
-- **Situação:** mantido por compatibilidade. O código atual não renderiza HTML
-  não confiável e não usa sinks DOM perigosos. O único script de terceiro é o
-  beacon do Cloudflare Web Analytics, servido pela própria infraestrutura que
-  hospeda o site.
-- **Recomendação:** se o projeto passar a processar dados não confiáveis ou
-  exigir CSP estrita, migrar para renderização dinâmica com nonce ou validar a
-  estratégia experimental de SRI do Next em uma mudança isolada.
+- **Situação original:** o export estático dependia de `'unsafe-inline'` em
+  `script-src` para o payload de hidratação do Next.
+- **Correção atual:** `scripts/generate-csp.mjs` percorre os HTMLs exportados,
+  calcula SHA-256 dos scripts inline e reescreve `out/_headers`.
+- **Resultado:** `script-src` não contém `'unsafe-inline'` nem
+  `'unsafe-eval'`; handlers inline são bloqueados por
+  `script-src-attr 'none'`.
+- **Fail closed:** `public/_headers` também não libera scripts inline. Se a
+  geração de hashes não acontecer, a aplicação não deve ser publicada; o
+  pipeline de deploy executa a geração e a validação antes do upload.
 
-### SEC-003 — CORS amplo acrescentado pelo Pages
+### SEC-003 — CORS curinga do Pages sobrescrito
 
-- **Severidade:** informativa no contexto atual.
-- **Localização:** resposta HTTP do projeto Pages, observada em 27/08/2026.
-- **Evidência:** o Cloudflare respondeu `Access-Control-Allow-Origin: *`.
-- **Impacto:** qualquer origem pode ler recursos públicos do site por
-  `fetch`; isso não expõe sessão, dados privados ou uma API porque o projeto é
-  somente estático e não define cookies ou endpoints de dados.
-- **Situação:** sem correção necessária para o conteúdo público atual.
-- **Recomendação:** restringir ou remover CORS caso o projeto passe a publicar
-  conteúdo privado ou uma API no mesmo domínio.
+- **Situação original (27/08/2026):** o Pages respondeu
+  `Access-Control-Allow-Origin: *`.
+- **Correção atual:** `public/_headers` define explicitamente
+  `Access-Control-Allow-Origin: https://www.telmaformadoraeducacional.com.br`.
+- **Gate:** a validação do artefato rejeita CORS curinga, e o healthcheck de
+  produção também falha se `*` voltar a aparecer.
+- **Observação:** o site continua público e estático; a restrição é hardening
+  preventivo e evita que uma futura mudança de escopo herde CORS aberto.
 
 ### Resultado dos controles
 
@@ -364,3 +370,59 @@ domínio personalizado ou permissões administrativas do painel Cloudflare.
 Esses controles permanecem dependentes da conta e foram verificados somente
 pelos comandos e respostas HTTP disponíveis neste ambiente. O token local do
 Wrangler não foi impresso nem alterado.
+
+
+## Auditoria de 23/09/2026
+
+Nova passagem de hardening sem alteração da arquitetura visual ou do modelo
+estático do site.
+
+### SEC-009 — Next.js desatualizado com advisories críticos
+
+- **Severidade:** alta na cadeia de dependências.
+- **Evidência:** a aplicação estava fixada em `next@16.3.1`.
+- **Correção:** atualização para `next@16.3.6`, incluindo `@next/env`,
+  binários SWC e `sharp@0.35.4` coerentes no lockfile.
+- **Tooling:** `eslint-config-next` e `@next/eslint-plugin-next` também foram
+  alinhados em `16.3.6`.
+
+### SEC-010 — CSP podia restringir melhor capacidades não utilizadas
+
+- **Severidade:** baixa, hardening preventivo.
+- **Correção:** acrescentados `script-src-attr 'none'`, `media-src 'none'`,
+  `frame-src 'none'`, `worker-src 'none'` e `manifest-src 'self'`;
+  `base-uri` passou a `'none'` e `form-action` a `'none'`.
+- **Headers complementares:** `X-Permitted-Cross-Domain-Policies: none` e
+  `X-DNS-Prefetch-Control: off`.
+- **Permissions-Policy:** bloqueio explícito também de acelerômetro, giroscópio,
+  magnetômetro, serial, HID, Bluetooth, autoplay e fullscreen.
+
+### SEC-011 — canal padronizado para reporte de vulnerabilidade
+
+- **Correção:** publicado `/.well-known/security.txt` conforme o formato
+  padronizado, reutilizando o endereço de contato que já é público no site.
+
+### Qualidade e acessibilidade desta revisão
+
+- relações ARIA do painel de Áreas de Atuação foram estabilizadas;
+- `aria-current` do menu passou a representar localização dentro da página;
+- o Manifesto não duplica texto para tecnologia assistiva durante a medição;
+- reveals, cortina e títulos respeitam `prefers-reduced-motion` também no
+  comportamento controlado por JavaScript;
+- o crédito de desenvolvimento aponta para a Gandra Tech usando
+  `noopener noreferrer`.
+
+### Gates esperados antes de publicação
+
+A revisão só deve ser publicada após:
+
+```bash
+npm ci
+npm run typecheck
+npm run lint
+npm run build
+npm audit --omit=dev --audit-level=high
+npm audit --audit-level=high
+```
+
+O workflow de CI executa esses gates com `npm ci --ignore-scripts` e mantém uma varredura completa de segredos com Gitleaks. O comando oficial de deploy também executa `npm run check:production` depois do upload; sem esse healthcheck verde, a publicação não deve ser tratada como validada.

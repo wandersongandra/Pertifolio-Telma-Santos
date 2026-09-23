@@ -47,9 +47,15 @@ export function Footer() {
 
           <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-ivory/60 md:pr-16">
             Design e desenvolvimento —{" "}
-            <span className="text-[12px] font-medium tracking-[0.08em] text-ivory">
+            <a
+              href="https://gandra.tech"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Wanderson Gandra — Gandra Tech (abre em nova aba)"
+              className="link-draw pb-0.5 text-[12px] font-medium tracking-[0.08em] text-ivory transition-colors hover:text-gold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-gold"
+            >
               Wanderson Gandra
-            </span>
+            </a>
           </p>
         </div>
       </div>

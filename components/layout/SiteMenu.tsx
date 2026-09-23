@@ -223,7 +223,7 @@ export function SiteMenu({ open, onClose, triggerRef }: SiteMenuProps) {
                         ref={index === 0 ? firstLinkRef : undefined}
                         href={item.href}
                         onClick={onClose}
-                        aria-current={isActive ? "page" : undefined}
+                        aria-current={isActive ? "location" : undefined}
                         className="group flex min-h-11 items-baseline gap-4 py-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-gold"
                       >
                         <span

@@ -597,7 +597,7 @@ export function AreasDeAtuacao() {
                   type="button"
                   role="tab"
                   aria-selected={isActive}
-                  aria-controls={`atuacao-panel-${area.id}`}
+                  aria-controls="atuacao-panel"
                   tabIndex={isActive ? 0 : -1}
                   variants={itemVariants}
                   onClick={() => select(area.id)}
@@ -646,9 +646,9 @@ export function AreasDeAtuacao() {
               agora é a borda de cada item do acordeão. */}
           <div ref={panelWrapperRef}>
             <div
-              id={`atuacao-panel-${renderedId}`}
+              id="atuacao-panel"
               role="tabpanel"
-              aria-labelledby={`atuacao-tab-${activeId}`}
+              aria-labelledby={`atuacao-tab-${renderedId}`}
               ref={panelRef}
             >
               <PanelContent key={renderedId} area={rendered} index={renderedIndex} compact={compact} />

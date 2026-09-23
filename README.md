@@ -283,7 +283,7 @@ texto corrido está no próprio arquivo da página.
 
 ##  Desenvolvimento local
 
-Requer **Node.js 20+** (o Next 16 não roda em versões anteriores).
+Requer **Node.js 20.9+** (requisito da linha Next.js 16.3).
 
 ```bash
 npm install
@@ -295,11 +295,13 @@ npm run dev          # http://localhost:3000
 | Comando | O que faz |
 |---|---|
 | `npm run dev` | Servidor de desenvolvimento com hot reload. |
-| `npm run build` | Build de produção. Gera o export estático em `out/`. |
-| `npm run preview:headers` | Serve `out/` **aplicando `public/_headers`**. Use para testar o CSP. |
-| `npm run deploy` | Build + publicação em produção no Cloudflare Pages. |
+| `npm run build` | Build de produção + flatten de prefetch + CSP por hashes SHA-256. |
+| `npm run validate:build-security` | Valida rotas, CSP, headers, artefatos sensíveis e crédito Gandra Tech no export. |
+| `npm run preview:headers` | Serve `out/` **aplicando `out/_headers`**. Use para testar o CSP final. |
+| `npm run check:production` | Faz healthcheck do domínio publicado e dos headers de segurança. |
+| `npm run deploy` | Build + validação de segurança + publicação em produção no Cloudflare Pages. |
 | `npm run lint` | ESLint. |
-| `npx tsc --noEmit` | Checagem de tipos. |
+| `npm run typecheck` | Checagem de tipos. |
 
 > `npm run start` existe por padrão do Next, mas **não serve para este projeto**:
 > com `output: "export"` não há servidor Next em produção. Para ver o build
@@ -339,11 +341,13 @@ em nenhuma URL canônica.
 Antes de publicar:
 
 ```bash
-npx tsc --noEmit                    # tipos
+npm run typecheck                   # tipos
 npm run lint                        # lint
-npm run build                       # o build precisa passar
-npm run preview:headers             # e o CSP precisa não quebrar a página
-npm audit --omit=dev                # dependências que chegam ao navegador
+npm run build                       # build + CSP por hashes
+npm run validate:build-security     # artefato final e headers
+npm run preview:headers             # CSP final precisa hidratar sem violações
+npm audit --omit=dev --audit-level=high
+npm audit --audit-level=high
 ```
 
 Com o `preview:headers` rodando, abra `http://localhost:4321` e confira no
@@ -376,14 +380,14 @@ Para publicar:
 npm run deploy
 ```
 
-Que é `npm run build` seguido de
-`wrangler pages deploy out --project-name=telma-santos --branch=main`.
+Que executa build, validação do artefato, `wrangler pages deploy out --project-name=telma-santos --branch=main` e, por último, `npm run check:production`. Se o healthcheck final falhar, o comando retorna erro e a publicação não é considerada validada.
 
-O `npm run build` é `next build` mais
-`node scripts/flatten-segment-prefetch.mjs` — **publique sempre pelo
-`npm run build`/`npm run deploy`, nunca pelo `next build` puro**, senão os
-payloads de prefetch das rotas internas voltam a dar 404. O porquê está em
-[`scripts/flatten-segment-prefetch.mjs`](scripts/flatten-segment-prefetch.mjs).
+O `npm run build` executa `next build`, corrige os payloads de prefetch com
+`scripts/flatten-segment-prefetch.mjs` e, por fim, gera a CSP estrita com
+hashes SHA-256 em `scripts/generate-csp.mjs`. **Publique sempre pelo
+`npm run build`/`npm run deploy`, nunca pelo `next build` puro**: além dos
+prefetches, o `next build` isolado não gera os hashes que autorizam a
+hidratação na CSP de produção.
 
 > ### O `--branch=main` não é opcional
 >
@@ -409,8 +413,7 @@ tem efeito em `next dev`**, por isso o `npm run preview:headers`.
    npx wrangler pages deployment list --project-name=telma-santos
    ```
    A linha mais recente precisa dizer **Production**.
-4. Conferir no ar: menu a partir de `/privacidade`, uma URL inexistente (404 em
-   português) e `/sitemap.xml` com o endereço correto.
+4. O próprio `npm run deploy` executa `npm run check:production` após o upload. O gate verifica as rotas públicas, 404, CSP por hashes, headers fortes, `security.txt` e o crédito/link da Gandra Tech.
 
 ### Se um dia conectar ao GitHub
 
@@ -456,18 +459,19 @@ O projeto busca manter boas práticas como:
 ##  Segurança
 
 O site é um export estático: **não há backend, banco de dados, autenticação,
-formulário com POST, cookie ou analytics**, e nenhum recurso de terceiros é
-carregado — nem fontes, que o `next/font` auto-hospeda no build.
+formulário com POST nem cookie próprio**. O único recurso de terceiro permitido
+é o **Cloudflare Web Analytics**, injetado pela própria hospedagem e limitado na
+CSP; as fontes continuam auto-hospedadas pelo `next/font`.
 
 O que protege o que resta são os headers em
 [`public/_headers`](public/_headers), aplicados pelo Cloudflare Pages: CSP
 travado em `'self'`, HSTS, `frame-ancestors 'none'`, `nosniff`,
-`Referrer-Policy`, `Cross-Origin-Opener-Policy` e `Permissions-Policy`
-desligando câmera, microfone, geolocalização, pagamento e USB.
+`Referrer-Policy`, `Cross-Origin-Opener-Policy`, `Cross-Origin-Resource-Policy`,
+`X-DNS-Prefetch-Control` e `Permissions-Policy` bloqueando APIs não usadas.
+Há também `/.well-known/security.txt` para reporte responsável de falhas.
 
 **[SECURITY.md](SECURITY.md)** detalha cada controle, explica as duas
-limitações conhecidas (`'unsafe-inline'` em `script-src`, obrigatório num export
-estático, e o `preload` do HSTS) e traz os comandos para reverificar tudo — CSP
+limitações conhecidas (`style-src 'unsafe-inline'` para estilos gerados em runtime e o `preload` do HSTS) e traz os comandos para reverificar tudo — CSP
 contra o build real, `npm audit`, varredura de origens externas no bundle e
 checagem de segredos versionados.
 

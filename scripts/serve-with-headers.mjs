@@ -1,9 +1,9 @@
-// Serve out/ aplicando exatamente os headers de public/_headers.
+// Serve out/ aplicando exatamente os headers FINAIS de out/_headers.
 //
-// Esses headers são aplicados pelo Cloudflare Pages e por mais nada — `next
-// dev` e `next start` ignoram o arquivo. Sem este script a
-// Content-Security-Policy só é exercitada quando já está em produção, onde um
-// erro aparece como página em branco.
+// public/_headers é apenas a política fonte fail-closed. Durante npm run build,
+// scripts/generate-csp.mjs substitui script-src pelos hashes SHA-256 reais dos
+// scripts inline e grava o resultado em out/_headers. O preview precisa ler o
+// artefato final; usar public/_headers faria a hidratação falhar por definição.
 //
 //     npm run build && npm run preview:headers
 //
@@ -15,8 +15,8 @@ import { readFile, stat } from "node:fs/promises";
 import path from "node:path";
 
 const ROOT = process.argv[2] ?? process.cwd();
-const HEADERS_FILE = path.join(ROOT, "public", "_headers");
 const OUT = path.join(ROOT, "out");
+const HEADERS_FILE = path.join(OUT, "_headers");
 const PORT = 4321;
 // Vincular ao loopback, não a 0.0.0.0. Este servidor existe só para conferir os
 // headers de um build local; ouvindo em todas as interfaces ele fica alcançável
@@ -25,7 +25,7 @@ const PORT = 4321;
 const HOST = "127.0.0.1";
 const OUT_ROOT = path.resolve(OUT);
 
-// public/_headers é uma lista de padrões de caminho, cada um seguido de linhas
+// out/_headers é uma lista de padrões de caminho, cada um seguido de linhas
 // indentadas no formato "Header: valor". O Cloudflare aplica toda regra cujo
 // padrão casa com o caminho da requisição, então um arquivo em /telma/ recebe
 // tanto as regras globais de /* quanto o seu próprio Cache-Control. Ler apenas
@@ -134,7 +134,7 @@ createServer(async (req, res) => {
   });
   res.end(req.method === "HEAD" ? undefined : body);
 }).listen(PORT, HOST, () => {
-  console.log("Regras lidas de public/_headers:");
+  console.log("Regras finais lidas de out/_headers:");
   for (const rule of rules) {
     console.log(`  ${rule.pattern} -> ${Object.keys(rule.headers).join(", ")}`);
   }
