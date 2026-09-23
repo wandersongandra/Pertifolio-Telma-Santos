@@ -364,3 +364,60 @@ domínio personalizado ou permissões administrativas do painel Cloudflare.
 Esses controles permanecem dependentes da conta e foram verificados somente
 pelos comandos e respostas HTTP disponíveis neste ambiente. O token local do
 Wrangler não foi impresso nem alterado.
+
+
+## Auditoria de 23/09/2026
+
+Nova passagem de hardening sem alteração da arquitetura visual ou do modelo
+estático do site.
+
+### SEC-009 — Next.js desatualizado com advisories críticos
+
+- **Severidade:** alta na cadeia de dependências.
+- **Evidência:** a aplicação estava fixada em `next@16.3.1`.
+- **Correção:** atualização para `next@16.3.6`, incluindo `@next/env`,
+  binários SWC e `sharp@0.35.4` coerentes no lockfile.
+- **Tooling:** `eslint-config-next` e `@next/eslint-plugin-next` também foram
+  alinhados em `16.3.6`.
+
+### SEC-010 — CSP podia restringir melhor capacidades não utilizadas
+
+- **Severidade:** baixa, hardening preventivo.
+- **Correção:** acrescentados `script-src-attr 'none'`, `media-src 'none'`,
+  `frame-src 'none'`, `worker-src 'none'` e `manifest-src 'self'`;
+  `base-uri` passou a `'none'` e `form-action` a `'none'`.
+- **Headers complementares:** `X-Permitted-Cross-Domain-Policies: none` e
+  `X-DNS-Prefetch-Control: off`.
+- **Permissions-Policy:** bloqueio explícito também de acelerômetro, giroscópio,
+  magnetômetro, serial, HID, Bluetooth, autoplay e fullscreen.
+
+### SEC-011 — canal padronizado para reporte de vulnerabilidade
+
+- **Correção:** publicado `/.well-known/security.txt` conforme o formato
+  padronizado, reutilizando o endereço de contato que já é público no site.
+
+### Qualidade e acessibilidade desta revisão
+
+- relações ARIA do painel de Áreas de Atuação foram estabilizadas;
+- `aria-current` do menu passou a representar localização dentro da página;
+- o Manifesto não duplica texto para tecnologia assistiva durante a medição;
+- reveals, cortina e títulos respeitam `prefers-reduced-motion` também no
+  comportamento controlado por JavaScript;
+- o crédito de desenvolvimento aponta para a Gandra Tech usando
+  `noopener noreferrer`.
+
+### Gates esperados antes de publicação
+
+A revisão só deve ser publicada após:
+
+```bash
+npm ci
+npm run typecheck
+npm run lint
+npm run build
+npm audit --omit=dev --audit-level=high
+npm audit --audit-level=high
+```
+
+O workflow de CI executa esses gates e mantém uma varredura completa de
+segredos com Gitleaks.
