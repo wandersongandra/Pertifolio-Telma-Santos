@@ -5,10 +5,8 @@ import { siteUrl } from "@/lib/site-url";
 // estaticamente.
 export const dynamic = "force-static";
 
-// "main" é a branch de produção do Pages e recebe apenas commits de "master"
- // que já passaram pelo CI. "master" também é aceito aqui para builds locais/CI
- // que não recebem a variável CF_PAGES_BRANCH.
-const PRODUCTION_BRANCHES = ["main", "master"];
+// "master" é a branch de produção conectada ao Cloudflare Pages.
+const PRODUCTION_BRANCHES = ["master"];
 
 // O Cloudflare Pages publica cada branch numa URL de preview própria, e esses
 // previews servem o mesmo robots.txt. Sem esta proteção, cópias não lançadas

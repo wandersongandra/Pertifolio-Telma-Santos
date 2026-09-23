@@ -256,10 +256,9 @@ pré-visualização, dependências e projeto Cloudflare Pages `telma-santos`.
   `.env`, chave privada, token, endpoint de API, upload, cookie de sessão,
   armazenamento web ou HTML inserido por string.
 - Os links externos usam `noopener noreferrer` quando abrem nova aba.
-- O pipeline de repositório usa `master` para merges e sincroniza para
-  `main` somente após CI verde. `main` é a branch esperada de produção do
-  Pages `telma-santos`. A integração Git/automatic deployments precisa estar
-  ativa no Cloudflare para que o push seja consumido.
+- O projeto Pages `telma-santos` está conectado diretamente ao GitHub com
+  `master` como branch de produção. Push/merge em `master` dispara o build e
+  o deployment automático.
 
 ## Auditoria de 28/08/2026
 
@@ -427,7 +426,7 @@ npm audit --audit-level=high
 ```
 
 O workflow de CI executa esses gates com `npm ci --ignore-scripts` e mantém
-uma varredura completa de segredos com Gitleaks. Depois do merge em `master`, um CI verde promove o mesmo commit para `main`.
-O Cloudflare Pages deve publicar automaticamente a partir de `main`; o workflow
-**Production Security Check** valida o domínio real. Sem esse healthcheck verde,
-a publicação não deve ser tratada como validada.
+uma varredura completa de segredos com Gitleaks. Depois do merge em `master`, o Cloudflare Pages publica automaticamente a
+partir da própria `master`; o workflow **Production Security Check** valida o
+domínio real. Sem esse healthcheck verde, a publicação não deve ser tratada como
+validada.

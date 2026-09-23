@@ -21,10 +21,10 @@ integrações de terceiros.
   sociais e a máquina do visitante.
 - Uso pretendido: site institucional público com links de contato; o nome e
   os canais publicados são dados deliberadamente públicos.
-- Modelo de implantação: `master` recebe merges; após CI verde, o workflow
-  `Sync Cloudflare Production Branch` faz fast-forward do commit validado para
-  `main`. O Cloudflare Pages `telma-santos` deve observar `main`, executar
-  `npm run build` e publicar `out/`. `npm run deploy` é fallback manual.
+- Modelo de implantação: `master` é a branch de produção conectada ao
+  Cloudflare Pages `telma-santos`. Push/merge em `master` dispara
+  `npm run build` e a publicação de `out/`. `npm run deploy` é fallback
+  manual.
 - Exposição: internet pública em `https://www.telmaformadoraeducacional.com.br`,
   domínio personalizado apontado no Cloudflare; `https://telma-santos.pages.dev`
   continua respondendo como endereço interno do projeto no Pages.
@@ -53,9 +53,8 @@ integrações de terceiros.
   pacote lockfile atravessam o limite de build local; o lockfile e o build
   determinam o artefato, mas scripts de instalação continuam sendo uma fronteira
   de cadeia de suprimentos.
-- GitHub → Cloudflare Pages: CI verde em `master` autoriza fast-forward para
-  `main`; o push em `main` deve acionar o build integrado do Pages. O
-  Wrangler é apenas caminho de recuperação manual.
+- GitHub → Cloudflare Pages: push/merge em `master` aciona o build integrado
+  do Pages. O Wrangler é apenas caminho de recuperação manual.
 - Cloudflare Pages → navegador: HTML, JS, CSS, fontes e imagens atravessam
   HTTPS; `_headers` entrega CSP, HSTS, `X-Frame-Options`, `nosniff`, COOP,
   Referrer-Policy e Permissions-Policy.
@@ -125,7 +124,7 @@ flowchart TD
    de arquivo fora de `out` → exposição de arquivos locais; a validação atual
    bloqueia esse caminho.
 4. Integração Git desconectada/pausada ou branch de produção divergente →
-   `main` não é consumida pelo Pages → produção permanece em versão antiga.
+   `master` não é consumida pelo Pages → produção permanece em versão antiga.
 5. Regressão futura de CORS para origem curinga → leitura cross-origin por
    qualquer origem → risco de exposição caso o domínio passe a servir dados
    não públicos. O artefato atual restringe CORS ao domínio canônico.
@@ -137,7 +136,7 @@ flowchart TD
 | TM-001 | Cadeia de suprimentos | Dependência ou script de build comprometido | Executar código no build e modificar `out/` | Site adulterado | Artefato, conteúdo | lockfile; `npm audit`; revisão; build estático | Não há verificação de assinatura do artefato | Usar `npm ci`, revisão de lockfile, proteção de branch e checagem de hash/preview antes do deploy | Alertar mudanças inesperadas em lockfile e no bundle; comparar deployment com commit | baixa | alta | medium |
 | TM-002 | Alteração futura do código | Novo dado externo chega a JSX, URL ou sink DOM | Inserir script, URL ativa ou markup não sanitizado | XSS no domínio público | Conteúdo e futura sessão | React escapa JSX; CSP de scripts usa hashes SHA-256, `script-src-attr 'none'`, `base-uri 'none'` e `form-action 'none'`; o build rejeita handlers inline e `javascript:` | `style-src` ainda usa `unsafe-inline` para estilos do React/Motion | Manter conteúdo estruturado, validar esquemas de URL, evitar sinks e reavaliar CSP ao adicionar integrações | Teste automatizado do artefato e revisão de qualquer terceiro | baixa | alta | medium |
 | TM-003 | Atacante na rede local | Servidor `preview:headers` em execução e alcançável | Enviar traversal ou método inesperado | Leitura local ou abuso do processo | Arquivos do desenvolvedor | validação com `path.relative`; somente GET/HEAD; 400 para URI inválida | O script ainda é uma ferramenta local e não deve ser exposto | Vincular a loopback se o uso em rede não for necessário | Teste de traversal e monitoramento do processo/porta 4321 | baixa | média | low |
-| TM-004 | Operador ou automação de deploy | Acesso de escrita ao repositório ou à integração Pages | Enviar código/artefato indevido ao branch de produção | Indisponibilidade ou fraude reputacional | Artefato, integridade da URL | PR/CI em `master`; sync somente após CI verde; `main` como branch de produção; healthcheck externo | Integração Cloudflare pode ser desconectada ou ter automatic deployments pausados | Proteger branches/integração e exigir checks | Alertas de deployment e correlação commit ↔ produção | baixa | alta | medium |
+| TM-004 | Operador ou automação de deploy | Acesso de escrita ao repositório ou à integração Pages | Enviar código/artefato indevido à branch de produção | Indisponibilidade ou fraude reputacional | Artefato, integridade da URL | PR/CI em `master`; Cloudflare Git integration; healthcheck externo | Integração Cloudflare pode ser desconectada ou ter automatic deployments pausados | Proteger branch/integração e exigir checks | Alertas de deployment e correlação commit ↔ produção | baixa | alta | medium |
 | TM-005 | Origem web arbitrária | Regressão futura de CORS ou conteúdo privado no mesmo domínio | Ler recurso cross-origin | Exposição cross-origin | Dados futuros | `Access-Control-Allow-Origin` restrito ao domínio canônico e gate que rejeita `*`; hoje não há cookies/API | Configuração edge pode regredir fora do código | Manter healthcheck de produção e rever CORS antes de qualquer API/dado privado | Teste de headers em cada release e inventário de recursos públicos | baixa | média | low |
 
 ## Criticality calibration

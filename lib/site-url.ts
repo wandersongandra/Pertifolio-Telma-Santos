@@ -1,12 +1,11 @@
 // URL pública do site, usada em metadataBase, URLs canônicas, sitemap.xml,
 // robots.txt e nas imagens de OpenGraph.
 //
-// master é a branch principal do repositório. Depois de CI verde, o workflow
-// Sync Cloudflare Production Branch faz fast-forward para main, branch usada
-// como produção no Pages. O push em main é o gatilho esperado do build/deploy
-// automático do Cloudflare. Em builds do Pages, CF_PAGES_URL/CF_PAGES_BRANCH
-// ficam disponíveis. O domínio próprio continua como fallback para builds
-// locais e CI, evitando metadata apontando para localhost.
+// master é a branch de produção conectada diretamente ao Cloudflare Pages.
+// Push/merge em master dispara o build/deploy automático. Em builds do Pages,
+// CF_PAGES_URL/CF_PAGES_BRANCH ficam disponíveis. O domínio próprio continua
+// como fallback para builds locais e CI, evitando metadata apontando para
+// localhost.
 //
 // Ordem de resolução:
 //   1. NEXT_PUBLIC_SITE_URL — sobrescreve tudo; use para builds de teste.
