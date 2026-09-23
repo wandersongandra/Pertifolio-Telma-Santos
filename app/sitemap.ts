@@ -12,9 +12,9 @@ export const dynamic = "force-static";
 // sitemap continuou anunciando a mesma data. Para o buscador isso significa
 // "nada mudou aqui", e é justamente o sinal que faz ele adiar a nova visita.
 //
-// Como este site é publicado à mão, por `npm run deploy`, e só quando há algo
-// para publicar, a data do build corresponde de fato à data em que a página
-// mudou. Não é uma data inventada para parecer recente.
+// Como o Cloudflare Pages recompila o site após merge/push no branch de
+// produção, a data do build acompanha uma publicação real. Não é uma data
+// inventada apenas para parecer recente.
 const HOME_LAST_MODIFIED = new Date();
 
 // As páginas legais são a exceção: elas não mudam quando o restante do site
