@@ -8,7 +8,7 @@
     "start": "next start",
     "preview:headers": "node scripts/serve-with-headers.mjs",
     "lint": "eslint",
-    "deploy": "npm run build && npm run validate:build-security && wrangler pages deploy out --project-name=telma-santos --branch=main",
+    "deploy": "npm run build && npm run validate:build-security && wrangler pages deploy out --project-name=telma-santos --branch=main && npm run check:production",
     "typecheck": "tsc --noEmit",
     "validate:build-security": "node scripts/validate-build-security.mjs",
     "check:production": "node scripts/check-production.mjs"
