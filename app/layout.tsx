@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import type { ReactNode } from "react";
 import Image from "next/image";
 import { Fraunces, Manrope } from "next/font/google";
 import { siteData } from "@/content/site-data";
@@ -68,7 +69,7 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html
       lang="pt-BR"
