@@ -4,12 +4,14 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build && node scripts/flatten-segment-prefetch.mjs",
+    "build": "next build && node scripts/flatten-segment-prefetch.mjs && node scripts/generate-csp.mjs",
     "start": "next start",
     "preview:headers": "node scripts/serve-with-headers.mjs",
     "lint": "eslint",
-    "deploy": "npm run build && wrangler pages deploy out --project-name=telma-santos --branch=main",
-    "typecheck": "tsc --noEmit"
+    "deploy": "npm run build && npm run validate:build-security && wrangler pages deploy out --project-name=telma-santos --branch=main",
+    "typecheck": "tsc --noEmit",
+    "validate:build-security": "node scripts/validate-build-security.mjs",
+    "check:production": "node scripts/check-production.mjs"
   },
   "dependencies": {
     "clsx": "^2.1.1",
