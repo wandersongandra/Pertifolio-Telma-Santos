@@ -38,13 +38,15 @@
 # interest-cohort=() ao lado cobre o nome antigo, que versões mais velhas ainda
 # entendem.
 /*
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://cloudflareinsights.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://cloudflareinsights.com; media-src 'none'; object-src 'none'; frame-src 'none'; worker-src 'none'; manifest-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'; upgrade-insecure-requests
   X-Frame-Options: DENY
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
   Cross-Origin-Opener-Policy: same-origin
-  Permissions-Policy: camera=(), microphone=(), geolocation=(), interest-cohort=(), browsing-topics=(), payment=(), usb=()
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), accelerometer=(), gyroscope=(), magnetometer=(), interest-cohort=(), browsing-topics=(), payment=(), usb=(), serial=(), hid=(), bluetooth=(), autoplay=(), fullscreen=()
   Cross-Origin-Resource-Policy: same-origin
+  X-Permitted-Cross-Domain-Policies: none
+  X-DNS-Prefetch-Control: off
   Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
 
 # O conteúdo recebe hash no build, então o nome muda quando os bytes mudam.
@@ -57,4 +59,10 @@
 # como imutáveis deixaria visitantes com uma foto ou logo antigo por até um ano,
 # sem possibilidade de invalidar o cache. Cache de um dia, com revalidação.
 /telma/*
+  Cache-Control: public, max-age=86400, must-revalidate
+
+
+# Security contact is intentionally short-lived in cache so it can be rotated
+# quickly if the reporting address changes.
+/.well-known/security.txt
   Cache-Control: public, max-age=86400, must-revalidate
