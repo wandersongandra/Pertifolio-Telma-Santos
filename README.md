@@ -380,8 +380,7 @@ Para publicar:
 npm run deploy
 ```
 
-Que é `npm run build` seguido de
-`wrangler pages deploy out --project-name=telma-santos --branch=main`.
+Que executa build, validação do artefato, `wrangler pages deploy out --project-name=telma-santos --branch=main` e, por último, `npm run check:production`. Se o healthcheck final falhar, o comando retorna erro e a publicação não é considerada validada.
 
 O `npm run build` executa `next build`, corrige os payloads de prefetch com
 `scripts/flatten-segment-prefetch.mjs` e, por fim, gera a CSP estrita com
@@ -414,8 +413,7 @@ tem efeito em `next dev`**, por isso o `npm run preview:headers`.
    npx wrangler pages deployment list --project-name=telma-santos
    ```
    A linha mais recente precisa dizer **Production**.
-4. Conferir no ar: menu a partir de `/privacidade`, uma URL inexistente (404 em
-   português) e `/sitemap.xml` com o endereço correto.
+4. O próprio `npm run deploy` executa `npm run check:production` após o upload. O gate verifica as rotas públicas, 404, CSP por hashes, headers fortes, `security.txt` e o crédito/link da Gandra Tech.
 
 ### Se um dia conectar ao GitHub
 
