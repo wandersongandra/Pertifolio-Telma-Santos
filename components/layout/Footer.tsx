@@ -51,10 +51,10 @@ export function Footer() {
               href="https://gandra.tech"
               target="_blank"
               rel="noopener noreferrer"
-              aria-label="Wanderson Gandra — Gandra Tech (abre em nova aba)"
+              aria-label="Gandra Tech — design e desenvolvimento (abre em nova aba)"
               className="link-draw pb-0.5 text-[12px] font-medium tracking-[0.08em] text-ivory transition-colors hover:text-gold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-gold"
             >
-              Wanderson Gandra
+              Gandra Tech
             </a>
           </p>
         </div>
