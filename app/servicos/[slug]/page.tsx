@@ -7,7 +7,6 @@ import {
   getServicePage,
   servicePages,
 } from "@/content/service-pages";
-import { siteData } from "@/content/site-data";
 import { siteUrl } from "@/lib/site-url";
 
 export function generateStaticParams() {
