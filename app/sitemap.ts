@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { siteUrl } from "@/lib/site-url";
+import { servicePages } from "@/content/service-pages";
 
 // Com `output: "export"` as rotas de metadados precisam ser geradas
 // estaticamente.
@@ -24,6 +25,13 @@ const HOME_LAST_MODIFIED = new Date();
 const LEGAL_LAST_MODIFIED = new Date("2026-08-27");
 
 export default function sitemap(): MetadataRoute.Sitemap {
+  const serviceUrls: MetadataRoute.Sitemap = servicePages.map((service) => ({
+    url: `${siteUrl}/servicos/${service.slug}`,
+    lastModified: HOME_LAST_MODIFIED,
+    changeFrequency: "monthly",
+    priority: 0.9,
+  }));
+
   return [
     {
       url: siteUrl,
@@ -31,6 +39,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "monthly",
       priority: 1,
     },
+    ...serviceUrls,
     {
       url: `${siteUrl}/privacidade`,
       lastModified: LEGAL_LAST_MODIFIED,
