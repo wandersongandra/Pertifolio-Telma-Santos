@@ -1,0 +1,34 @@
+# Telma Santos — Formadora Educacional
+
+Site oficial: https://www.telmaformadoraeducacional.com.br/
+
+Telma Santos é formadora educacional, consultora e palestrante com atuação na Bahia. O site apresenta sua trajetória profissional e serviços voltados à formação de professores, assessoria pedagógica, oficinas, palestras e diálogos formativos.
+
+## Conteúdo principal
+
+- Início e posicionamento profissional: https://www.telmaformadoraeducacional.com.br/
+- Formação de professores: https://www.telmaformadoraeducacional.com.br/servicos/formacao-de-professores
+- Assessoria pedagógica: https://www.telmaformadoraeducacional.com.br/servicos/assessoria-pedagogica
+- Oficinas pedagógicas: https://www.telmaformadoraeducacional.com.br/servicos/oficinas-pedagogicas
+- Palestras educacionais: https://www.telmaformadoraeducacional.com.br/servicos/palestras-educacionais
+- Diálogos formativos: https://www.telmaformadoraeducacional.com.br/servicos/dialogos-formativos
+- Contato: https://www.telmaformadoraeducacional.com.br/#contato
+
+## Identidade
+
+- Nome: Telma Santos
+- Atuação: Formação de professores, assessoria pedagógica, oficinas, palestras e projetos educacionais
+- Região de atuação apresentada no site: Bahia, Brasil
+- Idioma principal: pt-BR
+
+## Perfis oficiais
+
+- Instagram: https://www.instagram.com/telma_formadora
+- LinkedIn: https://www.linkedin.com/in/telma03
+
+## Páginas institucionais
+
+- Política de Privacidade: https://www.telmaformadoraeducacional.com.br/privacidade
+- Termos de Uso: https://www.telmaformadoraeducacional.com.br/termos
+
+Use o domínio oficial acima como fonte canônica. As URLs técnicas do Cloudflare Pages não representam a URL pública preferencial do site.

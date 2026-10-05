@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore } from "react";
+import Link from "next/link";
 import {
   animate,
   motion,
@@ -10,6 +11,7 @@ import {
 } from "motion/react";
 import { useLenis } from "lenis/react";
 import { siteData, type AreaOfPractice } from "@/content/site-data";
+import { getServicePageByAreaId } from "@/content/service-pages";
 import { useReducedMotion } from "@/lib/useReducedMotion";
 import { Kicker } from "@/components/ui/Kicker";
 import { AreaDetailPanel } from "@/components/sections/AreaDetailPanel";
@@ -64,6 +66,7 @@ function PanelContent({
     ? { opacity: 0, transform: `translateY(${slideY}px)` }
     : undefined;
   const motionAttr = (name: string) => (animated ? name : undefined);
+  const servicePage = getServicePageByAreaId(area.id);
 
   return (
     <>
@@ -105,6 +108,14 @@ function PanelContent({
         className="mt-10 border-t border-ivory/10 pt-9 md:mt-14 md:pt-12"
       >
         <AreaDetailPanel detail={area.detail} />
+        {servicePage && (
+          <Link
+            href={`/servicos/${servicePage.slug}`}
+            className="link-draw mt-8 inline-flex min-h-11 items-center pb-1 text-[12px] font-semibold uppercase tracking-[0.14em] text-ivory transition-colors hover:text-gold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-gold"
+          >
+            Ver esta área em detalhes ↗
+          </Link>
+        )}
       </div>
     </>
   );

@@ -430,3 +430,35 @@ uma varredura completa de segredos com Gitleaks. Depois do merge em `master`, o 
 partir da própria `master`; o workflow **Production Security Check** valida o
 domínio real. Sem esse healthcheck verde, a publicação não deve ser tratada como
 validada.
+
+## Auditoria de 05/10/2026
+
+### SEC-012 — canonical apontando para deployment técnico do Cloudflare Pages
+
+- **Severidade:** alta para SEO e identidade canônica, sem impacto de execução de código.
+- **Evidência:** o build de produção resolvia `siteUrl` por `CF_PAGES_URL`, que no Pages é uma URL imutável como `https://<hash>.telma-santos.pages.dev`.
+- **Impacto:** `metadataBase`, canonical, sitemap, Open Graph e JSON-LD do domínio próprio apontavam para a URL técnica do deployment. O Search Console marcou a home como `Canonicalised` e o sitemap apresentava erros.
+- **Correção:** `CF_PAGES_URL` foi removida da resolução canônica. O domínio público `https://www.telmaformadoraeducacional.com.br` é o fallback canônico em todos os builds; `NEXT_PUBLIC_SITE_URL` permanece apenas como override explícito para testes controlados.
+
+### SEC-013 — dependências de tooling com advisories altos
+
+- **Severidade:** alta na cadeia de desenvolvimento, sem vulnerabilidade encontrada nas dependências de produção.
+- **Evidência:** o CI encontrou nove vulnerabilidades no conjunto completo de dependências, concentradas em `eslint-config-next`/glob tooling e `wrangler`/Miniflare/Undici.
+- **Correção:** removidos `eslint`, `eslint-config-next` e `wrangler` do projeto. O lint passou a ser estrutural e local, sem dependências externas, e o deploy continua exclusivamente pelo Cloudflare Pages integrado ao GitHub.
+- **Framework:** Next.js atualizado para `16.3.8`.
+- **Resultado verificado no novo lockfile:** `npm ci --ignore-scripts` reportou `found 0 vulnerabilities`.
+
+### SEC-014 — ampliação dos gates de supply chain
+
+- Dependabot agora cobre também GitHub Actions.
+- OSV Scanner analisa o `package-lock.json`.
+- O Dependency Review do GitHub não está habilitado neste repositório porque o Dependency Graph da conta ainda não está ativo; `npm audit` e OSV permanecem como gates bloqueantes.
+- CodeQL executa em push, pull request e agenda semanal.
+- Gitleaks continua varrendo o histórico completo.
+
+### SEO técnico complementar
+
+- meta description principal encurtada para reduzir truncamento em resultados de busca;
+- publicado `/llms.txt` com domínio canônico, áreas de atuação e perfis oficiais;
+- build e healthcheck passaram a exigir a presença do `llms.txt`.
+

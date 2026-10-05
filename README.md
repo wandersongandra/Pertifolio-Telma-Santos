@@ -299,7 +299,6 @@ npm run dev          # http://localhost:3000
 | `npm run validate:build-security` | Valida rotas, CSP, headers, artefatos sensíveis e crédito Gandra Tech no export. |
 | `npm run preview:headers` | Serve `out/` **aplicando `out/_headers`**. Use para testar o CSP final. |
 | `npm run check:production` | Faz healthcheck do domínio publicado e dos headers de segurança. |
-| `npm run deploy` | Build + validação de segurança + publicação em produção no Cloudflare Pages. |
 | `npm run lint` | ESLint. |
 | `npm run typecheck` | Checagem de tipos. |
 
@@ -316,12 +315,12 @@ Nenhuma é obrigatória: o build funciona sem configurar nada.
 | Variável | Quando existe | Para quê |
 |---|---|---|
 | `NEXT_PUBLIC_SITE_URL` | Se você definir | URL pública do site. Sobrescreve o domínio próprio; útil para builds de teste. |
-| `CF_PAGES_URL` / `CF_PAGES_BRANCH` | Cloudflare Pages | Informam a URL/branch do deployment durante o build integrado ao Git. |
+| `CF_PAGES_URL` / `CF_PAGES_BRANCH` | Cloudflare Pages | Informam a URL/branch do deployment; apenas `CF_PAGES_BRANCH` influencia o robots dos previews. `CF_PAGES_URL` nunca é usado como canônico. |
 
 A resolução está em [`lib/site-url.ts`](lib/site-url.ts):
 
 ```
-NEXT_PUBLIC_SITE_URL  →  CF_PAGES_URL  →  https://www.telmaformadoraeducacional.com.br
+NEXT_PUBLIC_SITE_URL  →  https://www.telmaformadoraeducacional.com.br
 ```
 
 O último valor é o endereço real de produção, e não `localhost`, justamente
@@ -329,7 +328,9 @@ porque builds locais/CI também precisam de um fallback seguro: localhost seria 
 dentro do `sitemap.xml`.
 
 Alimenta `metadataBase`, as URLs canônicas, `sitemap.xml`, `robots.txt` e as
-imagens de OpenGraph. O domínio definitivo
+imagens de OpenGraph. A URL técnica de deployment do Cloudflare Pages é ignorada
+como origem canônica para impedir que builds de produção apontem para
+`<hash>.telma-santos.pages.dev`. O domínio definitivo
 (`www.telmaformadoraeducacional.com.br`) já é o valor padrão; `telma-santos.pages.dev`
 continua respondendo como endereço interno do projeto no Pages, mas não é usado
 em nenhuma URL canônica.
@@ -391,11 +392,10 @@ hashes SHA-256 em `scripts/generate-csp.mjs`. O Cloudflare Pages deve usar
 `npm run build` como comando de build e publicar `out/`; `next build`
 isolado não executa os pós-processamentos de segurança.
 
-> ### Fallback manual com Wrangler
->
-> Se o deploy manual for usado em emergência, o script `npm run deploy`
-> continua apontando explicitamente para o projeto `telma-santos` e executa
-> o healthcheck depois do upload. O fluxo padrão, porém, é GitHub → Cloudflare.
+> O repositório não mantém mais o Wrangler como dependência de desenvolvimento.
+> A publicação é feita pelo fluxo GitHub → Cloudflare Pages; isso reduz a
+> superfície da cadeia de dependências e evita carregar tooling de deploy no
+> projeto quando o Pages já está integrado ao Git.
 
 ### O que vai junto no deploy
 

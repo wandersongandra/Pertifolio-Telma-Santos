@@ -23,6 +23,15 @@ function toSafeJsonLd(value: unknown): string {
   return JSON.stringify(value).replace(/</g, "\u003c");
 }
 
+export function StructuredDataBlock({ data }: { data: unknown }) {
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: toSafeJsonLd(data) }}
+    />
+  );
+}
+
 export function StructuredData() {
   const { meta, sobre, areasDeAtuacao, contato } = siteData;
 
@@ -89,13 +98,8 @@ export function StructuredData() {
   ];
 
   return (
-    <script
-      type="application/ld+json"
-      // Necessário: o React escaparia `"` e `&` como entidades HTML no texto do
-      // elemento, e entidade não é decodificada dentro de <script> — o JSON
-      // chegaria quebrado ao buscador. O conteúdo vem de site-data.ts, não do
-      // visitante, e passa por toSafeJsonLd.
-      dangerouslySetInnerHTML={{ __html: toSafeJsonLd({ "@context": "https://schema.org", "@graph": graph }) }}
+    <StructuredDataBlock
+      data={{ "@context": "https://schema.org", "@graph": graph }}
     />
   );
 }

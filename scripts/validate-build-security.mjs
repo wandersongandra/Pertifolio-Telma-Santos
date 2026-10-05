@@ -3,15 +3,26 @@ import path from "node:path";
 
 const root = process.cwd();
 const outDir = path.join(root, "out");
-const expectedRoutes = ["/", "/privacidade", "/termos"];
+const expectedRoutes = [
+  "/",
+  "/servicos/formacao-de-professores",
+  "/servicos/assessoria-pedagogica",
+  "/servicos/oficinas-pedagogicas",
+  "/servicos/palestras-educacionais",
+  "/servicos/dialogos-formativos",
+  "/privacidade",
+  "/termos",
+];
 const expectedPublicFiles = [
   "_headers",
   "robots.txt",
   "sitemap.xml",
   "manifest.webmanifest",
+  "llms.txt",
   ".well-known/security.txt",
 ];
 const failures = [];
+const canonicalOrigin = "https://www.telmaformadoraeducacional.com.br";
 
 function exists(relativePath) {
   return fs.existsSync(path.join(outDir, relativePath));
@@ -79,11 +90,33 @@ if (!fs.existsSync(outDir) || !fs.statSync(outDir).isDirectory()) {
     if (/\b(?:src|href|action)\s*=\s*["']http:\/\//i.test(html)) {
       failures.push(`recurso HTTP inseguro encontrado em ${relative}`);
     }
+
+    const canonical = html.match(/<link[^>]+rel=["']canonical["'][^>]+href=["']([^"']+)["']/i)
+      ?? html.match(/<link[^>]+href=["']([^"']+)["'][^>]+rel=["']canonical["']/i);
+    if (!canonical) {
+      failures.push(`canonical ausente em ${relative}`);
+    } else if (!canonical[1].startsWith(canonicalOrigin)) {
+      failures.push(`canonical fora do domínio oficial em ${relative}: ${canonical[1]}`);
+    }
+
+    if (/\.pages\.dev(?:\/|["'])/i.test(html)) {
+      failures.push(`URL técnica do Cloudflare Pages encontrada em ${relative}`);
+    }
+  }
+
+  const sitemapXml = fs.readFileSync(path.join(outDir, "sitemap.xml"), "utf8");
+  if (sitemapXml.includes(".pages.dev")) failures.push("sitemap contém URL técnica do Cloudflare Pages");
+  if (!sitemapXml.includes(canonicalOrigin)) failures.push("sitemap não contém o domínio canônico oficial");
+
+  const robotsTxt = fs.readFileSync(path.join(outDir, "robots.txt"), "utf8");
+  if (robotsTxt.includes(".pages.dev")) failures.push("robots.txt contém URL técnica do Cloudflare Pages");
+  if (!robotsTxt.includes(`${canonicalOrigin}/sitemap.xml`)) {
+    failures.push("robots.txt não aponta para o sitemap canônico oficial");
   }
 
   const indexHtml = fs.readFileSync(path.join(outDir, "index.html"), "utf8");
   if (!indexHtml.includes("https://gandra.tech")) failures.push("link da Gandra Tech ausente na home exportada");
-  if (!indexHtml.includes("Wanderson Gandra")) failures.push("crédito Wanderson Gandra ausente na home exportada");
+  if (!indexHtml.includes("Gandra Tech")) failures.push("crédito Gandra Tech ausente na home exportada");
 
   const headers = fs.readFileSync(path.join(outDir, "_headers"), "utf8");
   const requiredHeaders = [

@@ -1,28 +1,20 @@
-// URL pública do site, usada em metadataBase, URLs canônicas, sitemap.xml,
-// robots.txt e nas imagens de OpenGraph.
+// URL pública canônica do site, usada em metadataBase, URLs canônicas,
+// sitemap.xml, robots.txt, Open Graph e dados estruturados.
 //
-// master é a branch de produção conectada diretamente ao Cloudflare Pages.
-// Push/merge em master dispara o build/deploy automático. Em builds do Pages,
-// CF_PAGES_URL/CF_PAGES_BRANCH ficam disponíveis. O domínio próprio continua
-// como fallback para builds locais e CI, evitando metadata apontando para
-// localhost.
+// IMPORTANTE: a URL de deployment do Cloudflare Pages (CF_PAGES_URL) não deve
+// ser usada como canônica. Em produção, cada build recebe uma URL imutável como
+// `https://<hash>.telma-santos.pages.dev`; se ela entra no metadataBase,
+// sitemap e JSON-LD, o domínio próprio passa a apontar para a URL técnica do
+// Pages e o Google canonicaliza as páginas para o preview/deployment.
 //
-// Ordem de resolução:
-//   1. NEXT_PUBLIC_SITE_URL — sobrescreve tudo; use para builds de teste.
-//   2. CF_PAGES_URL — fornecida pelo Cloudflare Pages no build integrado ao Git.
-//   3. PRODUCTION_URL — o domínio próprio, com `www`.
+// Previews já são bloqueados em app/robots.ts. Portanto, mesmo nos builds de
+// branch/preview, manter o domínio público como referência canônica é a opção
+// mais segura e evita competir com a produção.
 //
-// Por que `www` e não o apex: hoje só `www.telmaformadoraeducacional.com.br`
-// está registrado como domínio personalizado do projeto Pages e responde 200.
-// O apex (`telmaformadoraeducacional.com.br`) está sem registro DNS. Declarar
-// como canônico um endereço que não resolve manda o Google indexar uma página
-// morta, então o canônico acompanha o que de fato responde.
-//
-// Quando o apex voltar, o certo é inverter: apex como canônico e `www` com
-// redirect 301 para ele. Basta trocar a constante abaixo e republicar.
+// NEXT_PUBLIC_SITE_URL continua disponível apenas como override explícito para
+// testes controlados. Na ausência dele, sempre usamos o domínio público real.
 const PRODUCTION_URL = "https://www.telmaformadoraeducacional.com.br";
 
-const resolved =
-  process.env.NEXT_PUBLIC_SITE_URL ?? process.env.CF_PAGES_URL ?? PRODUCTION_URL;
+const resolved = process.env.NEXT_PUBLIC_SITE_URL ?? PRODUCTION_URL;
 
 export const siteUrl = resolved.replace(/\/$/, "");
