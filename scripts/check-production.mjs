@@ -1,6 +1,11 @@
 const baseUrl = "https://www.telmaformadoraeducacional.com.br";
 const routes = [
   "/",
+  "/servicos/formacao-de-professores",
+  "/servicos/assessoria-pedagogica",
+  "/servicos/oficinas-pedagogicas",
+  "/servicos/palestras-educacionais",
+  "/servicos/dialogos-formativos",
   "/privacidade",
   "/termos",
   "/sitemap.xml",
