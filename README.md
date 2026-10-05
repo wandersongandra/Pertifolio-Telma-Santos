@@ -316,12 +316,12 @@ Nenhuma é obrigatória: o build funciona sem configurar nada.
 | Variável | Quando existe | Para quê |
 |---|---|---|
 | `NEXT_PUBLIC_SITE_URL` | Se você definir | URL pública do site. Sobrescreve o domínio próprio; útil para builds de teste. |
-| `CF_PAGES_URL` / `CF_PAGES_BRANCH` | Cloudflare Pages | Informam a URL/branch do deployment durante o build integrado ao Git. |
+| `CF_PAGES_URL` / `CF_PAGES_BRANCH` | Cloudflare Pages | Informam a URL/branch do deployment; `CF_PAGES_URL` não é usado como canônico. |
 
 A resolução está em [`lib/site-url.ts`](lib/site-url.ts):
 
 ```
-NEXT_PUBLIC_SITE_URL  →  CF_PAGES_URL  →  https://www.telmaformadoraeducacional.com.br
+NEXT_PUBLIC_SITE_URL  →  https://www.telmaformadoraeducacional.com.br
 ```
 
 O último valor é o endereço real de produção, e não `localhost`, justamente
@@ -329,7 +329,9 @@ porque builds locais/CI também precisam de um fallback seguro: localhost seria 
 dentro do `sitemap.xml`.
 
 Alimenta `metadataBase`, as URLs canônicas, `sitemap.xml`, `robots.txt` e as
-imagens de OpenGraph. O domínio definitivo
+imagens de OpenGraph. A URL técnica de deployment do Cloudflare Pages é ignorada
+como origem canônica para impedir que builds de produção apontem para
+`<hash>.telma-santos.pages.dev`. O domínio definitivo
 (`www.telmaformadoraeducacional.com.br`) já é o valor padrão; `telma-santos.pages.dev`
 continua respondendo como endereço interno do projeto no Pages, mas não é usado
 em nenhuma URL canônica.
