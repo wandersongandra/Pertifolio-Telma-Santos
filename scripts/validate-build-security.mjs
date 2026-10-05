@@ -3,7 +3,16 @@ import path from "node:path";
 
 const root = process.cwd();
 const outDir = path.join(root, "out");
-const expectedRoutes = ["/", "/privacidade", "/termos"];
+const expectedRoutes = [
+  "/",
+  "/servicos/formacao-de-professores",
+  "/servicos/assessoria-pedagogica",
+  "/servicos/oficinas-pedagogicas",
+  "/servicos/palestras-educacionais",
+  "/servicos/dialogos-formativos",
+  "/privacidade",
+  "/termos",
+];
 const expectedPublicFiles = [
   "_headers",
   "robots.txt",
