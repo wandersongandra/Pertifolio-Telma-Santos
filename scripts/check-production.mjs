@@ -6,6 +6,7 @@ const routes = [
   "/sitemap.xml",
   "/robots.txt",
   "/manifest.webmanifest",
+  "/llms.txt",
   "/.well-known/security.txt",
 ];
 
