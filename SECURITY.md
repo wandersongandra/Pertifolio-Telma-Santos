@@ -451,8 +451,8 @@ validada.
 ### SEC-014 — ampliação dos gates de supply chain
 
 - Dependabot agora cobre também GitHub Actions.
-- Dependency Review bloqueia novas dependências com severidade moderada ou superior em PRs.
 - OSV Scanner analisa o `package-lock.json`.
+- O Dependency Review do GitHub não está habilitado neste repositório porque o Dependency Graph da conta ainda não está ativo; `npm audit` e OSV permanecem como gates bloqueantes.
 - CodeQL executa em push, pull request e agenda semanal.
 - Gitleaks continua varrendo o histórico completo.
 
