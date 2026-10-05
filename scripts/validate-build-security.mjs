@@ -9,6 +9,7 @@ const expectedPublicFiles = [
   "robots.txt",
   "sitemap.xml",
   "manifest.webmanifest",
+  "llms.txt",
   ".well-known/security.txt",
 ];
 const failures = [];
