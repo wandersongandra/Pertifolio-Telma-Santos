@@ -28,6 +28,16 @@ const requiredHeaders = [
 ];
 
 const failures = [];
+const htmlRoutes = new Set([
+  "/",
+  "/servicos/formacao-de-professores",
+  "/servicos/assessoria-pedagogica",
+  "/servicos/oficinas-pedagogicas",
+  "/servicos/palestras-educacionais",
+  "/servicos/dialogos-formativos",
+  "/privacidade",
+  "/termos",
+]);
 
 function validateCsp(csp, route) {
   if (!csp) return;
@@ -99,10 +109,38 @@ for (const route of routes) {
 
     validateCsp(response.headers.get("content-security-policy"), route);
 
-    if (route === "/" && response.ok) {
+    if (htmlRoutes.has(route) && response.ok) {
       const body = await response.text();
-      if (!body.includes("https://gandra.tech")) failures.push("/: link da Gandra Tech ausente");
-      if (!body.includes("Wanderson Gandra")) failures.push("/: crédito Wanderson Gandra ausente");
+      const canonical =
+        body.match(/<link[^>]+rel=["']canonical["'][^>]+href=["']([^"']+)["']/i) ??
+        body.match(/<link[^>]+href=["']([^"']+)["'][^>]+rel=["']canonical["']/i);
+
+      if (!canonical) failures.push(`${route}: canonical ausente`);
+      else if (!canonical[1].startsWith(baseUrl)) {
+        failures.push(`${route}: canonical fora do domínio oficial (${canonical[1]})`);
+      }
+
+      if (body.includes(".pages.dev")) {
+        failures.push(`${route}: referência canônica indevida ao Cloudflare Pages`);
+      }
+
+      if (route === "/") {
+        if (!body.includes("https://gandra.tech")) failures.push("/: link da Gandra Tech ausente");
+        if (!body.includes("Wanderson Gandra")) failures.push("/: crédito Wanderson Gandra ausente");
+      }
+    }
+
+    if (route === "/sitemap.xml" && response.ok) {
+      const body = await response.text();
+      if (body.includes(".pages.dev")) failures.push("/sitemap.xml: contém URL técnica do Pages");
+      if (!body.includes(baseUrl)) failures.push("/sitemap.xml: domínio canônico oficial ausente");
+    }
+
+    if (route === "/robots.txt" && response.ok) {
+      const body = await response.text();
+      if (!body.includes(`Sitemap: ${baseUrl}/sitemap.xml`)) {
+        failures.push("/robots.txt: sitemap canônico incorreto");
+      }
     }
 
     if (route === "/.well-known/security.txt" && response.ok) {
