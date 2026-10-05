@@ -116,7 +116,7 @@ if (!fs.existsSync(outDir) || !fs.statSync(outDir).isDirectory()) {
 
   const indexHtml = fs.readFileSync(path.join(outDir, "index.html"), "utf8");
   if (!indexHtml.includes("https://gandra.tech")) failures.push("link da Gandra Tech ausente na home exportada");
-  if (!indexHtml.includes("Wanderson Gandra")) failures.push("crédito Wanderson Gandra ausente na home exportada");
+  if (!indexHtml.includes("Gandra Tech")) failures.push("crédito Gandra Tech ausente na home exportada");
 
   const headers = fs.readFileSync(path.join(outDir, "_headers"), "utf8");
   const requiredHeaders = [
