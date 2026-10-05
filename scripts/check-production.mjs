@@ -126,7 +126,7 @@ for (const route of routes) {
 
       if (route === "/") {
         if (!body.includes("https://gandra.tech")) failures.push("/: link da Gandra Tech ausente");
-        if (!body.includes("Wanderson Gandra")) failures.push("/: crédito Wanderson Gandra ausente");
+        if (!body.includes("Gandra Tech")) failures.push("/: crédito Gandra Tech ausente");
       }
     }
 
@@ -183,6 +183,6 @@ if (failures.length) {
   process.exitCode = 1;
 } else {
   console.log(
-    `Healthcheck de produção passou: ${routes.length} URLs, 404, CSP por hash, headers, security.txt e crédito Gandra Tech validados.`
+    `Healthcheck de produção passou: ${routes.length} URLs, 404, CSP por hash, headers, security.txt, canonical e crédito Gandra Tech validados.`
   );
 }
