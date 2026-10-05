@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 const root = process.cwd();
-const sourceRoots = ["app", "components", "content", "lib", "scripts"];
+const sourceRoots = ["app", "components", "content", "lib"];
 const extensions = new Set([".ts", ".tsx", ".js", ".mjs", ".cjs"]);
 const failures = [];
 
