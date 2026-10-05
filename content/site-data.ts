@@ -116,7 +116,7 @@ export const siteData: SiteData = {
     seoTitle: "Telma Santos — Formação de Professores na Bahia",
     tagline: "Educação, formação e práticas pedagógicas que transformam.",
     description:
-      "Telma Santos é formadora educacional com mais de duas décadas de atuação na Bahia, em formação de professores, assessoria pedagógica a redes municipais, oficinas, palestras e desenvolvimento educacional.",
+      "Telma Santos atua na Bahia com formação de professores, assessoria pedagógica a redes municipais, oficinas, palestras e projetos educacionais.",
   },
 
   nav: [
