@@ -3,7 +3,6 @@ import { AreaDetailPanel } from "@/components/sections/AreaDetailPanel";
 import { siteData } from "@/content/site-data";
 import {
   getAreaForService,
-  getServicePageByAreaId,
   servicePages,
   type ServicePage,
 } from "@/content/service-pages";
